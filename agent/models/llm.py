@@ -21,8 +21,8 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
 # Bảng giá ước tính Google Gemini (USD / 1,000,000 tokens)
 GEMINI_PRICING = {
-    "default": {"input_per_m": 0.075, "output_per_m": 0.30},
-    "gemini-2.5-flash": {"input_per_m": 0.075, "output_per_m": 0.30},
+    "default": {"input_per_m": 0.30, "output_per_m": 2.50},
+    "gemini-2.5-flash": {"input_per_m": 0.30, "output_per_m": 2.50},
     "gemini-2.0-flash": {"input_per_m": 0.10, "output_per_m": 0.40},
     "gemini-1.5-flash": {"input_per_m": 0.075, "output_per_m": 0.30},
     "gemini-1.5-pro": {"input_per_m": 1.25, "output_per_m": 5.00},

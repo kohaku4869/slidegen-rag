@@ -22,7 +22,19 @@ class BaseEmbeddingModel(ABC):
 
 class EmbeddingModel(BaseEmbeddingModel):
     def __init__(self, model_name="BAAI/bge-m3", cache_folder=MODELS_DIR):
-        self.model = SentenceTransformer(model_name, cache_folder=cache_folder)
+        try:
+            self.model = SentenceTransformer(
+                model_name, 
+                cache_folder=cache_folder, 
+                local_files_only=True
+            )
+        except Exception:
+            self.model = SentenceTransformer(
+                model_name, 
+                cache_folder=cache_folder, 
+                local_files_only=False
+            )
+
 
     def create_embedding(self, text):
         return self.model.encode(text)

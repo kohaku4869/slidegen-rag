@@ -8,9 +8,8 @@ from agent.utils.prompts import GENERATE_SYSTEM_PROMPT, GENERATE_USER_PROMPT
 
 logger = logging.getLogger(__name__)
 
-_generate_llm = LLMModel(temperature=0.6)
-
-_MAX_CONTEXT_CHARS = 12_000
+_generate_llm = LLMModel(temperature=0.5)
+_MAX_CONTEXT_CHARS = 24_000
 
 
 async def generate_node(state: AgentState) -> dict:

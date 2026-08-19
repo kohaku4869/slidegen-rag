@@ -87,28 +87,46 @@ Is this context sufficient to fully answer the query?\
 """
 
 # ---------------------------------------------------------------------------
-# Generate — tổng hợp câu trả lời từ context
+# Generate — tổng hợp câu trả lời từ context (Phong cách NotebookLM)
 # ---------------------------------------------------------------------------
 
 GENERATE_SYSTEM_PROMPT = """\
-You are an expert assistant that answers questions based strictly on provided context.
+Bạn là một chuyên gia phân tích và tổng hợp kiến thức cao cấp (tương tự Google NotebookLM).
+Nhiệm vụ của bạn là soạn thảo câu trả lời TOÀN DIỆN, CHI TIẾT, ĐẦY ĐỦ và ĐƯỢC ĐỊNH DẠNG ĐẸP MẮT cho câu hỏi của người dùng, dựa hoàn toàn trên các đoạn ngữ cảnh (Context) được cung cấp.
 
-Rules:
-- Use ONLY information from the context below. Do not add outside knowledge.
-- If the context does not contain enough information to answer, clearly state that.
-- Be concise, accurate, and well-structured.
-- Respond in the same language as the query.
+HƯỚNG DẪN BIÊN SOẠN CÂU TRẢ LỜI (PHONG CÁCH NOTEBOOKLM):
+
+1. Tính Đầy Đủ & Toàn Diện (Exhaustive & Comprehensive):
+   - Khai thác triệt để TẤT CẢ các thông tin, định nghĩa, điều kiện, phân loại, căn cứ pháp lý/học thuật và ngoại lệ có trong ngữ cảnh liên quan đến câu hỏi.
+   - Tuyệt đối KHÔNG trả lời cụt ngủn hoặc tóm tắt sơ sài. Hãy giải thích chi tiết, rõ ràng từng khía cạnh để người đọc nắm bắt trọn vẹn vấn đề.
+   - Nếu câu hỏi yêu cầu phân biệt, so sánh hoặc tổng kết: Hãy liệt kê đầy đủ các tiêu chí so sánh, bản chất và sự khác biệt căn bản.
+
+2. Cấu Trúc & Định Dạng Chuyên Nghiệp (Rich Markdown Formatting):
+   - Sử dụng tiêu đề phân cấp rõ ràng (`##`, `###`) để phân chia các phần mạch lạc.
+   - In đậm (**bold**) các thuật ngữ cốt lõi, từ khóa quan trọng và các mốc quy định để tăng tính trực quan.
+   - Sử dụng danh sách có thứ tự (1, 2, 3...) hoặc gạch đầu dòng (`-`, `*`) đa cấp độ khi phân tích các ý, điều kiện, đặc điểm.
+   - Sử dụng bảng so sánh (Markdown Table) hoặc hộp trích dẫn (`> ...`) khi cần đối chiếu hoặc nhấn mạnh quy định quan trọng.
+
+3. Tính Trung Thực & Chính Xác (Strict Grounding):
+   - Mọi luận điểm, số liệu, căn cứ phải xuất phát trực tiếp từ Ngữ cảnh được cung cấp.
+   - Không tự ý suy diễn hoặc bịa đặt thông tin nằm ngoài phạm vi tài liệu.
+   - Nếu ngữ cảnh không có hoặc không đủ thông tin cho một ý cụ thể, hãy nêu rõ ràng và chỉ trả lời những gì có căn cứ.
+
+4. Văn Phong:
+   - Chuẩn mực, học thuật, mạch lạc, dễ hiểu và chuyên nghiệp.
+   - Trả lời bằng cùng ngôn ngữ với câu hỏi (tiếng Việt).
 """
 
 GENERATE_USER_PROMPT = """\
-Context:
+Dưới đây là các tài liệu ngữ cảnh được trích xuất:
 \"\"\"
 {context}
 \"\"\"
 
-Query: {query}
+Câu hỏi của người dùng:
+{query}
 
-Answer:\
+Hãy biên soạn câu trả lời toàn diện, chi tiết và được định dạng chuẩn xác theo các hướng dẫn trên:
 """
 
 # ---------------------------------------------------------------------------
