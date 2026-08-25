@@ -11,7 +11,11 @@ Chỉnh sửa file này để thay đổi các tham số của:
 Các module khác import từ đây, không hardcode giá trị.
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Paths
@@ -39,6 +43,10 @@ class TreeConfig:
     # ── Embedding ──────────────────────────────────────────────────────────
     # Model SentenceTransformer dùng để tạo embedding cho các node
     EMBEDDING_MODEL_NAME: str = "BAAI/bge-m3"
+
+    # URL endpoint ngrok / server embedding từ xa (ưu tiên gọi trước, fallback về local nếu lỗi)
+    EMBEDDING_BASE_URL: str = os.getenv("EMBEDDING_BASE_URL", "").strip()
+    EMBEDDING_TIMEOUT: int = 60
 
     # Key định danh model trong hệ thống
     EMBEDDING_MODEL_KEY: str = "SBERT"
@@ -114,8 +122,11 @@ class LLMConfig:
 class SummarizationConfig:
     """Tham số cho LLM dùng để tóm tắt node trong quá trình build tree."""
 
-    # Model ID trên NVIDIA NIM
+    # Model ID trên NVIDIA NIM / vLLM local
     MODEL: str = "deepseek-ai/deepseek-v4-flash"
+
+    # Model Fallback khi gặp lỗi tràn context length (400 Bad Request / Max tokens)
+    FALLBACK_MODEL: str = "gemini-2.5-flash"
 
     # Temperature khi tóm tắt (thường để thấp để output nhất quán)
     TEMPERATURE: float = 0.3

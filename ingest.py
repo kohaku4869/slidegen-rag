@@ -18,7 +18,11 @@ Usage:
 import argparse
 import logging
 import sys
+import time
 from pathlib import Path
+from typing import Optional, Tuple
+
+from tree.stats import BuildStats, format_ingest_report, format_multi_file_summary
 
 # Fix Windows cp1252 encoding crash khi in UTF-8 ra stdout
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -48,9 +52,13 @@ def _build_ra(cfg_tree, cfg_sum):
     from tree.models.SummarizationModels import ChatNVIDIASummarizationModel
     from tree.retriever.tree_retriever import TreeRetrieverConfig
 
-    embedding_model = EmbeddingModel(model_name=cfg_tree.EMBEDDING_MODEL_NAME)
+    embedding_model = EmbeddingModel(
+        model_name=cfg_tree.EMBEDDING_MODEL_NAME,
+        base_url=getattr(cfg_tree, "EMBEDDING_BASE_URL", None),
+    )
     summarization_model = ChatNVIDIASummarizationModel(
         model=cfg_sum.MODEL,
+        fallback_model=getattr(cfg_sum, "FALLBACK_MODEL", "gemini-2.5-flash"),
         temperature=cfg_sum.TEMPERATURE,
     )
 
@@ -79,9 +87,11 @@ def _build_ra(cfg_tree, cfg_sum):
     return RetrievalAugmentation(config=ra_config)
 
 
-def ingest_file(md_path: Path, out_dir: Path, force: bool, cfg_tree, cfg_sum) -> bool:
+def ingest_file(
+    md_path: Path, out_dir: Path, force: bool, cfg_tree, cfg_sum
+) -> Tuple[bool, Optional[BuildStats]]:
     """
-    Index một file Markdown thành Tree và lưu file .pkl.
+    Index một file Markdown thành Tree và lưu file .pkl, đồng thời xuất báo cáo hiệu năng.
 
     Args:
         md_path: Đường dẫn tới file .md nguồn.
@@ -91,21 +101,22 @@ def ingest_file(md_path: Path, out_dir: Path, force: bool, cfg_tree, cfg_sum) ->
         cfg_sum:  SummarizationConfig instance.
 
     Returns:
-        True nếu thành công, False nếu bỏ qua hoặc lỗi.
+        (True, BuildStats) nếu thành công, (False, None) nếu bỏ qua hoặc lỗi.
     """
     pkl_path = out_dir / (md_path.stem + ".pkl")
 
     if pkl_path.exists() and not force:
         logger.info(f"[SKIP] Index đã tồn tại: {pkl_path} (dùng --force để ghi đè)")
-        return False
+        return False, None
 
     logger.info(f"[START] Đang index: {md_path.name}")
+    t_file_start = time.perf_counter()
 
     try:
         text = md_path.read_text(encoding="utf-8", errors="ignore")
         if not text.strip():
             logger.warning(f"[WARN] File rỗng, bỏ qua: {md_path.name}")
-            return False
+            return False, None
 
         ra = _build_ra(cfg_tree, cfg_sum)
 
@@ -116,13 +127,32 @@ def ingest_file(md_path: Path, out_dir: Path, force: bool, cfg_tree, cfg_sum) ->
         from tree.retriever.tree_retriever import TreeRetriever
         ra.retriever = TreeRetriever(ra.tree_retriever_config, ra.tree)
 
+        t_save_start = time.perf_counter()
         ra.save(str(pkl_path))
+        save_time = time.perf_counter() - t_save_start
+        total_file_time = time.perf_counter() - t_file_start
+        file_size_bytes = pkl_path.stat().st_size if pkl_path.exists() else 0
+
         logger.info(f"[DONE] Đã lưu index: {pkl_path}")
-        return True
+
+        # Cập nhật và in báo cáo thống kê hiệu năng chi tiết
+        stats: Optional[BuildStats] = getattr(ra.tree, "build_stats", None)
+        if stats is not None and isinstance(stats, BuildStats):
+            stats.filename = md_path.name
+            stats.src_path = str(md_path)
+            stats.out_path = str(pkl_path)
+            stats.save_time = save_time
+            stats.total_time = total_file_time
+            stats.file_size_bytes = file_size_bytes
+
+            report = format_ingest_report(stats)
+            print("\n" + report + "\n", flush=True)
+
+        return True, stats
 
     except Exception as e:
         logger.error(f"[ERROR] Lỗi khi index {md_path.name}: {e}", exc_info=True)
-        return False
+        return False, None
 
 
 def main():
@@ -184,15 +214,23 @@ def main():
 
     # ── Index từng file ──────────────────────────────────────────────────────
     success, skipped, failed = 0, 0, 0
+    all_stats: list[BuildStats] = []
+
     for md_path in md_files:
-        result = ingest_file(md_path, out_dir, args.force, cfg_tree, cfg_sum)
-        if result is True:
+        ok, stats = ingest_file(md_path, out_dir, args.force, cfg_tree, cfg_sum)
+        if ok:
             success += 1
-        elif result is False and not args.force:
-            # Phân biệt skip vs error qua log đã in trong ingest_file
+            if stats:
+                all_stats.append(stats)
+        elif not args.force and (out_dir / (md_path.stem + ".pkl")).exists():
             skipped += 1
         else:
             failed += 1
+
+    # In bảng tổng hợp nếu index nhiều hơn 1 file
+    if len(all_stats) > 1:
+        multi_summary = format_multi_file_summary(all_stats)
+        print(multi_summary + "\n", flush=True)
 
     logger.info("-" * 60)
     logger.info(
@@ -202,3 +240,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

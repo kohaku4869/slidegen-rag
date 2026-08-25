@@ -2,6 +2,7 @@ import collections
 import logging
 import os
 import re
+import time
 from abc import abstractclassmethod
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -10,12 +11,14 @@ import tiktoken
 from tree.models.EmbeddingModels import BaseEmbeddingModel, EmbeddingModel
 from tree.models.SummarizationModels import (BaseSummarizationModel,
                                   ChatNVIDIASummarizationModel)
+from tree.stats import BuildStats, LayerStat
 from tree.structure.tree_structure import Node, Tree
 from tree.utils import (distances_from_embeddings, get_children, get_embeddings,
                     get_node_list, get_text,
                     indices_of_nearest_neighbors_from_distances, split_text)
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
+
 
 
 class TreeBuilderConfig:
@@ -148,6 +151,7 @@ class TreeBuilder:
         self.embedding_models = config.embedding_models
         self.cluster_embedding_model = config.cluster_embedding_model
         # self.split_threshold = config.split_threshold
+        self.last_build_stats: Optional[BuildStats] = None
 
         logging.info(
             f"Successfully initialized TreeBuilder with Config {config.log_config()}"
@@ -346,25 +350,56 @@ class TreeBuilder:
         Returns:
             Tree: The built Tree object.
         """
+        t_build_start = time.perf_counter()
+        t_parse_start = time.perf_counter()
         preamble, root_jsons = self.parse_markdown_to_hierarchical_json(markdown_text)
+        parse_time = time.perf_counter() - t_parse_start
 
         all_nodes: Dict[int, Node] = {}
         layer_to_nodes: Dict[int, List[Node]] = collections.defaultdict(list)
+        layer_stats: List[LayerStat] = []
         next_index = 0
 
         if not root_jsons:
             text_content = preamble if preamble else markdown_text
+            t_emb_start = time.perf_counter()
             node_idx, single_node = self.create_node(0, text_content, set())
+            emb_time = time.perf_counter() - t_emb_start
+
             all_nodes[0] = single_node
             layer_to_nodes[0] = [single_node]
             root_dict = {0: single_node}
             leaf_dict = {0: single_node}
+
+            l0_stat = LayerStat(
+                layer=0,
+                name="Leaf Nodes",
+                num_nodes=1,
+                num_llm_calls=0,
+                summarize_time=0.0,
+                embedding_time=emb_time,
+                total_time=emb_time,
+            )
+            total_build_time = time.perf_counter() - t_build_start
+            build_stats = BuildStats(
+                total_time=total_build_time,
+                parse_time=parse_time,
+                total_summarize_time=0.0,
+                total_embedding_time=emb_time,
+                total_nodes=1,
+                total_llm_calls=0,
+                num_layers=1,
+                layers=[l0_stat],
+            )
+            self.last_build_stats = build_stats
+
             return Tree(
                 all_nodes=all_nodes,
                 root_nodes=root_dict,
                 leaf_nodes=leaf_dict,
                 num_layers=1,
-                layer_to_nodes=dict(layer_to_nodes)
+                layer_to_nodes=dict(layer_to_nodes),
+                build_stats=build_stats,
             )
 
         # 1. Assign layer to all JSON hierarchy nodes
@@ -392,13 +427,27 @@ class TreeBuilder:
             next_index += 1
 
         logging.info(f"Batch embedding Layer 0 with {len(leaf_items)} leaf nodes")
+        t_l0_emb_start = time.perf_counter()
         leaf_nodes_created = self.batch_create_nodes(leaf_items)
+        l0_emb_time = time.perf_counter() - t_l0_emb_start
 
         for leaf_json, (node_idx, _, _) in zip(leaf_json_list, leaf_items):
             node_obj = leaf_nodes_created[node_idx]
             leaf_json["node_obj"] = node_obj
             all_nodes[node_idx] = node_obj
             layer_to_nodes[0].append(node_obj)
+
+        layer_stats.append(
+            LayerStat(
+                layer=0,
+                name="Leaf Nodes",
+                num_nodes=len(leaf_items),
+                num_llm_calls=0,
+                summarize_time=0.0,
+                embedding_time=l0_emb_time,
+                total_time=l0_emb_time,
+            )
+        )
 
         # 4. Process Layer 1..max_layer with batch_summarize + batch embedding per layer
         for current_layer in range(1, max_layer + 1):
@@ -428,7 +477,9 @@ class TreeBuilder:
 
             # Batch summarize all parent nodes for current_layer in ONE call
             logging.info(f"Batch summarizing Layer {current_layer} with {len(contexts_to_summarize)} prompts")
+            t_sum_start = time.perf_counter()
             summaries = self.batch_summarize(contexts_to_summarize, max_tokens=self.summarization_length)
+            layer_sum_time = time.perf_counter() - t_sum_start
 
             # Collect all parent node data for batch embedding
             parent_items: List[Tuple[int, str, Set[int]]] = []
@@ -440,13 +491,28 @@ class TreeBuilder:
 
             # Batch embedding all parent nodes for current_layer in ONE call
             logging.info(f"Batch embedding Layer {current_layer} with {len(parent_items)} parent nodes")
+            t_emb_start = time.perf_counter()
             parent_nodes_created = self.batch_create_nodes(parent_items)
+            layer_emb_time = time.perf_counter() - t_emb_start
 
             for (p_json, _), (node_idx, _, _) in zip(pending_parents_info, parent_items):
                 parent_node_obj = parent_nodes_created[node_idx]
                 p_json["node_obj"] = parent_node_obj
                 all_nodes[node_idx] = parent_node_obj
                 layer_to_nodes[current_layer].append(parent_node_obj)
+
+            layer_name = f"Layer {current_layer} Summaries"
+            layer_stats.append(
+                LayerStat(
+                    layer=current_layer,
+                    name=layer_name,
+                    num_nodes=len(parent_items),
+                    num_llm_calls=len(contexts_to_summarize),
+                    summarize_time=layer_sum_time,
+                    embedding_time=layer_emb_time,
+                    total_time=layer_sum_time + layer_emb_time,
+                )
+            )
 
         # 5. Handle Super Root if top level has multiple root nodes
         top_root_nodes = [r["node_obj"] for r in root_jsons if "node_obj" in r]
@@ -459,12 +525,16 @@ class TreeBuilder:
             combined_text = "\n\n".join(root_texts)
 
             logging.info(f"Summarizing super root from {len(top_root_nodes)} top root nodes")
+            t_super_sum_start = time.perf_counter()
             super_summary_list = self.batch_summarize([combined_text], max_tokens=self.summarization_length)
+            super_sum_time = time.perf_counter() - t_super_sum_start
             super_summary = super_summary_list[0] if super_summary_list else ""
 
+            t_super_emb_start = time.perf_counter()
             super_root_nodes = self.batch_create_nodes(
                 [(next_index, super_summary, root_indices)]
             )
+            super_emb_time = time.perf_counter() - t_super_emb_start
             super_root_node = super_root_nodes[next_index]
             super_root_idx = next_index
             next_index += 1
@@ -474,15 +544,47 @@ class TreeBuilder:
             layer_to_nodes[super_root_layer].append(super_root_node)
             final_root_node = super_root_node
 
+            layer_stats.append(
+                LayerStat(
+                    layer=super_root_layer,
+                    name=f"Layer {super_root_layer} (Super Root)",
+                    num_nodes=1,
+                    num_llm_calls=1,
+                    summarize_time=super_sum_time,
+                    embedding_time=super_emb_time,
+                    total_time=super_sum_time + super_emb_time,
+                )
+            )
+
         leaf_nodes_dict = {node.index: node for node in layer_to_nodes[0]}
         root_nodes_dict = {final_root_node.index: final_root_node}
         num_layers = max(layer_to_nodes.keys()) + 1
+
+        total_build_time = time.perf_counter() - t_build_start
+        total_nodes = len(all_nodes)
+        total_llm_calls = sum(l.num_llm_calls for l in layer_stats)
+        total_summarize_time = sum(l.summarize_time for l in layer_stats)
+        total_embedding_time = sum(l.embedding_time for l in layer_stats)
+
+        build_stats = BuildStats(
+            total_time=total_build_time,
+            parse_time=parse_time,
+            total_summarize_time=total_summarize_time,
+            total_embedding_time=total_embedding_time,
+            total_nodes=total_nodes,
+            total_llm_calls=total_llm_calls,
+            num_layers=num_layers,
+            layers=layer_stats,
+        )
+        self.last_build_stats = build_stats
 
         return Tree(
             all_nodes=all_nodes,
             root_nodes=root_nodes_dict,
             leaf_nodes=leaf_nodes_dict,
             num_layers=num_layers,
-            layer_to_nodes=dict(layer_to_nodes)
+            layer_to_nodes=dict(layer_to_nodes),
+            build_stats=build_stats,
         )
+
 
