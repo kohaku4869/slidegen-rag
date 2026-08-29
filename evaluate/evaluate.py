@@ -15,7 +15,7 @@ Xử lý tự động lỗi context length / timeout, cơ chế rút gọn conte
 và loại bỏ câu đánh giá thất bại khỏi điểm tổng để không kéo tụt trung bình.
 
 Sử dụng:
-    uv run python evaluate.py
+    python evaluate/evaluate.py
 """
 
 import asyncio
@@ -44,7 +44,10 @@ if sys.platform == "win32":
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # ── Đường dẫn & Cấu hình ─────────────────────────────────────────────────────
-ROOT_DIR = Path(__file__).parent
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 DATA_TEST_DIR = ROOT_DIR / "data" / "test"
 DATA_INDEX_DIR = ROOT_DIR / "data" / "index"
 
@@ -159,7 +162,6 @@ def load_answers(file_path: Path) -> dict[int, str]:
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Thử format -N. trước
     blocks = re.split(r"(?:^|\n)-(\d+)\.\s*", content.strip())
     answers = {}
     if len(blocks) > 1:
@@ -170,7 +172,6 @@ def load_answers(file_path: Path) -> dict[int, str]:
             answers[num] = text
             i += 2
     else:
-        # Fallback format N.
         blocks = re.split(r"(?:^|\n)(\d+)\.\s*", content.strip())
         i = 1
         while i < len(blocks) - 1:
@@ -203,7 +204,6 @@ def load_chunks(file_path: Path) -> dict[int, list[str]]:
     while i < len(q_blocks) - 1:
         q_num = int(q_blocks[i])
         raw_text = q_blocks[i + 1].strip()
-        # Tách các chunk bằng delimiter [CHUNK N]
         chunk_items = re.split(r"\[CHUNK\s*\d+\]\n?", raw_text)
         cleaned_chunks = [c.strip() for c in chunk_items if c.strip()]
         chunks_dict[q_num] = cleaned_chunks
@@ -305,7 +305,6 @@ def get_answers_and_chunks_for_topic(
     cached_answers = load_answers(answer_file)
     cached_chunks = load_chunks(chunks_file)
 
-    # Kiểm tra xem cache có đầy đủ không
     all_cached = (
         not force_rerun
         and len(cached_answers) >= len(questions)
@@ -328,7 +327,6 @@ def get_answers_and_chunks_for_topic(
             })
         return results, True
 
-    # Nếu không có cache hoặc force_rerun=True -> Chạy Agent
     if not index_path.exists():
         raise FileNotFoundError(f"Không tìm thấy index: {index_path}")
 
@@ -367,7 +365,6 @@ def get_answers_and_chunks_for_topic(
         try:
             state_res = asyncio.run(graph.ainvoke(initial_state))
             answer = state_res.get("generation", "").strip()
-            # CHỈ LẤY NHỮNG CHUNK ĐƯỢC SỬ DỤNG CHO CÂU TRẢ LỜI CUỐI CÙNG
             used_docs = state_res.get("documents", [])
         except Exception as e:
             logger.error(f"[{topic}] Lỗi khi chạy Agent câu {num}: {e}")
@@ -385,7 +382,6 @@ def get_answers_and_chunks_for_topic(
             "used_chunks": used_docs,
         })
 
-    # Lưu lại câu trả lời và chunks vào file
     save_answers(answer_file, new_answers)
     save_chunks(chunks_file, new_chunks)
     logger.info(f"[{topic}] Đã lưu câu trả lời vào {answer_file} và chunks vào {chunks_file}")
@@ -443,7 +439,6 @@ def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
         return 0.0
 
     all_chunks_text = " ".join(used_chunks).lower()
-    # Tách các từ/cụm từ quan trọng (bỏ stopwords ngắn)
     words = re.findall(r"\b\w{3,}\b", reference.lower())
     if not words:
         return 100.0
@@ -455,11 +450,11 @@ def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
 
 
 def parse_judge_output(raw_text: str) -> Optional[AnswerEval]:
-    """Trích xuất và parse an toàn kết quả đánh giá từ phản hồi của LLM (JSON hoặc Regex)."""
+    """Trích xuất và parse an toàn kết quả đánh giá từ phản hồi của LLM (JSON, Key-Value hoặc Regex)."""
     if not raw_text or not raw_text.strip():
         return None
 
-    # Tier 1: Parse JSON chuẩn
+    # Tier 1: Parse JSON block
     try:
         match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw_text, re.DOTALL)
         if match:
@@ -478,13 +473,13 @@ def parse_judge_output(raw_text: str) -> Optional[AnswerEval]:
     except Exception:
         pass
 
-    # Tier 2: Trích xuất bằng Regex nếu JSON bị cắt ngắn (do output token limit hoặc lỗi format)
+    # Tier 2: Trích xuất JSON hoặc key-value bằng Regex đa dạng
     try:
-        acc_m = re.search(r'"accuracy"\s*:\s*([0-9.]+)', raw_text)
-        comp_m = re.search(r'"completeness"\s*:\s*([0-9.]+)', raw_text)
-        rel_m = re.search(r'"relevance"\s*:\s*([0-9.]+)', raw_text)
-        faith_m = re.search(r'"faithfulness"\s*:\s*([0-9.]+)', raw_text)
-        fb_m = re.search(r'"feedback"\s*:\s*"((?:[^"\\]|\\.)*)', raw_text)
+        acc_m = re.search(r'["\']?accuracy["\']?\s*[:=]\s*([0-9.]+)', raw_text, re.IGNORECASE)
+        comp_m = re.search(r'["\']?completeness["\']?\s*[:=]\s*([0-9.]+)', raw_text, re.IGNORECASE)
+        rel_m = re.search(r'["\']?relevance["\']?\s*[:=]\s*([0-9.]+)', raw_text, re.IGNORECASE)
+        faith_m = re.search(r'["\']?faithfulness["\']?\s*[:=]\s*([0-9.]+)', raw_text, re.IGNORECASE)
+        fb_m = re.search(r'["\']?feedback["\']?\s*[:=]\s*["\']?((?:[^"\'\\]|\\.)*)', raw_text, re.IGNORECASE)
 
         if acc_m and comp_m and rel_m and faith_m:
             fb_text = fb_m.group(1).encode().decode('unicode_escape', errors='ignore') if fb_m else ""
@@ -512,7 +507,6 @@ def evaluate_single_answer_with_judge(
     """Đánh giá một câu trả lời bằng LLM Judge với cơ chế Fallback và rút gọn ngữ cảnh an toàn."""
     from langchain_core.messages import HumanMessage, SystemMessage
 
-    # Rút gọn context nếu vượt ngưỡng an toàn để Primary LLM (8k context) không bị 400 Bad Request
     chunks_str = json.dumps(used_chunks, ensure_ascii=False) if used_chunks else "[]"
     if len(chunks_str) > _MAX_EVAL_CHUNKS_CHARS:
         chunks_str = chunks_str[:_MAX_EVAL_CHUNKS_CHARS] + "\n... [ ngữ cảnh được rút gọn an toàn ]"
@@ -552,7 +546,6 @@ Trả về JSON duy nhất có cấu trúc:
         HumanMessage(content=user_prompt),
     ]
 
-    # Thử Primary LLM trước
     if llm:
         try:
             res = llm.invoke(messages)
@@ -563,7 +556,6 @@ Trả về JSON duy nhất có cấu trúc:
         except Exception as e:
             logger.warning(f"[Judge] Primary LLM thất bại: {e}. Đang chuyển sang Fallback...")
 
-    # Fallback sang Gemini
     if fallback_llm:
         try:
             res = fallback_llm.invoke(messages)
@@ -590,12 +582,10 @@ def run_evaluation_for_topic(
     Returns:
         (detail_df, summary_dict, was_cached)
     """
-    # 1. Lấy kết quả từ Agent hoặc Cache
     results, was_cached = get_answers_and_chunks_for_topic(
         topic, force_rerun=force_rerun, progress_callback=progress_callback
     )
 
-    # 2. Khởi tạo LLM Judge
     primary_llm, fallback_llm = create_evaluator_llm()
     if not primary_llm and not fallback_llm:
         raise RuntimeError("Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env")
@@ -658,7 +648,6 @@ def run_evaluation_for_topic(
 
     detail_df = pd.DataFrame(rows)
 
-    # 3. Tính toán Summary — CHỈ TÍNH TRÊN CÁC CÂU THÀNH CÔNG (loại bỏ câu lỗi)
     valid_df = detail_df[detail_df["is_success"] == True]
     success_count = len(valid_df)
     failed_count = len(detail_df) - success_count
@@ -700,14 +689,14 @@ def run_evaluation_for_topic(
 def get_color(value: Optional[float], is_percentage: bool = False) -> str:
     """Xác định màu sắc theo ngưỡng điểm (Thang 10 hoặc %)."""
     if value is None:
-        return "#94a3b8"  # Xám
+        return "#94a3b8"
     if is_percentage:
         if value >= COVERAGE_GREEN:
-            return "#10b981"  # Xanh lá
+            return "#10b981"
         elif value >= COVERAGE_AMBER:
-            return "#f59e0b"  # Cam / Hổ phách
+            return "#f59e0b"
         else:
-            return "#ef4444"  # Đỏ
+            return "#ef4444"
     else:
         if value >= SCORE_GREEN:
             return "#10b981"
@@ -879,7 +868,6 @@ def create_summary_table(all_summaries: dict[str, dict]) -> pd.DataFrame:
 # 7. GRADIO APP & HANDLERS
 # =============================================================================
 
-# Bộ nhớ tạm lưu DataFrame chi tiết để soi từng câu hỏi (Inspector)
 _current_detail_df: Optional[pd.DataFrame] = None
 
 
@@ -907,7 +895,6 @@ def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Pro
         kpi_html = generate_summary_kpi_html(summary, topic_name=topic, was_cached=was_cached)
         chart = create_single_topic_chart(summary, topic)
 
-        # Bảng hiển thị
         display_cols = [
             "STT", "question", "response",
             "accuracy", "completeness", "relevance", "faithfulness",
@@ -916,7 +903,6 @@ def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Pro
         display_df = detail_df[display_cols].copy()
         display_df = display_df.fillna("-")
 
-        # Tạo danh sách các câu hỏi để chọn soi chi tiết
         q_choices = [f"Câu {row['STT']}: {str(row['question'])[:60]}..." for _, row in detail_df.iterrows()]
         first_choice = q_choices[0] if q_choices else None
 
@@ -953,7 +939,6 @@ def inspect_question_handler(selected_q_text: str):
 
     item = row.iloc[0]
 
-    # 1. Thông tin câu hỏi & Đáp án mẫu
     col1_content = f"""### ❓ Câu hỏi #{item['STT']}
 **{item['question']}**
 
@@ -966,7 +951,6 @@ def inspect_question_handler(selected_q_text: str):
 {item['response']}
 """
 
-    # 2. Chunks tài liệu đã sử dụng
     chunks_list = item.get("used_chunks", [])
     if not chunks_list:
         chunks_content = "*(Không có context chunk nào được sử dụng)*"
@@ -980,7 +964,6 @@ def inspect_question_handler(selected_q_text: str):
 {chunks_content}
 """
 
-    # 3. Điểm số & Nhận xét LLM Judge
     acc_str = f"{item['accuracy']}/10" if pd.notna(item['accuracy']) else "N/A"
     comp_str = f"{item['completeness']}/10" if pd.notna(item['completeness']) else "N/A"
     rel_str = f"{item['relevance']}/10" if pd.notna(item['relevance']) else "N/A"
@@ -1059,7 +1042,6 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
     else:
         detail_table_df = pd.DataFrame()
 
-    # Tính trung bình toàn hệ thống (chỉ tính các topic hợp lệ)
     valid_summaries = [s for s in all_summaries.values() if "error" not in s and s.get("success_count", 0) > 0]
     if valid_summaries:
         overall_summary = {
@@ -1102,7 +1084,7 @@ def build_gradio_app():
         font=["Inter", "system-ui", "sans-serif"],
     )
 
-    with gr.Blocks(title="SLIDEGEN-RAG Evaluation Dashboard", theme=custom_theme) as app:
+    with gr.Blocks(title="SLIDEGEN-RAG Evaluation Dashboard") as app:
         gr.Markdown(
             """
             # 📊 SLIDEGEN-RAG — Dashboard Đánh Giá Chất Lượng
@@ -1238,15 +1220,32 @@ def build_gradio_app():
     return app
 
 
+import socket
+
+def find_available_port(start_port: int = 7860, max_search: int = 100) -> int:
+    """Tìm port khả dụng để chạy Gradio app mà không bị lỗi đụng độ port."""
+    for port in range(start_port, start_port + max_search):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                s.bind(("0.0.0.0", port))
+                return port
+            except OSError:
+                continue
+    return start_port
+
+
 # =============================================================================
 # MAIN ENTRYPOINT
 # =============================================================================
 
 if __name__ == "__main__":
     app = build_gradio_app()
+    port = find_available_port(7860)
+    logger.info(f"Khởi chạy Evaluation Dashboard tại: http://localhost:{port}")
     app.launch(
         server_name="0.0.0.0",
-        server_port=7860,
+        server_port=port,
         share=False,
         show_error=True,
     )
