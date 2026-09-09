@@ -1,7 +1,7 @@
 """Unit tests for tree.utils.dedup_parent_child — pure logic, no LLM/network."""
 
-from tree.structure.tree_structure import Node
-from tree.utils import dedup_parent_child
+from slidegen_rag.tree.structure.tree_structure import Node
+from slidegen_rag.tree.utils import dedup_parent_child
 
 
 def _node(index: int, children=None) -> Node:

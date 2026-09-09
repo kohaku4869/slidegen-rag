@@ -13,7 +13,7 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 from langchain_core.messages import HumanMessage
-from agent.models.llm import LLMModel
+from slidegen_rag.agent.models.llm import LLMModel
 
 import argparse
 

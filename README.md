@@ -162,15 +162,21 @@ LANGSMITH_PROJECT="slidegen-rag"
 
 ## 📖 Usage Guide
 
+> The project moved to a `src/slidegen_rag/` layout (see the restructuring
+> plan). Run everything via `uv run slidegen-<name>` or `uv run python -m
+> slidegen_rag.<module>` — plain `python ingest.py` / `python main.py` /
+> `python evaluate.py` no longer resolve. This section is a stopgap; a full
+> README rewrite is a later step of the plan.
+
 ### 1. Ingest Documents (Build Hierarchical Tree)
 Parse raw Markdown documents in `data/src/`, construct hierarchical abstraction trees, and save `.pkl` index files into `data/index/`:
 
 ```bash
 # Ingest all markdown files in data/src/
-uv run python ingest.py
+uv run slidegen-ingest
 
 # Ingest a specific file
-uv run python ingest.py --file data/src/pldc.md --force
+uv run slidegen-ingest --file data/src/pldc.md --force
 ```
 
 ### 2. Run Interactive Q&A Agent
@@ -178,26 +184,33 @@ Ask questions directly or launch the interactive terminal chat:
 
 ```bash
 # Interactive Chat Mode
-uv run python main.py
+uv run slidegen-ask
 
 # Single Query Mode
-uv run python main.py --query "Quy phạm pháp luật là gì?"
+uv run slidegen-ask --query "Quy phạm pháp luật là gì?"
 
 # Verbose Mode (Inspect Agent steps, tool calls, and document grading)
-uv run python main.py --verbose
+uv run slidegen-ask --verbose
 
 # Save the full execution trajectory (tool calls, retrieve loops, feedback,
 # token/cost, LangSmith link) of a single query to a file
-uv run python main.py --query "Quy phạm pháp luật là gì?" --trajectory out/trajectory.txt
+uv run slidegen-ask --query "Quy phạm pháp luật là gì?" --trajectory out/trajectory.txt
 ```
 
 ### 3. Launch Evaluation Dashboard
 Start the Gradio web interface to run and inspect **LLM-as-a-Judge** benchmarks:
 
 ```bash
-uv run python evaluate.py
+uv run python -m slidegen_rag.evaluate.evaluate
 ```
 Open your browser at `http://localhost:7860` to view the KPI cards, evaluation radar charts, keyword coverage, and per-question breakdowns. Each evaluation run also writes `data/test/<topic>/trajectory.txt` (one `=== CÂU HỎI N ===` block per question — tools called, retrieve loop count, grading before/after, feedback, latency, token/cost, LangSmith link), viewable per question in the dashboard's Question Inspector.
+
+There is also a RAGAS-metric variant of the dashboard (context recall/precision,
+answer relevancy, faithfulness) on a separate port:
+
+```bash
+uv run python -m slidegen_rag.evaluate.evaluate_ragas
+```
 
 ---
 

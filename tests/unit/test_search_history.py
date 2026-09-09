@@ -4,7 +4,7 @@ that retrieve_node relies on to avoid re-issuing identical tool calls. Pure
 functions, no LLM/network.
 """
 
-from agent.utils.search_history import (
+from slidegen_rag.agent.utils.search_history import (
     call_key,
     fingerprint,
     normalize_query,

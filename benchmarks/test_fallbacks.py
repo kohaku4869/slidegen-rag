@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO)
 
 class TestEmbeddingFallback(unittest.TestCase):
     def test_remote_embedding_success(self):
-        from tree.models.EmbeddingModels import EmbeddingModel
+        from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
         
         # Test with the configured ngrok remote endpoint
         model = EmbeddingModel(
@@ -45,7 +45,7 @@ class TestEmbeddingFallback(unittest.TestCase):
         print(" Remote Embedding succeeded: 2 vectors with dim 1024.")
 
     def test_remote_embedding_fallback_to_local(self):
-        from tree.models.EmbeddingModels import EmbeddingModel
+        from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
         
         # Point to an invalid remote URL to force fallback to local
         model = EmbeddingModel(
@@ -63,7 +63,7 @@ class TestEmbeddingFallback(unittest.TestCase):
 
 class TestSummarizationFallback(unittest.TestCase):
     def test_summarize_normal(self):
-        from tree.models.SummarizationModels import ChatSummarizationModel
+        from slidegen_rag.tree.models.SummarizationModels import ChatSummarizationModel
         
         model = ChatSummarizationModel()
         context = "Hà Nội là thủ đô của Việt Nam, có lịch sử ngàn năm văn hiến."
@@ -72,7 +72,7 @@ class TestSummarizationFallback(unittest.TestCase):
         print(f" Normal summarize succeeded: {summary[:50]}...")
 
     def test_summarize_max_token_fallback_to_gemini(self):
-        from tree.models.SummarizationModels import ChatSummarizationModel
+        from slidegen_rag.tree.models.SummarizationModels import ChatSummarizationModel
         
         model = ChatSummarizationModel()
         # Create an oversized context (~30,000 words / ~40,000 tokens) that exceeds vLLM 8192 token limit

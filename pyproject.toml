@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "slidegen-rag"
 version = "0.1.0"
@@ -30,6 +34,13 @@ dependencies = [
     "tqdm>=4.70.0",
     "torch>=2.13.0",
 ]
+
+[project.scripts]
+slidegen-ingest = "slidegen_rag.ingest:main"
+slidegen-ask = "slidegen_rag.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/slidegen_rag"]
 
 [dependency-groups]
 dev = [

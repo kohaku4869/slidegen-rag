@@ -6,9 +6,9 @@ from unittest.mock import MagicMock
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from tree.stats import BuildStats, LayerStat, format_ingest_report, format_multi_file_summary
-from tree.builder.tree_builder import TreeBuilder
-from tree.structure.tree_structure import Tree
+from slidegen_rag.tree.stats import BuildStats, LayerStat, format_ingest_report, format_multi_file_summary
+from slidegen_rag.tree.builder.tree_builder import TreeBuilder
+from slidegen_rag.tree.structure.tree_structure import Tree
 
 
 class FakeEmbeddingModel:

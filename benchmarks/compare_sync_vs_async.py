@@ -16,7 +16,7 @@ if sys.stderr.encoding and sys.stderr.encoding.lower() != "utf-8":
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from tree.models.SummarizationModels import ChatSummarizationModel
+from slidegen_rag.tree.models.SummarizationModels import ChatSummarizationModel
 
 SAMPLE_TEXTS = [
     "Nhà nước pháp quyền xã hội chủ nghĩa Việt Nam là nhà nước của nhân dân, do nhân dân, vì nhân dân.",

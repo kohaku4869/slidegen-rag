@@ -17,8 +17,8 @@ from typing import Dict, List, Set, Tuple
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from tree.structure.tree_structure import Node, Tree
-from tree.builder.tree_builder import TreeBuilder, TreeBuilderConfig
+from slidegen_rag.tree.structure.tree_structure import Node, Tree
+from slidegen_rag.tree.builder.tree_builder import TreeBuilder, TreeBuilderConfig
 
 
 class FakeEmbeddingModel:

@@ -11,7 +11,7 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 from langchain_core.messages import HumanMessage
-from agent.models.llm import LLMModel
+from slidegen_rag.agent.models.llm import LLMModel
 
 # Generate ~2000 input tokens (~1500 words of Vietnamese text)
 LONG_PROMPT = """Hãy phân tích chi tiết và viết nội dung slide thuyết trình về chủ đề: "Ứng dụng Trí tuệ Nhân tạo trong Y tế hiện đại".
