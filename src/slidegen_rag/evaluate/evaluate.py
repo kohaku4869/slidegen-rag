@@ -388,10 +388,7 @@ def get_answers_and_chunks_for_topic(
     if progress_callback:
         progress_callback(f"[{topic}] Đang khởi tạo CRAG Agent...")
 
-    # Quy ước: topic kết thúc bằng "_raptor" (vd: "pldc_raptor") => dùng backend
-    # raptor_tree (GMM+UMAP), index tương ứng "<topic>.pkl" đã có hậu tố sẵn
-    # (xem ingest.py --raptor). Ngược lại dùng backend tree mặc định.
-    ra = load_ra(index_path, use_raptor=topic.endswith("_raptor"))
+    ra = load_ra(index_path)
     set_retrieval_augmentation(ra)
     # Benchmark closed-book: reference.txt được viết trên giả định agent CHỈ
     # dùng data/src/pldc.md. Nếu web_search được bind trong lúc eval, agent có
@@ -426,7 +423,6 @@ def get_answers_and_chunks_for_topic(
                 metadata={
                     "topic": topic,
                     "question_num": num,
-                    "raptor": topic.endswith("_raptor"),
                 },
             )
             answer = (state_res.get("generation") or "").strip()

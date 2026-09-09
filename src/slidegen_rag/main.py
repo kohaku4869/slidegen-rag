@@ -1,23 +1,19 @@
 """
-main.py — Giao diện Hỏi Đáp (Q&A) tương tác sử dụng Corrective RAG Agent và RAPTOR Tree.
+main.py — Giao diện Hỏi Đáp (Q&A) tương tác sử dụng Corrective RAG Agent và cây phân cấp
+(hierarchical tree) dựng từ cấu trúc heading của tài liệu Markdown nguồn.
 
 Cách sử dụng:
     # 1. Chế độ chat tương tác với file index mặc định (hoặc chọn từ danh sách)
-    uv run python main.py
+    uv run slidegen-ask
 
     # 2. Chỉ định file index cụ thể
-    uv run python main.py --index data/index/pldc.pkl
+    uv run slidegen-ask --index data/index/pldc.pkl
 
     # 3. Hỏi trực tiếp một câu không cần vào vòng lặp chat
-    uv run python main.py --query "Quy phạm pháp luật là gì?"
+    uv run slidegen-ask --query "Quy phạm pháp luật là gì?"
 
     # 4. Bật chế độ chi tiết (xem các bước Agent suy luận và gọi tools)
-    uv run python main.py --verbose
-
-    # 5. Dùng backend raptor_tree (GMM+UMAP clustering theo đúng paper RAPTOR)
-    #    thay vì backend tree mặc định (Markdown-heading). Cần index được tạo
-    #    bằng 'uv run python ingest.py --raptor ...' trước (file *_raptor.pkl)
-    uv run python main.py --raptor --index data/index/pldc_raptor.pkl
+    uv run slidegen-ask --verbose
 """
 
 import argparse
@@ -44,52 +40,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_ra(index_path: Path, use_raptor: bool = False):
-    """
-    Khởi tạo RetrievalAugmentation và load cây phân cấp từ file .pkl.
-
-    use_raptor=True dùng backend `raptor_tree` (GMM+UMAP clustering theo đúng paper),
-    mặc định (False) dùng backend `tree` (Markdown-heading, hành vi hiện tại).
-    Lưu ý: file .pkl phải được tạo bằng đúng backend tương ứng (xem ingest.py --raptor).
-    """
-    from slidegen_rag.config import TreeConfig, RaptorTreeConfig, RetrieverConfig
-
-    if use_raptor:
-        from slidegen_rag.raptor_tree.RetrievalAugmentation import RetrievalAugmentation, RetrievalAugmentationConfig
-        from slidegen_rag.raptor_tree.builder.tree_builder import TreeBuilderConfig
-        from slidegen_rag.raptor_tree.models.EmbeddingModels import EmbeddingModel
-        from slidegen_rag.raptor_tree.retriever.tree_retriever import TreeRetrieverConfig
-        cfg_tree = RaptorTreeConfig
-    else:
-        from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation, RetrievalAugmentationConfig
-        from slidegen_rag.tree.builder.tree_builder import TreeBuilderConfig
-        from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
-        from slidegen_rag.tree.retriever.tree_retriever import TreeRetrieverConfig
-        cfg_tree = TreeConfig
+def load_ra(index_path: Path):
+    """Khởi tạo RetrievalAugmentation và load cây phân cấp từ file .pkl."""
+    from slidegen_rag.config import TreeConfig, RetrieverConfig
+    from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation, RetrievalAugmentationConfig
+    from slidegen_rag.tree.builder.tree_builder import TreeBuilderConfig
+    from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
+    from slidegen_rag.tree.retriever.tree_retriever import TreeRetrieverConfig
+    cfg_tree = TreeConfig
 
     if not index_path.exists():
         raise FileNotFoundError(f"Không tìm thấy file index tại: {index_path}")
 
-    backend_name = "raptor_tree (GMM+UMAP)" if use_raptor else "tree (Markdown-heading)"
-    logger.info(f"Đang tải cây từ: {index_path} [backend={backend_name}]")
+    logger.info(f"Đang tải cây từ: {index_path}")
     embedding_model = EmbeddingModel(model_name=cfg_tree.EMBEDDING_MODEL_NAME)
 
-    tb_kwargs = dict(
+    tb_config = TreeBuilderConfig(
         summarization_length=cfg_tree.SUMMARIZATION_LENGTH,
         embedding_models={cfg_tree.EMBEDDING_MODEL_KEY: embedding_model},
         cluster_embedding_model=cfg_tree.CLUSTER_EMBEDDING_MODEL,
     )
-    if use_raptor:
-        tb_kwargs.update(
-            max_tokens=cfg_tree.MAX_TOKENS,
-            chunk_overlap=cfg_tree.CHUNK_OVERLAP,
-            num_layers=cfg_tree.NUM_LAYERS,
-            reduction_dimension=cfg_tree.REDUCTION_DIMENSION,
-            cluster_threshold=cfg_tree.CLUSTER_THRESHOLD,
-            max_clusters=cfg_tree.MAX_CLUSTERS,
-            max_length_in_cluster=cfg_tree.MAX_LENGTH_IN_CLUSTER,
-        )
-    tb_config = TreeBuilderConfig(**tb_kwargs)
 
     tr_config = TreeRetrieverConfig(
         threshold=RetrieverConfig.THRESHOLD,
@@ -113,19 +83,15 @@ def load_ra(index_path: Path, use_raptor: bool = False):
     return ra
 
 
-def select_index_file(index_dir: Path, use_raptor: bool = False) -> Optional[Path]:
-    """
-    Tìm và cho phép người dùng chọn file index nếu có nhiều file.
-
-    Khi use_raptor=True, chỉ tìm các file '*_raptor.pkl' (tạo bởi 'ingest.py --raptor')
-    để tránh nạp nhầm index của backend `tree` (Markdown-heading) vào backend `raptor_tree`.
-    """
+def select_index_file(index_dir: Path) -> Optional[Path]:
+    """Tìm và cho phép người dùng chọn file index nếu có nhiều file."""
     if not index_dir.exists():
         return None
 
-    pkl_files = list(index_dir.glob("*_raptor.pkl")) if use_raptor else [
-        f for f in index_dir.glob("*.pkl") if not f.stem.endswith("_raptor")
-    ]
+    # Bỏ qua các file *_raptor.pkl còn sót lại từ backend raptor_tree đã gỡ bỏ
+    # (data/index/ không nằm trong git, nên máy đã ingest --raptor trước đây
+    # vẫn còn file này trên đĩa) — nạp nó chắc chắn lỗi vì backend không còn nữa.
+    pkl_files = [f for f in index_dir.glob("*.pkl") if not f.stem.endswith("_raptor")]
     if not pkl_files:
         return None
 
@@ -239,7 +205,7 @@ def main():
     from slidegen_rag.config import DATA_INDEX_DIR
 
     parser = argparse.ArgumentParser(
-        description="Giao diện hỏi đáp tương tác với RAPTOR Tree qua Agent."
+        description="Giao diện hỏi đáp tương tác với cây phân cấp tài liệu qua Agent."
     )
     parser.add_argument(
         "--index", "-i",
@@ -257,15 +223,6 @@ def main():
         "--verbose", "-v",
         action="store_true",
         help="Hiển thị chi tiết các bước chạy của Agent (tools, grading, evaluator).",
-    )
-    parser.add_argument(
-        "--raptor",
-        action="store_true",
-        help=(
-            "Dùng backend raptor_tree (GMM+UMAP clustering theo đúng paper RAPTOR) "
-            "thay vì backend tree mặc định (Markdown-heading). "
-            "Cần index dạng '*_raptor.pkl' được tạo bằng 'ingest.py --raptor'."
-        ),
     )
     parser.add_argument(
         "--trajectory",
@@ -287,18 +244,17 @@ def main():
     if args.index:
         index_path = Path(args.index)
     else:
-        index_path = select_index_file(DATA_INDEX_DIR, use_raptor=args.raptor)
+        index_path = select_index_file(DATA_INDEX_DIR)
         if not index_path:
-            backend_hint = "ingest.py --raptor" if args.raptor else "ingest.py"
             logger.error(
                 f"Không tìm thấy file .pkl phù hợp trong '{DATA_INDEX_DIR}'. "
-                f"Hãy chạy 'uv run python {backend_hint}' trước để tạo index."
+                f"Hãy chạy 'uv run slidegen-ingest' trước để tạo index."
             )
             sys.exit(1)
 
     # 2. Khởi tạo RetrievalAugmentation & inject vào Tool
     try:
-        ra = load_ra(index_path, use_raptor=args.raptor)
+        ra = load_ra(index_path)
         set_retrieval_augmentation(ra)
     except Exception as e:
         logger.error(f"Không thể khởi tạo RetrievalAugmentation: {e}", exc_info=True)

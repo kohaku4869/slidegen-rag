@@ -3,20 +3,16 @@ ingest.py — CLI tool để index các file Markdown thành Tree và lưu xuố
 
 Usage:
     # Index tất cả file .md trong data/src/
-    uv run python ingest.py
+    uv run slidegen-ingest
 
     # Index một file cụ thể
-    uv run python ingest.py --file data/src/pldc.md
+    uv run slidegen-ingest --file data/src/pldc.md
 
     # Chỉ định thư mục nguồn và đầu ra
-    uv run python ingest.py --src data/src --out data/index
+    uv run slidegen-ingest --src data/src --out data/index
 
     # Ghi đè index đã tồn tại
-    uv run python ingest.py --force
-
-    # Dùng backend raptor_tree (GMM+UMAP clustering theo đúng paper RAPTOR)
-    # thay vì backend tree mặc định (Markdown-heading). Lưu ra <stem>_raptor.pkl
-    uv run python ingest.py --raptor --file data/src/pldc.md
+    uv run slidegen-ingest --force
 """
 
 import argparse
@@ -43,27 +39,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-
-def _build_ra(cfg_tree, cfg_sum, use_raptor: bool = False):
-    """
-    Khởi tạo RetrievalAugmentation từ config.
-
-    Lazy import để tránh load model khi chỉ chạy --help.
-    use_raptor=True dùng backend `raptor_tree` (GMM+UMAP clustering theo đúng paper),
-    mặc định (False) dùng backend `tree` (Markdown-heading, hành vi hiện tại).
-    """
-    if use_raptor:
-        from slidegen_rag.raptor_tree.RetrievalAugmentation import RetrievalAugmentation, RetrievalAugmentationConfig
-        from slidegen_rag.raptor_tree.builder.tree_builder import TreeBuilderConfig
-        from slidegen_rag.raptor_tree.models.EmbeddingModels import EmbeddingModel
-        from slidegen_rag.raptor_tree.models.SummarizationModels import ChatNVIDIASummarizationModel
-        from slidegen_rag.raptor_tree.retriever.tree_retriever import TreeRetrieverConfig
-    else:
-        from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation, RetrievalAugmentationConfig
-        from slidegen_rag.tree.builder.tree_builder import TreeBuilderConfig
-        from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
-        from slidegen_rag.tree.models.SummarizationModels import ChatNVIDIASummarizationModel
-        from slidegen_rag.tree.retriever.tree_retriever import TreeRetrieverConfig
+def _build_ra(cfg_tree, cfg_sum):
+    """Khởi tạo RetrievalAugmentation từ config. Lazy import để tránh load model khi chỉ chạy --help."""
+    from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation, RetrievalAugmentationConfig
+    from slidegen_rag.tree.builder.tree_builder import TreeBuilderConfig
+    from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
+    from slidegen_rag.tree.models.SummarizationModels import ChatNVIDIASummarizationModel
+    from slidegen_rag.tree.retriever.tree_retriever import TreeRetrieverConfig
 
     embedding_model = EmbeddingModel(
         model_name=cfg_tree.EMBEDDING_MODEL_NAME,
@@ -75,23 +57,12 @@ def _build_ra(cfg_tree, cfg_sum, use_raptor: bool = False):
         temperature=cfg_sum.TEMPERATURE,
     )
 
-    tb_kwargs = dict(
+    tb_config = TreeBuilderConfig(
         summarization_length=cfg_tree.SUMMARIZATION_LENGTH,
         summarization_model=summarization_model,
         embedding_models={cfg_tree.EMBEDDING_MODEL_KEY: embedding_model},
         cluster_embedding_model=cfg_tree.CLUSTER_EMBEDDING_MODEL,
     )
-    if use_raptor:
-        tb_kwargs.update(
-            max_tokens=cfg_tree.MAX_TOKENS,
-            chunk_overlap=cfg_tree.CHUNK_OVERLAP,
-            num_layers=cfg_tree.NUM_LAYERS,
-            reduction_dimension=cfg_tree.REDUCTION_DIMENSION,
-            cluster_threshold=cfg_tree.CLUSTER_THRESHOLD,
-            max_clusters=cfg_tree.MAX_CLUSTERS,
-            max_length_in_cluster=cfg_tree.MAX_LENGTH_IN_CLUSTER,
-        )
-    tb_config = TreeBuilderConfig(**tb_kwargs)
 
     from slidegen_rag.config import RetrieverConfig
     tr_config = TreeRetrieverConfig(
@@ -112,7 +83,7 @@ def _build_ra(cfg_tree, cfg_sum, use_raptor: bool = False):
 
 
 def ingest_file(
-    md_path: Path, out_dir: Path, force: bool, cfg_tree, cfg_sum, use_raptor: bool = False
+    md_path: Path, out_dir: Path, force: bool, cfg_tree, cfg_sum
 ) -> Tuple[bool, Optional[BuildStats]]:
     """
     Index một file Markdown thành Tree và lưu file .pkl, đồng thời xuất báo cáo hiệu năng.
@@ -121,22 +92,19 @@ def ingest_file(
         md_path: Đường dẫn tới file .md nguồn.
         out_dir: Thư mục lưu file .pkl đầu ra.
         force:   Ghi đè nếu file .pkl đã tồn tại.
-        cfg_tree: TreeConfig hoặc RaptorTreeConfig instance (tùy use_raptor).
+        cfg_tree: TreeConfig instance.
         cfg_sum:  SummarizationConfig instance.
-        use_raptor: Dùng backend `raptor_tree` (GMM+UMAP) thay vì `tree` (Markdown-heading).
 
     Returns:
         (True, BuildStats) nếu thành công, (False, None) nếu bỏ qua hoặc lỗi.
     """
-    suffix = "_raptor" if use_raptor else ""
-    pkl_path = out_dir / (md_path.stem + suffix + ".pkl")
+    pkl_path = out_dir / (md_path.stem + ".pkl")
 
     if pkl_path.exists() and not force:
         logger.info(f"[SKIP] Index đã tồn tại: {pkl_path} (dùng --force để ghi đè)")
         return False, None
 
-    backend_name = "raptor_tree (GMM+UMAP)" if use_raptor else "tree (Markdown-heading)"
-    logger.info(f"[START] Đang index: {md_path.name} [backend={backend_name}]")
+    logger.info(f"[START] Đang index: {md_path.name}")
     t_file_start = time.perf_counter()
 
     try:
@@ -145,16 +113,13 @@ def ingest_file(
             logger.warning(f"[WARN] File rỗng, bỏ qua: {md_path.name}")
             return False, None
 
-        ra = _build_ra(cfg_tree, cfg_sum, use_raptor=use_raptor)
+        ra = _build_ra(cfg_tree, cfg_sum)
 
         # Bỏ qua warning "Overwriting existing tree" — đây là RA mới hoàn toàn
         ra.tree = None
         ra.tree = ra.tree_builder.build_from_text(markdown_text=text)
 
-        if use_raptor:
-            from slidegen_rag.raptor_tree.retriever.tree_retriever import TreeRetriever
-        else:
-            from slidegen_rag.tree.retriever.tree_retriever import TreeRetriever
+        from slidegen_rag.tree.retriever.tree_retriever import TreeRetriever
         ra.retriever = TreeRetriever(ra.tree_retriever_config, ra.tree)
 
         t_save_start = time.perf_counter()
@@ -186,10 +151,10 @@ def ingest_file(
 
 
 def main():
-    from slidegen_rag.config import DATA_SRC_DIR, DATA_INDEX_DIR, TreeConfig, RaptorTreeConfig, SummarizationConfig
+    from slidegen_rag.config import DATA_SRC_DIR, DATA_INDEX_DIR, TreeConfig, SummarizationConfig
 
     parser = argparse.ArgumentParser(
-        description="Index các file Markdown thành RAPTOR Tree và lưu xuống đĩa."
+        description="Index các file Markdown thành cây phân cấp và lưu xuống đĩa."
     )
     parser.add_argument(
         "--file", "-f",
@@ -214,15 +179,6 @@ def main():
         action="store_true",
         help="Ghi đè file index đã tồn tại.",
     )
-    parser.add_argument(
-        "--raptor",
-        action="store_true",
-        help=(
-            "Dùng backend raptor_tree (GMM+UMAP clustering theo đúng paper RAPTOR) "
-            "thay vì backend tree mặc định (Markdown-heading). "
-            "Index được lưu với hậu tố '_raptor.pkl'."
-        ),
-    )
 
     args = parser.parse_args()
 
@@ -230,7 +186,7 @@ def main():
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    cfg_tree = RaptorTreeConfig() if args.raptor else TreeConfig()
+    cfg_tree = TreeConfig()
     cfg_sum = SummarizationConfig()
 
     # ── Xác định danh sách file cần index ───────────────────────────────────
@@ -249,21 +205,19 @@ def main():
     logger.info(f"  Nguồn  : {src_dir}")
     logger.info(f"  Đầu ra : {out_dir}")
     logger.info(f"  Force  : {args.force}")
-    logger.info(f"  Backend: {'raptor_tree (GMM+UMAP)' if args.raptor else 'tree (Markdown-heading)'}")
     logger.info("-" * 60)
 
     # ── Index từng file ──────────────────────────────────────────────────────
     success, skipped, failed = 0, 0, 0
     all_stats: list[BuildStats] = []
-    out_suffix = "_raptor" if args.raptor else ""
 
     for md_path in md_files:
-        ok, stats = ingest_file(md_path, out_dir, args.force, cfg_tree, cfg_sum, use_raptor=args.raptor)
+        ok, stats = ingest_file(md_path, out_dir, args.force, cfg_tree, cfg_sum)
         if ok:
             success += 1
             if stats:
                 all_stats.append(stats)
-        elif not args.force and (out_dir / (md_path.stem + out_suffix + ".pkl")).exists():
+        elif not args.force and (out_dir / (md_path.stem + ".pkl")).exists():
             skipped += 1
         else:
             failed += 1
@@ -281,4 +235,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

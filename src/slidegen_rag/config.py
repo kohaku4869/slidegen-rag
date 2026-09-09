@@ -58,42 +58,6 @@ class TreeConfig:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# RAPTOR Tree Builder Config (raptor_tree package — GMM + UMAP clustering)
-# ─────────────────────────────────────────────────────────────────────────────
-
-class RaptorTreeConfig:
-    """
-    Tham số cho quá trình xây dựng cây theo đúng thuật toán paper RAPTOR
-    (Sarthi et al.): chunk text cố định + GMM clustering (soft) với UMAP giảm chiều,
-    đệ quy tới khi còn 1 root. Không phụ thuộc cấu trúc heading như TreeConfig.
-    """
-
-    # ── Embedding (dùng chung tham số với TreeConfig để nhất quán) ───────────
-    EMBEDDING_MODEL_NAME: str = TreeConfig.EMBEDDING_MODEL_NAME
-    EMBEDDING_MODEL_KEY: str = "SBERT"
-    CLUSTER_EMBEDDING_MODEL: str = "SBERT"
-
-    # ── Chunking (leaf nodes) ──────────────────────────────────────────────
-    # Số token tối đa mỗi chunk lá (theo paper, thường 100)
-    MAX_TOKENS: int = 100
-    CHUNK_OVERLAP: int = 0
-
-    # ── Clustering (GMM + UMAP) ────────────────────────────────────────────
-    NUM_LAYERS: int = 5
-    # Số chiều giảm còn lại sau UMAP; cũng là ngưỡng "quá ít node để cluster"
-    REDUCTION_DIMENSION: int = 10
-    # Ngưỡng xác suất GMM để gán node vào 1 cluster (soft assignment)
-    CLUSTER_THRESHOLD: float = 0.1
-    # Giới hạn số cluster tối đa khi tìm kiếm BIC-optimal
-    MAX_CLUSTERS: int = 50
-    # Nếu tổng token 1 cluster vượt ngưỡng này, đệ quy tách nhỏ cluster trước khi tóm tắt
-    MAX_LENGTH_IN_CLUSTER: int = 3500
-
-    # ── Summarization ──────────────────────────────────────────────────────
-    SUMMARIZATION_LENGTH: int = TreeConfig.SUMMARIZATION_LENGTH
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Tree Retriever Config
 # ─────────────────────────────────────────────────────────────────────────────
 

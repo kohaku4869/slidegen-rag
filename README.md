@@ -17,14 +17,7 @@ The system seamlessly combines **RAPTOR-inspired Hierarchical Tree Indexing** wi
 - **Smart Markdown AST Parsing**: Custom parser with numeric depth detection (`1.1.2.1`), chapter keyword normalization, and OCR bullet noise stripping.
 - **Multi-Layer Abstraction Tree**: Bottom-up hierarchical clustering and parallel LLM summarization preserving both high-level thematic context and fine-grained section details.
 - **Flexible Retrieval Modes**: Supports search across collapsed tree layers or layer-by-layer traversal.
-- **Two selectable indexing backends**, both sharing the same retrieval engine:
-  - `tree/` (default) — builds the hierarchy from the document's own Markdown heading structure.
-  - `raptor_tree/` — implements the original RAPTOR paper algorithm faithfully: fixed-size text chunking + recursive **GMM clustering with UMAP dimensionality reduction** (soft/probabilistic cluster assignment), with no dependency on document structure. Enable it with the `--raptor` flag on `ingest.py` and `main.py` (requires the `scikit-learn` / `umap-learn` dependencies).
-
-  ```bash
-  uv run python ingest.py --raptor --file data/src/pldc.md   # builds data/index/pldc_raptor.pkl
-  uv run python main.py --raptor --index data/index/pldc_raptor.pkl
-  ```
+- Builds the hierarchy from the document's own Markdown heading structure (`tree/` package). An earlier `raptor_tree/` backend faithfully implementing the original RAPTOR paper's GMM+UMAP clustering was dropped as part of the AgenticRAG restructuring — it duplicated ~1,700 lines against `tree/` for a chunking strategy that discards line-span provenance, which the agentic harness's `find`/`open` tools depend on.
 
 ### 🤖 2. Corrective RAG (CRAG) Agent Architecture (LangGraph)
 - **Dynamic Retrieval Node**: LLM analyzes queries and decides optimal search strategy (Dense Semantic Search, BM25 Keyword Search, or Tavily Web Search).
