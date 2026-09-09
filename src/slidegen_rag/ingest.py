@@ -117,7 +117,9 @@ def ingest_file(
 
         # Bỏ qua warning "Overwriting existing tree" — đây là RA mới hoàn toàn
         ra.tree = None
-        ra.tree = ra.tree_builder.build_from_text(markdown_text=text)
+        ra.tree = ra.tree_builder.build_from_text(
+            markdown_text=text, doc_id=md_path.stem, source_path=str(md_path)
+        )
 
         from slidegen_rag.tree.retriever.tree_retriever import TreeRetriever
         ra.retriever = TreeRetriever(ra.tree_retriever_config, ra.tree)

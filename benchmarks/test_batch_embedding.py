@@ -14,6 +14,8 @@ import unittest
 from unittest.mock import MagicMock, patch, call
 from typing import Dict, List, Set, Tuple
 
+import tiktoken
+
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -56,7 +58,10 @@ def make_tree_builder(embedding_model=None, summarization_model=None):
         summarization_model = FakeSummarizationModel()
 
     config = MagicMock()
-    config.tokenizer = None
+    # Schema v2 metadata (n_tokens/subtree_tokens) needs a real tokenizer —
+    # nothing in this heading-based builder used self.tokenizer before that,
+    # so a MagicMock/None sufficed until then.
+    config.tokenizer = tiktoken.get_encoding("cl100k_base")
     config.max_tokens = 100
     config.num_layers = 5
     config.top_k = 5

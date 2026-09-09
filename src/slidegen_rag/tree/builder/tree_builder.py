@@ -1,4 +1,5 @@
 import collections
+import hashlib
 import logging
 import os
 import re
@@ -213,6 +214,14 @@ class TreeBuilder:
              not as section headings, because OCR tools often incorrectly apply # to list items.
 
         Returns preamble content (text before first heading) and a list of root node dicts.
+        Each node dict also carries source-provenance metadata for schema v2:
+        `heading_line` (0-based line index within `markdown_text.strip().split("\n")`),
+        `body_line_start`/`body_line_end` (this node's own content lines, exclusive end),
+        `line_start`/`line_end` (whole-subtree span, filled in by `_assign_line_spans`),
+        `depth` (top-down nesting depth, 0 = top-level) and `heading_path` (breadcrumb
+        of ancestor titles + own title). Line numbers are relative to the *stripped*
+        text — `build_from_text` stores that same stripped string as `Tree.source_text`
+        so `source_text.split("\n")[line_start:line_end]` stays valid.
         """
         # Keywords that signal a top-level chapter heading, regardless of # count
         CHAPTER_KEYWORDS = ('CHƯƠNG', 'PHẦN', 'CÂU HỎI ÔN TẬP', 'TÀI LIỆU THAM KHẢO')
@@ -223,8 +232,8 @@ class TreeBuilder:
         root_nodes, ancestry_stack, preamble_lines = [], [], []
         first_heading_found = False
 
-        for line in lines:
-            line = line.strip()
+        for lineno, raw_line in enumerate(lines):
+            line = raw_line.strip()
             if not line:
                 continue
 
@@ -241,6 +250,7 @@ class TreeBuilder:
                 if clean_text and clean_text[0] in BULLET_MARKERS:
                     if first_heading_found and ancestry_stack:
                         ancestry_stack[-1]['content'].append(clean_text)
+                        ancestry_stack[-1]['body_line_end'] = lineno + 1
                     elif not first_heading_found:
                         preamble_lines.append(clean_text)
                     continue
@@ -266,10 +276,32 @@ class TreeBuilder:
                         level = len(heading_match.group(1))
                         clean_title = clean_text
 
-                new_node = {"level": level, "title": clean_title, "content": [], "children": []}
+                # Close off the previously-active node's own body span at this line —
+                # a content line only ever appends to the CURRENT deepest ancestry_stack
+                # top, so that top's body necessarily ends right where this heading starts.
+                if ancestry_stack:
+                    ancestry_stack[-1]['body_line_end'] = lineno
 
                 while ancestry_stack and ancestry_stack[-1]['level'] >= level:
                     ancestry_stack.pop()
+
+                # depth/heading_path are computed here (after popping, before pushing)
+                # so ancestry_stack holds exactly this node's real ancestors.
+                depth = len(ancestry_stack)
+                heading_path = tuple(a['title'] for a in ancestry_stack) + (clean_title,)
+
+                new_node = {
+                    "level": level,
+                    "title": clean_title,
+                    "content": [],
+                    "children": [],
+                    "heading_line": lineno,
+                    "depth": depth,
+                    "heading_path": heading_path,
+                    "body_line_start": lineno + 1,
+                    "body_line_end": lineno + 1,
+                }
+
                 if not ancestry_stack:
                     root_nodes.append(new_node)
                 else:
@@ -280,14 +312,26 @@ class TreeBuilder:
                     preamble_lines.append(re.sub(r'[*_`~\\]+', '', line).strip())
                 elif ancestry_stack:
                     ancestry_stack[-1]['content'].append(line)
+                    ancestry_stack[-1]['body_line_end'] = lineno + 1
 
         def _join_content_recursively(node):
             node['content'] = "\n".join(node.get('content', [])).strip()
             for child in node.get('children', []):
                 _join_content_recursively(child)
 
+        def _assign_line_spans(node) -> int:
+            """Post-order pass: line_end of a node covers its own body AND every
+            descendant's body — i.e. the whole subtree's span in the source text."""
+            own_end = max(node.get('body_line_end', node['heading_line'] + 1), node['heading_line'] + 1)
+            child_ends = [_assign_line_spans(c) for c in node.get('children', [])]
+            end = max([own_end] + child_ends)
+            node['line_start'] = node['heading_line']
+            node['line_end'] = end
+            return end
+
         for root_node in root_nodes:
             _join_content_recursively(root_node)
+            _assign_line_spans(root_node)
 
         preamble_content = "\n".join(preamble_lines).strip()
         return preamble_content, root_nodes
@@ -320,6 +364,29 @@ class TreeBuilder:
         for child in json_node.get("children", []):
             self._collect_json_nodes_by_layer(child, layer_map)
 
+    def _apply_json_metadata(
+        self, node_obj: Node, json_node: Dict[str, Any], doc_id: str, layer: int
+    ) -> None:
+        """
+        Copies parse-time metadata (title, heading path/level, depth, line
+        spans) from a hierarchy JSON node onto its corresponding Node object,
+        plus a token count derived from the node's own text. `parent` and
+        `subtree_tokens` are resolved afterwards in one pass over the whole
+        tree once every Node exists (see `build_from_text`).
+        """
+        node_obj.doc_id = doc_id
+        node_obj.title = json_node.get("title", "")
+        node_obj.heading_path = tuple(json_node.get("heading_path", ()))
+        node_obj.heading_level = json_node.get("level", 0)
+        node_obj.depth = json_node.get("depth", 0)
+        node_obj.layer = layer
+        node_obj.line_start = json_node.get("line_start", json_node.get("heading_line", 0))
+        node_obj.line_end = json_node.get("line_end", node_obj.line_start)
+        node_obj.body_line_start = json_node.get("body_line_start", 0)
+        node_obj.body_line_end = json_node.get("body_line_end", 0)
+        node_obj.n_tokens = len(self.tokenizer.encode(node_obj.text))
+        node_obj.kind = "leaf" if layer == 0 else "summary"
+
     def create_embedding(self, text) -> List[float]:
         """
         Generates embeddings for the given text using the specified embedding model.
@@ -338,7 +405,13 @@ class TreeBuilder:
     def batch_summarize(self, contexts, max_tokens=2048):
         return self.summarization_model.batch_summarize(contexts, max_tokens)
 
-    def build_from_text(self, markdown_text: str, use_multithreading: bool = True) -> Tree:
+    def build_from_text(
+        self,
+        markdown_text: str,
+        use_multithreading: bool = True,
+        doc_id: str = "",
+        source_path: str = "",
+    ) -> Tree:
         """
         Builds a Tree structure from markdown text by parsing hierarchy and
         summarizing bottom-up layer by layer using batch_summarize until reaching a single root node.
@@ -346,6 +419,10 @@ class TreeBuilder:
         Args:
             markdown_text (str): The input Markdown text.
             use_multithreading (bool, optional): Kept for API compatibility.
+            doc_id: Logical document identifier stamped onto the Tree and every
+                Node (multi-document corpora need this to disambiguate reference
+                IDs; single-document callers may leave it blank).
+            source_path: Original file path, stored on the Tree for provenance only.
 
         Returns:
             Tree: The built Tree object.
@@ -354,6 +431,10 @@ class TreeBuilder:
         t_parse_start = time.perf_counter()
         preamble, root_jsons = self.parse_markdown_to_hierarchical_json(markdown_text)
         parse_time = time.perf_counter() - t_parse_start
+
+        source_text = markdown_text.strip()
+        source_sha1 = hashlib.sha1(source_text.encode("utf-8")).hexdigest()
+        source_lines = source_text.split("\n")
 
         all_nodes: Dict[int, Node] = {}
         layer_to_nodes: Dict[int, List[Node]] = collections.defaultdict(list)
@@ -365,6 +446,15 @@ class TreeBuilder:
             t_emb_start = time.perf_counter()
             node_idx, single_node = self.create_node(0, text_content, set())
             emb_time = time.perf_counter() - t_emb_start
+
+            single_node.doc_id = doc_id
+            single_node.n_tokens = len(self.tokenizer.encode(single_node.text))
+            single_node.subtree_tokens = single_node.n_tokens
+            single_node.line_start = 0
+            single_node.line_end = len(source_lines)
+            single_node.body_line_start = 0
+            single_node.body_line_end = len(source_lines)
+            single_node.kind = "root"
 
             all_nodes[0] = single_node
             layer_to_nodes[0] = [single_node]
@@ -400,6 +490,12 @@ class TreeBuilder:
                 num_layers=1,
                 layer_to_nodes=dict(layer_to_nodes),
                 build_stats=build_stats,
+                schema_version=2,
+                doc_id=doc_id,
+                source_path=source_path,
+                source_sha1=source_sha1,
+                source_text=source_text,
+                parent_of={},
             )
 
         # 1. Assign layer to all JSON hierarchy nodes
@@ -436,6 +532,7 @@ class TreeBuilder:
             leaf_json["node_obj"] = node_obj
             all_nodes[node_idx] = node_obj
             layer_to_nodes[0].append(node_obj)
+            self._apply_json_metadata(node_obj, leaf_json, doc_id, layer=0)
 
         layer_stats.append(
             LayerStat(
@@ -500,6 +597,7 @@ class TreeBuilder:
                 p_json["node_obj"] = parent_node_obj
                 all_nodes[node_idx] = parent_node_obj
                 layer_to_nodes[current_layer].append(parent_node_obj)
+                self._apply_json_metadata(parent_node_obj, p_json, doc_id, layer=current_layer)
 
             layer_name = f"Layer {current_layer} Summaries"
             layer_stats.append(
@@ -544,6 +642,16 @@ class TreeBuilder:
             layer_to_nodes[super_root_layer].append(super_root_node)
             final_root_node = super_root_node
 
+            # No corresponding JSON node exists for a synthesized super-root
+            # (it spans every top-level chapter), so set its metadata directly
+            # rather than via _apply_json_metadata.
+            super_root_node.doc_id = doc_id
+            super_root_node.layer = super_root_layer
+            super_root_node.depth = 0
+            super_root_node.line_start = 0
+            super_root_node.line_end = len(source_lines)
+            super_root_node.n_tokens = len(self.tokenizer.encode(super_root_node.text))
+
             layer_stats.append(
                 LayerStat(
                     layer=super_root_layer,
@@ -559,6 +667,25 @@ class TreeBuilder:
         leaf_nodes_dict = {node.index: node for node in layer_to_nodes[0]}
         root_nodes_dict = {final_root_node.index: final_root_node}
         num_layers = max(layer_to_nodes.keys()) + 1
+
+        # Final metadata pass — resolve parent pointers, subtree token totals,
+        # and mark the actual tree root. All three need the full node set to
+        # exist first (parent/subtree_tokens) or final_root_node to be known
+        # (kind), so they can't be done inline during leaf/parent creation.
+        parent_of: Dict[int, int] = {}
+        for node in all_nodes.values():
+            for child_idx in node.children:
+                parent_of[child_idx] = node.index
+                if child_idx in all_nodes:
+                    all_nodes[child_idx].parent = node.index
+
+        for layer_idx in sorted(layer_to_nodes.keys()):
+            for node in layer_to_nodes[layer_idx]:
+                node.subtree_tokens = node.n_tokens + sum(
+                    all_nodes[c].subtree_tokens for c in node.children if c in all_nodes
+                )
+
+        final_root_node.kind = "root"
 
         total_build_time = time.perf_counter() - t_build_start
         total_nodes = len(all_nodes)
@@ -585,6 +712,12 @@ class TreeBuilder:
             num_layers=num_layers,
             layer_to_nodes=dict(layer_to_nodes),
             build_stats=build_stats,
+            schema_version=2,
+            doc_id=doc_id,
+            source_path=source_path,
+            source_sha1=source_sha1,
+            source_text=source_text,
+            parent_of=parent_of,
         )
 
 
