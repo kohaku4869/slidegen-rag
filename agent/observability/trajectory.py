@@ -47,12 +47,17 @@ logger = logging.getLogger(__name__)
 
 
 def make_initial_state(query: str) -> AgentState:
-    """State khởi tạo chuẩn cho CRAG graph — thay dict 7 khoá lặp lại ở
-    main.py và evaluate/evaluate.py."""
+    """State khởi tạo chuẩn cho CRAG graph — thay dict lặp lại ở main.py và
+    evaluate/evaluate.py."""
     return {
         "query": query,
         "tool_calls": [],
         "documents": [],
+        "pending_documents": [],
+        "seen_fingerprints": [],
+        "search_history": [],
+        "missing_aspects": [],
+        "node_digest": [],
         "feedback": "",
         "context_sufficient": False,
         "generation": "",
@@ -496,17 +501,25 @@ def _render_step(step: NodeStep, ctx: dict) -> list[str]:
 
     # ── cập nhật state (delta hoá cho documents) ──
     upd = step.update_summary
+
+    if step.name == "tool" and "pending_documents" in upd:
+        n_pending = upd["pending_documents"]
+        ctx["pending"] = n_pending
+        lines.append(
+            f"    → cập nhật: pending_documents=list[{n_pending}]  "
+            f"(+{n_pending} chunk mới, đã lọc trùng xuyên vòng)"
+        )
+
     if "documents" in upd:
         new_count = upd["documents"]
         prev_count = ctx.get("doc_count", 0)
-        delta = new_count - prev_count
-        if step.name == "tool":
-            lines.append(f"    → cập nhật: documents=list[{new_count}]  (+{delta} chunk mới)")
-        elif step.name == "grade_documents":
-            removed = prev_count - new_count
+        if step.name == "grade_documents":
+            pending = ctx.get("pending", 0)
+            kept = new_count - prev_count
+            loai = max(pending - kept, 0)
             lines.append(
                 f"    → cập nhật: documents=list[{new_count}]  "
-                f"(giữ {new_count}/{prev_count}, loại {removed})"
+                f"(chấm {pending} chunk mới: giữ {kept}, loại {loai})"
             )
         else:
             lines.append(f"    → cập nhật: documents=list[{new_count}]")

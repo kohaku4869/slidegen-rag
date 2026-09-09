@@ -195,6 +195,28 @@ def get_text(node_list: List[Node]) -> str:
     return text
 
 
+def dedup_parent_child(node_list: List[Node]) -> List[Node]:
+    """
+    Loại các node cha khỏi kết quả nếu ít nhất một con của nó cũng nằm trong
+    cùng kết quả — tránh context trùng lặp, vì node cha (summary) thường diễn
+    lại đúng nội dung các con. Giữ nguyên thứ tự ban đầu (theo similarity/BM25).
+
+    Args:
+        node_list (List[Node]): danh sách node đã chọn (có thể trộn nhiều layer).
+
+    Returns:
+        List[Node]: danh sách đã lọc, không đổi thứ tự tương đối.
+    """
+    selected_indices = {n.index for n in node_list}
+    result = []
+    for n in node_list:
+        children = getattr(n, "children", None) or set()
+        if children & selected_indices:
+            continue
+        result.append(n)
+    return result
+
+
 def indices_of_nearest_neighbors_from_distances(distances: List[float]) -> np.ndarray:
     """
     Returns the indices of nearest neighbors sorted in ascending order of distance.

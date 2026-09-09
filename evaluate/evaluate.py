@@ -332,7 +332,7 @@ def get_answers_and_chunks_for_topic(
     """
     from main import load_ra
     from agent.graph.builder import build_graph
-    from agent.tools.tools import set_retrieval_augmentation
+    from agent.tools.tools import set_retrieval_augmentation, set_web_search_enabled
     from agent.observability.trajectory import (
         TrajectoryRecorder,
         Trajectory,
@@ -392,6 +392,13 @@ def get_answers_and_chunks_for_topic(
     # (xem ingest.py --raptor). Ngược lại dùng backend tree mặc định.
     ra = load_ra(index_path, use_raptor=topic.endswith("_raptor"))
     set_retrieval_augmentation(ra)
+    # Benchmark closed-book: reference.txt được viết trên giả định agent CHỈ
+    # dùng data/src/pldc.md. Nếu web_search được bind trong lúc eval, agent có
+    # thể trả lời đúng-trong-thực-tế nhưng mâu thuẫn với reference (vd. tra ra
+    # thời hiệu khởi kiện dân sự thật trong khi reference nói "tài liệu không
+    # đề cập"), làm sai lệch điểm accuracy/faithfulness. Chạy thật (main.py)
+    # vẫn giữ mặc định bật.
+    set_web_search_enabled(False)
     graph = build_graph()
     recorder = TrajectoryRecorder(graph, tags=["evaluate", topic], metadata={"topic": topic})
 
@@ -517,7 +524,16 @@ CRITERIA: list[dict] = [
 
 
 def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
-    """Tính tỷ lệ bao phủ từ khóa cơ bản từ Reference xuất hiện trong các chunks."""
+    """Tính tỷ lệ bao phủ từ khóa cơ bản từ Reference xuất hiện trong các chunks.
+
+    LƯU Ý (giữ nguyên để so sánh lịch sử với các lần chạy trước / README):
+    đây là công thức GỐC, dùng SUBSTRING match (`w in all_chunks_text`) chứ
+    không phải khớp theo ranh giới từ. Hệ quả: điểm số này tăng gần như đơn
+    điệu theo SỐ LƯỢNG chunk, không phản ánh chất lượng — 40 chunk NGẪU
+    NHIÊN lấy từ corpus đã đạt ~86.5% theo công thức này (đo thực nghiệm).
+    Dùng `calculate_keyword_coverage_strict` để có con số đáng tin hơn; giữ
+    cả hai để không làm mất khả năng đối chiếu với điểm cũ.
+    """
     if not reference:
         return 100.0
     if not used_chunks:
@@ -530,6 +546,48 @@ def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
 
     unique_words = list(set(words))
     matched = sum(1 for w in unique_words if w in all_chunks_text)
+    coverage = (matched / len(unique_words)) * 100.0
+    return min(100.0, coverage)
+
+
+# Stopword tiếng Việt tối thiểu — chỉ các hư từ/liên từ cực phổ biến, không
+# lọc từ có nghĩa chuyên ngành. Mục tiêu là loại các từ nối gần như luôn
+# match dù chunk không liên quan (vd. "của", "là", "và"), không phải làm
+# một bộ NLP stopword đầy đủ.
+_VN_STOPWORDS = {
+    "và", "của", "là", "có", "được", "cho", "các", "một", "những", "này",
+    "đó", "khi", "với", "để", "trong", "về", "theo", "như", "từ", "hay",
+    "hoặc", "thì", "nếu", "nên", "mà", "đã", "sẽ", "đang", "bị", "do",
+    "vì", "nhưng", "còn", "cũng", "chỉ", "rất", "vào", "ra", "trên",
+    "dưới", "giữa", "sau", "trước", "tại", "bởi", "cả", "mỗi", "tất",
+}
+
+
+def calculate_keyword_coverage_strict(reference: str, used_chunks: list[str]) -> float:
+    """
+    Bản coverage ĐÁNG TIN CẬY hơn: khớp theo RANH GIỚI TỪ (token-level, không
+    phải substring), bỏ stopword tiếng Việt phổ biến, tối thiểu 2 ký tự/từ.
+
+    So với `calculate_keyword_coverage`: substring match khiến số chunk càng
+    nhiều thì điểm càng cao dù nội dung không liên quan (đo thực nghiệm: 40
+    chunk ngẫu nhiên từ corpus đạt 86.5%). Token-set match không có hiệu ứng
+    đó — thêm chunk không liên quan không làm tăng số từ khớp.
+    """
+    if not reference:
+        return 100.0
+    if not used_chunks:
+        return 0.0
+
+    chunk_tokens: set[str] = set()
+    for c in used_chunks:
+        chunk_tokens.update(re.findall(r"\b\w{2,}\b", c.lower()))
+
+    ref_words = [w for w in re.findall(r"\b\w{2,}\b", reference.lower()) if w not in _VN_STOPWORDS]
+    if not ref_words:
+        return 100.0
+
+    unique_words = set(ref_words)
+    matched = sum(1 for w in unique_words if w in chunk_tokens)
     coverage = (matched / len(unique_words)) * 100.0
     return min(100.0, coverage)
 
@@ -753,6 +811,7 @@ def run_evaluation_for_topic(
         ))
 
         coverage = calculate_keyword_coverage(ref, chunks)
+        coverage_strict = calculate_keyword_coverage_strict(ref, chunks)
 
         if eval_res is not None:
             is_success = True
@@ -783,6 +842,7 @@ def run_evaluation_for_topic(
             "faithfulness": faith_val,
             "total_score": total_score,
             "coverage_pct": round(coverage, 1),
+            "coverage_pct_strict": round(coverage_strict, 1),
             "chunks_count": len(chunks),
             "feedback": feedback_val,
             "is_success": is_success,
@@ -806,6 +866,7 @@ def run_evaluation_for_topic(
             "faithfulness": float(valid_df["faithfulness"].astype(float).mean()),
             "total_score": float(valid_df["total_score"].astype(float).mean()),
             "coverage_pct": float(valid_df["coverage_pct"].astype(float).mean()),
+            "coverage_pct_strict": float(valid_df["coverage_pct_strict"].astype(float).mean()),
             "avg_chunks": float(detail_df["chunks_count"].mean()),
             "total_questions": len(detail_df),
             "success_count": success_count,
@@ -819,6 +880,7 @@ def run_evaluation_for_topic(
             "faithfulness": 0.0,
             "total_score": 0.0,
             "coverage_pct": 0.0,
+            "coverage_pct_strict": 0.0,
             "avg_chunks": 0.0,
             "total_questions": len(detail_df),
             "success_count": 0,
@@ -907,7 +969,8 @@ def generate_summary_kpi_html(summary: dict, topic_name: str = "", was_cached: b
             {format_metric_html("📚 Độ đầy đủ (Completeness)", summary.get("completeness"))}
             {format_metric_html("🎯 Độ liên quan (Relevance)", summary.get("relevance"))}
             {format_metric_html("🛡️ Trung thực (Faithfulness)", summary.get("faithfulness"))}
-            {format_metric_html("🔍 Phủ từ khóa (Keyword Coverage)", summary.get("coverage_pct"), is_percentage=True)}
+            {format_metric_html("🔍 Phủ từ khóa (Keyword Coverage - legacy)", summary.get("coverage_pct"), is_percentage=True)}
+            {format_metric_html("🔍 Phủ từ khóa (Keyword Coverage - strict)", summary.get("coverage_pct_strict"), is_percentage=True)}
         </div>
         <div style="margin-top: 10px; padding: 8px 12px; background-color: #f1f5f9; border-radius: 6px; font-size: 12px; color: #475569; text-align: center;">
             Tổng số câu hỏi: <b>{summary.get('total_questions', 0)}</b> (Thành công: <b>{summary.get('success_count', 0)}</b>{failed_badge}) | Trung bình Context: <b>{summary.get('avg_chunks', 0.0):.1f} chunks/câu</b>
@@ -1003,7 +1066,8 @@ def create_summary_table(all_summaries: dict[str, dict]) -> pd.DataFrame:
             "Relevance": round(summary.get("relevance", 0.0), 2),
             "Faithfulness": round(summary.get("faithfulness", 0.0), 2),
             "Total Score": round(summary.get("total_score", 0.0), 2),
-            "Keyword Coverage (%)": f"{summary.get('coverage_pct', 0.0):.1f}%",
+            "Keyword Coverage legacy (%)": f"{summary.get('coverage_pct', 0.0):.1f}%",
+            "Keyword Coverage strict (%)": f"{summary.get('coverage_pct_strict', 0.0):.1f}%",
             "Avg Chunks": round(summary.get("avg_chunks", 0.0), 1),
             "Số câu thành công": f"{summary.get('success_count', 0)}/{summary.get('total_questions', 0)}",
         })
@@ -1015,6 +1079,38 @@ def create_summary_table(all_summaries: dict[str, dict]) -> pd.DataFrame:
 # =============================================================================
 
 _current_detail_df: Optional[pd.DataFrame] = None
+
+
+def export_evaluation_results(topic: str, detail_df: pd.DataFrame, summary: dict) -> tuple[Path, Path]:
+    """
+    Ghi kết quả đánh giá ra file, để có baseline đối chiếu qua các lần chạy
+    (trước đây mọi điểm số chỉ tồn tại trong _current_detail_df trong bộ nhớ,
+    mất khi tắt process — không cách nào so sánh trước/sau khi sửa agent).
+
+    Ghi 2 file trong data/test/<topic>/:
+        scores_<timestamp>.csv  — chi tiết từng câu (không kèm cột list dài
+                                  used_chunks/traj_text để file gọn, xem lại
+                                  trong chunks.txt/trajectory.txt tương ứng).
+        summary_<timestamp>.json — điểm tổng hợp của lần chạy này.
+
+    Returns:
+        (csv_path, json_path)
+    """
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_dir = DATA_TEST_DIR / topic
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    csv_path = out_dir / f"scores_{ts}.csv"
+    json_path = out_dir / f"summary_{ts}.json"
+
+    export_cols = [c for c in detail_df.columns if c not in ("used_chunks", "traj_text")]
+    detail_df[export_cols].to_csv(csv_path, index=False, encoding="utf-8-sig")
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump({"topic": topic, "timestamp": ts, **summary}, f, ensure_ascii=False, indent=2)
+
+    logger.info(f"[{topic}] Đã xuất kết quả: {csv_path.name}, {json_path.name}")
+    return csv_path, json_path
 
 
 def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Progress()):
@@ -1044,10 +1140,12 @@ def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Pro
         display_cols = [
             "STT", "question", "response",
             "accuracy", "completeness", "relevance", "faithfulness",
-            "total_score", "coverage_pct", "chunks_count", "feedback"
+            "total_score", "coverage_pct", "coverage_pct_strict", "chunks_count", "feedback"
         ]
         display_df = detail_df[display_cols].copy()
         display_df = display_df.fillna("-")
+
+        export_evaluation_results(topic, detail_df, summary)
 
         q_choices = [f"Câu {row['STT']}: {str(row['question'])[:60]}..." for _, row in detail_df.iterrows()]
         first_choice = q_choices[0] if q_choices else None
@@ -1122,7 +1220,8 @@ def inspect_question_handler(selected_q_text: str):
 - **Độ liên quan (Relevance)**: `{rel_str}`
 - **Trung thực / Chống ảo giác (Faithfulness)**: `{faith_str}`
 - **🏆 Tổng điểm (Total Score)**: `{tot_str}`
-- **Độ phủ từ khóa (Keyword Coverage)**: `{item['coverage_pct']}%`
+- **Độ phủ từ khóa - legacy (Keyword Coverage)**: `{item['coverage_pct']}%`
+- **Độ phủ từ khóa - strict (Keyword Coverage)**: `{item.get('coverage_pct_strict', 'N/A')}%`
 
 ---
 ### 📝 Nhận xét chi tiết (Feedback)
@@ -1169,11 +1268,14 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
             total_success += summary.get("success_count", 0)
             total_failed += summary.get("failed_count", 0)
 
+            export_evaluation_results(topic, detail_df, summary)
+
         except Exception as e:
             logger.error(f"Lỗi khi đánh giá chủ đề {topic}: {e}", exc_info=True)
             all_summaries[topic] = {
                 "accuracy": 0.0, "completeness": 0.0, "relevance": 0.0,
                 "faithfulness": 0.0, "total_score": 0.0, "coverage_pct": 0.0,
+                "coverage_pct_strict": 0.0,
                 "avg_chunks": 0.0, "total_questions": 0, "success_count": 0,
                 "failed_count": 0, "error": str(e)
             }
@@ -1188,7 +1290,7 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
         display_cols = [
             "STT", "topic", "question", "response",
             "accuracy", "completeness", "relevance", "faithfulness",
-            "total_score", "coverage_pct", "chunks_count", "feedback"
+            "total_score", "coverage_pct", "coverage_pct_strict", "chunks_count", "feedback"
         ]
         detail_table_df = combined_df[[c for c in display_cols if c in combined_df.columns]].copy()
         detail_table_df = detail_table_df.fillna("-")
@@ -1204,6 +1306,7 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
             "relevance": sum(s["relevance"] for s in valid_summaries) / len(valid_summaries),
             "faithfulness": sum(s["faithfulness"] for s in valid_summaries) / len(valid_summaries),
             "coverage_pct": sum(s["coverage_pct"] for s in valid_summaries) / len(valid_summaries),
+            "coverage_pct_strict": sum(s.get("coverage_pct_strict", 0.0) for s in valid_summaries) / len(valid_summaries),
             "avg_chunks": sum(s["avg_chunks"] for s in valid_summaries) / len(valid_summaries),
             "total_questions": total_questions,
             "success_count": total_success,

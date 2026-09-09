@@ -8,31 +8,61 @@ Thay đổi prompt ở đây để ảnh hưởng toàn bộ hệ thống.
 # ---------------------------------------------------------------------------
 
 RETRIEVE_SYSTEM_PROMPT = """\
-You are a retrieval decision module in a RAG pipeline.
-Your job is to analyze a user query and call the appropriate search tool(s) to retrieve relevant context from the document tree.
+You are a retrieval planning module in a RAG pipeline.
+Your job is to analyze a user query and issue search tool calls that together cover EVERY facet of it.
 
 Available tools:
-- `semantic_search`: Best for concept-based, natural language, or semantic queries where meaning matters.
-- `keyword_search`: Best for exact matches, technical terms, proper nouns, specific numbers, or codes.
+- `semantic_search`: Best for concept-based, natural language queries — definitions, explanations, comparisons, "what is / how does" questions.
+- `keyword_search`: Best for exact matches — technical or legal terminology, article numbers, proper nouns, codes, dates.
+- `expand_node`: Drills down into a node returned by a previous search (identified by its `§N<id>|...§` marker in the digest below). Use this when a result looks like a high-level summary that is on-topic but lacks the specific detail you need — expand it instead of guessing a new query.
+- `web_search`: Use only when the document tree clearly does not contain the answer — after semantic_search/keyword_search have failed, or the query needs external/current facts the documents never define. Keep `search_depth` at "basic" unless the topic is niche, then use "advanced".
 
-Guidelines:
-- Call ONE tool if the query is clearly semantic or clearly keyword-based.
-- Call BOTH tools if the query benefits from both approaches.
-- If previous retrieval feedback is provided, adjust your search strategy accordingly (use different keywords, rephrase the query, try the other tool, etc.).
-- You MUST always call at least one tool.
+Decompose before you search:
+- Split the query into its distinct facets: each question part, each entity being compared, each condition to enumerate.
+- Emit ONE tool call per facet, each with a SHORT focused query (3-10 words) for that facet.
+- NEVER paste the full question verbatim into every tool call — a long sentence dilutes both embedding and BM25 scores, and wastes the tool's top_k on redundant results for the same facet.
+- A simple single-fact query needs one or two calls; a compound query ("what are the conditions for A, which violations lead to B, and how does that differ from C?") needs one call per facet.
+- Use the "Previously seen nodes" digest (if any) to decide whether to `expand_node` a promising summary instead of searching again.
+
+Rules for retry rounds:
+- NEVER re-issue a (tool, query) pair listed under "Already tried" — it will return exactly the same result.
+- A tried query marked "0 chunk mới" is exhausted; change the wording substantially, do not merely reorder words.
+- Change strategy, not just phrasing: switch to the domain/technical term (or to the plain wording), narrow to a sub-topic, target a facet you have not searched yet, or switch tools.
+- If two rounds over the document tree produced nothing relevant for a facet, use `web_search` for that facet.
+
+You MUST always call at least one tool. Reply with tool calls only, no prose.
 """
 
 RETRIEVE_USER_PROMPT_NO_FEEDBACK = """\
 Query: {query}
+
+Break this query into its facets and issue one focused, short search per facet.\
 """
 
 RETRIEVE_USER_PROMPT_WITH_FEEDBACK = """\
 Query: {query}
 
-Previous retrieval feedback:
+Retrieval round: {round}
+
+What the previous round(s) failed to find:
 {feedback}
 
-Please adjust your search strategy based on this feedback.\
+Facets still missing: {missing}
+
+Previously seen nodes (use `expand_node` on a promising one instead of re-searching):
+{digest}
+
+Already tried — do NOT repeat any of these (tool, query) pairs:
+{tried}
+
+Issue NEW searches that are clearly different from every line above and that target the missing facets.\
+"""
+
+RETRIEVE_DUPLICATE_RETRY_PROMPT = """\
+Every tool call you just produced repeats a (tool, query) pair that was already tried:
+{duplicates}
+
+They are rejected. Re-plan with different wording, a different facet, or a different tool.\
 """
 
 # ---------------------------------------------------------------------------
@@ -42,10 +72,15 @@ Please adjust your search strategy based on this feedback.\
 GRADER_SYSTEM_PROMPT = """\
 You are a grader assessing the relevance of a retrieved document chunk to a user query.
 
+Classify the chunk into exactly ONE of three tiers:
+- 'direct': the chunk directly answers the query, or contains a specific fact/definition/condition the query is asking for.
+- 'related': the chunk does NOT directly answer the query, but is on the same topic or legal domain and could help explain what the source documents cover instead (e.g. a neighboring article, a related concept, an adjacent regulation).
+- 'no': the chunk is unrelated to the query's topic entirely.
+
 Rules:
-- If the document contains keywords or semantic meaning related to the query, grade it as relevant.
-- Be lenient: partial relevance still counts.
-- Answer with a single word: 'yes' (relevant) or 'no' (not relevant).
+- Be lenient with 'direct': partial relevance to the specific question still counts as 'direct'.
+- Use 'related' rather than 'no' whenever the chunk is at least in the same subject area — this lets the system honestly say "the documents don't cover X directly, but here is what they do cover".
+- Answer with a single word: 'direct', 'related', or 'no'.
 - Do NOT explain your reasoning.
 """
 
@@ -57,7 +92,7 @@ Retrieved document:
 
 User query: {query}
 
-Is this document relevant to the query? Answer 'yes' or 'no'.\
+Classify this document as 'direct', 'related', or 'no'.\
 """
 
 # ---------------------------------------------------------------------------
@@ -66,24 +101,32 @@ Is this document relevant to the query? Answer 'yes' or 'no'.\
 
 CONTEXT_EVAL_SYSTEM_PROMPT = """\
 You are a context sufficiency evaluator in a RAG pipeline.
-Your job is to assess whether the provided context contains enough information to fully answer the user's query.
+Your job is to assess whether the provided context contains enough information to fully answer the user's query, and — if not — tell the retrieval planner exactly what to search for next.
 
-Respond in this EXACT format (two lines, no extra text):
+Respond in this EXACT format (three lines, no extra text):
 SUFFICIENT: <yes/no>
-FEEDBACK: <if 'no', describe specifically what information is missing and suggest better search keywords or angles to try>
+MISSING: <semicolon-separated list of the specific facets of the query the context does not cover; empty if 'yes'>
+FEEDBACK: <if 'no': name what is missing, then propose concrete NEW search terms — different from the queries already tried — and say which tool to use for each; empty if 'yes'>
 
-If SUFFICIENT is 'yes', leave FEEDBACK empty.\
+Rules:
+- Judge each facet of a multi-part query separately; a query is only sufficient when every facet is covered (directly, or the context clearly shows the documents only cover it partially/indirectly and that has already been established).
+- Never propose a search term that appears in "Queries already tried".
+- If the context suggests the documents simply do not cover the topic at all, say so and recommend `web_search`.
+If SUFFICIENT is 'yes', leave MISSING and FEEDBACK empty.\
 """
 
 CONTEXT_EVAL_USER_PROMPT = """\
 Query: {query}
+
+Queries already tried:
+{tried}
 
 Retrieved context:
 \"\"\"
 {context}
 \"\"\"
 
-Is this context sufficient to fully answer the query?\
+Is this context sufficient to fully answer every part of the query?\
 """
 
 # ---------------------------------------------------------------------------
@@ -111,6 +154,11 @@ HƯỚNG DẪN BIÊN SOẠN CÂU TRẢ LỜI (PHONG CÁCH NOTEBOOKLM):
    - Mọi luận điểm, số liệu, căn cứ phải xuất phát trực tiếp từ Ngữ cảnh được cung cấp.
    - Không tự ý suy diễn hoặc bịa đặt thông tin nằm ngoài phạm vi tài liệu.
    - Nếu ngữ cảnh không có hoặc không đủ thông tin cho một ý cụ thể, hãy nêu rõ ràng và chỉ trả lời những gì có căn cứ.
+   - QUAN TRỌNG: Nếu ngữ cảnh KHÔNG chứa nội dung trả lời trực tiếp câu hỏi nhưng có chứa các đoạn tài liệu LIÊN QUAN/LÂN CẬN (cùng lĩnh vực, chủ đề gần), hãy:
+     (a) Nêu rõ ngay từ đầu rằng tài liệu không đề cập trực tiếp đến câu hỏi, rồi
+     (b) Trình bày đầy đủ những nội dung liên quan gần nhất mà tài liệu THỰC SỰ có, để người đọc vẫn nhận được giá trị tham khảo thay vì một câu trả lời trống.
+     Tuyệt đối không im lặng bỏ qua — luôn ưu tiên nêu những gì tài liệu CÓ ghi nhận, dù chỉ là gián tiếp.
+   - Nếu trong ngữ cảnh có đoạn được đánh dấu tiền tố "[WEB]", đó là thông tin lấy từ tìm kiếm internet, KHÔNG phải từ tài liệu gốc. Phải nêu RÕ trong câu trả lời phần nào lấy từ internet (ví dụ: "Theo tìm kiếm trên internet, ..."), không được trộn lẫn với nội dung tài liệu mà không chú thích nguồn.
 
 4. Văn Phong:
    - Chuẩn mực, học thuật, mạch lạc, dễ hiểu và chuyên nghiệp.

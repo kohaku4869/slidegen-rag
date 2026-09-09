@@ -1,30 +1,77 @@
 import asyncio
 import logging
+import re
 
-from langchain_core.messages import ToolMessage
 from langchain_core.runnables import RunnableConfig
 
 from agent.graph.state import AgentState
 from agent.tools.tools import SOFT_FAILURE_PREFIXES, TOOL_MAP
+from agent.utils.search_history import fingerprint
 
 logger = logging.getLogger(__name__)
 
+# Marker do agent/tools/tools.py gắn trước mỗi node (§N<id>|L<layer>§ ) để
+# tool_node biết node nào ứng với đoạn text nào — phục vụ node_digest cho
+# expand_node. Marker KHÔNG được lộ ra ngoài tool_node: không vào documents,
+# không vào prompt sinh câu trả lời.
+NODE_MARKER_RE = re.compile(r"^§N(-?\d+)\|L(-?\d+)§ ")
 
-def _extract_chunks(raw: str) -> list[str]:
-    """Tách raw tool output thành các chunk, bỏ chunk lỗi mềm (xem
-    agent/tools/tools.py:SOFT_FAILURE_PREFIXES)."""
+_MIN_CHUNK_CHARS = 20
+_MAX_DIGEST_ENTRIES = 15
+_DIGEST_SNIPPET_CHARS = 120
+
+
+def _split_raw(raw: str, sep: str) -> list[str]:
     if not raw or not isinstance(raw, str):
         return []
+    return [p.strip() for p in raw.split(sep) if p.strip()]
+
+
+def _extract_chunks(raw: str, tool_name: str) -> list[dict]:
+    """
+    Tách raw tool output thành các chunk. Mỗi chunk là 1 dict:
+        {"text": str, "node_id": int|None, "layer": int|None}
+
+    - Bỏ chunk lỗi mềm (xem agent/tools/tools.py:SOFT_FAILURE_PREFIXES).
+    - Bỏ chunk quá ngắn (< 20 ký tự) — thường là rác/heading trơ.
+    - web_search nối kết quả bằng "\\n\\n---\\n\\n" (khác semantic_search/
+      keyword_search dùng "\\n\\n"), nên phải tách theo đúng separator của
+      từng tool — nếu không, chunk "---" rác sẽ lọt vào và URL bị tách khỏi
+      nội dung tương ứng.
+    - Bóc marker §N<id>|L<layer>§ do semantic_search/keyword_search/
+      expand_node gắn vào (nếu có) để phục vụ node_digest; chunk trả về
+      KHÔNG còn marker.
+    - Chunk từ web_search được gắn tiền tố "[WEB]" để generate_node và người
+      đọc câu trả lời phân biệt được đâu là thông tin lấy từ internet, đâu là
+      từ tài liệu gốc.
+    """
+    sep = "\n\n---\n\n" if tool_name == "web_search" else "\n\n"
+    pieces = _split_raw(raw, sep)
+
     chunks = []
-    for chunk in raw.split("\n\n"):
-        chunk = chunk.strip()
-        if chunk and not any(chunk.startswith(p) for p in SOFT_FAILURE_PREFIXES):
-            chunks.append(chunk)
+    for piece in pieces:
+        if any(piece.startswith(p) for p in SOFT_FAILURE_PREFIXES):
+            continue
+
+        node_id, layer = None, None
+        m = NODE_MARKER_RE.match(piece)
+        if m:
+            node_id, layer = int(m.group(1)), int(m.group(2))
+            piece = piece[m.end():].strip()
+
+        if len(piece) < _MIN_CHUNK_CHARS:
+            continue
+
+        if tool_name == "web_search":
+            piece = f"[WEB] {piece}"
+
+        chunks.append({"text": piece, "node_id": node_id, "layer": layer})
     return chunks
 
 
 def _merge_documents(existing: list[str], new_chunks: list[str]) -> list[str]:
-    """Merge và dedup documents qua các vòng retrieve."""
+    """Merge và dedup documents (dùng bởi grade_documents_node khi cộng chunk
+    mới đậu vào tập survivor tích luỹ)."""
     seen = set(existing)
     merged = list(existing)
     for chunk in new_chunks:
@@ -34,19 +81,50 @@ def _merge_documents(existing: list[str], new_chunks: list[str]) -> list[str]:
     return merged
 
 
+def _build_digest(chunk_infos: list[dict]) -> list[dict]:
+    """
+    Danh mục gọn các node vừa retrieve trong vòng này, để retrieve_node biết
+    node nào có thể `expand_node` để lấy chi tiết thay vì search lại từ đầu.
+    Ưu tiên node có khả năng có con (layer > 0, tức node summary) lên đầu.
+    """
+    entries = []
+    for info in chunk_infos:
+        if info["node_id"] is None:
+            continue
+        entries.append({
+            "id": info["node_id"],
+            "layer": info["layer"],
+            "snippet": info["text"][:_DIGEST_SNIPPET_CHARS],
+            "has_children": (info["layer"] or 0) > 0,
+        })
+    entries.sort(key=lambda e: not e["has_children"])
+
+    seen_ids = set()
+    unique = []
+    for e in entries:
+        if e["id"] in seen_ids:
+            continue
+        seen_ids.add(e["id"])
+        unique.append(e)
+    return unique[:_MAX_DIGEST_ENTRIES]
+
+
 async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
     """
     Thực thi các tool_calls được tạo ra bởi retrieve_node.
 
     Đọc danh sách tool_calls từ state (không phải từ messages), thực thi
-    song song các tool, sau đó merge kết quả mới vào documents hiện có.
+    song song các tool, tách thành chunk và LỌC TRÙNG xuyên suốt mọi vòng
+    bằng seen_fingerprints trước khi đưa vào pending_documents. Node này
+    KHÔNG ghi "documents" — đó là việc của grade_documents_node (chỉ chấm
+    chunk mới trong pending_documents rồi cộng phần đậu vào documents), để
+    tránh chấm lại chunk đã từng đậu ở vòng trước.
 
     Luồng:
         retrieve_node → tool_node → grade_documents_node
 
     Args:
-        state (AgentState): Cần có 'tool_calls'. 'documents' có thể có sẵn
-                            từ các lần retrieve trước (sẽ được merge thêm).
+        state (AgentState): Cần có 'tool_calls'.
         config (RunnableConfig): LangGraph tự truyền vào (annotation phải
                             đúng tên RunnableConfig để được inject). Được
                             forward vào tool_func.invoke để tool span nối
@@ -54,15 +132,23 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
                             TrajectoryCallbackHandler bắt được on_tool_*.
 
     Returns:
-        dict: {"documents": list[str]} — tất cả raw chunks từ tool execution,
-              merge với documents cũ (dedup).
+        dict: {"pending_documents", "seen_fingerprints", "search_history",
+               "node_digest"}.
     """
     tool_calls = state.get("tool_calls", [])
-    existing_docs = state.get("documents", [])
+    seen = list(state.get("seen_fingerprints", []))
+    seen_set = set(seen)
+    history = list(state.get("search_history", []))
+    round_no = state.get("retrieve_count", 0)
 
     if not tool_calls:
         logger.warning("[tool_node] No tool_calls in state — skipping")
-        return {"documents": existing_docs}
+        return {
+            "pending_documents": [],
+            "seen_fingerprints": seen,
+            "search_history": history,
+            "node_digest": [],
+        }
 
     logger.info(
         f"[tool_node] Executing {len(tool_calls)} tool(s): "
@@ -88,14 +174,49 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
 
     raw_outputs = await asyncio.gather(*[run_tool(tc) for tc in tool_calls])
 
-    # Tách thành chunks và merge với existing documents
-    new_chunks: list[str] = []
-    for raw in raw_outputs:
-        new_chunks.extend(_extract_chunks(raw))
+    pending: list[str] = []
+    all_chunk_infos: list[dict] = []
+    for tc, raw in zip(tool_calls, raw_outputs):
+        tool_name = tc.get("name", "")
+        tool_args = tc.get("args", {}) or {}
+        chunk_infos = _extract_chunks(raw, tool_name)
+        all_chunk_infos.extend(chunk_infos)
 
-    merged = _merge_documents(existing_docs, new_chunks)
+        fresh_count = 0
+        for info in chunk_infos:
+            fp = fingerprint(info["text"])
+            if fp not in seen_set:
+                seen_set.add(fp)
+                seen.append(fp)
+                pending.append(info["text"])
+                fresh_count += 1
+
+        soft_failed = bool(raw) and any(raw.startswith(p) for p in SOFT_FAILURE_PREFIXES)
+        # expand_node dùng node_id thay vì query — lưu node_id vào field
+        # "query" (dạng chuỗi) để search_history.call_key/tried_keys nhận
+        # diện đúng khoá trùng lặp; format_history sẽ hiển thị đẹp lại.
+        if tool_name == "expand_node":
+            query_repr = str(tool_args.get("node_id", ""))
+        else:
+            query_repr = tool_args.get("query", "")
+        history.append({
+            "round": round_no,
+            "tool": tool_name,
+            "query": query_repr,
+            "new_chunks": fresh_count,
+            "soft_failed": soft_failed,
+        })
+
+    node_digest = _build_digest(all_chunk_infos)
+
     logger.info(
-        f"[tool_node] +{len(new_chunks)} new chunks | total docs: {len(merged)}"
+        f"[tool_node] +{len(pending)} chunk mới (đã lọc trùng xuyên vòng) "
+        f"| tổng đã thấy: {len(seen)}"
     )
 
-    return {"documents": merged}
+    return {
+        "pending_documents": pending,
+        "seen_fingerprints": seen,
+        "search_history": history,
+        "node_digest": node_digest,
+    }

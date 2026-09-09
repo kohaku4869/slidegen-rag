@@ -1,144 +1,144 @@
 === CÂU HỎI 1 ===
 
 Câu hỏi : Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?
-Bắt đầu : 2026-09-09 15:50:51
-Tổng thời gian: 65.1s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:32:38
+Tổng thời gian: 18.5s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=25,994 out=1,672 tổng=27,666 | Chi phí ước tính: $0.011978 USD (~304.25 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0855c-df51-7161-adfc-2f482126043a
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0855c-df51-7161-adfc-2f482126043a?trace_id=01a0855c-df51-7161-adfc-2f482126043a&start_time=2026-09-09T08:50:51.379972
+Tokens: in=25,995 out=1,820 tổng=27,815 | Chi phí ước tính: $0.012349 USD (~313.65 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086cc-b85f-7ef2-a9a6-04f95dc2a6ce
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086cc-b85f-7ef2-a9a6-04f95dc2a6ce?trace_id=01a086cc-b85f-7ef2-a9a6-04f95dc2a6ce&start_time=2026-09-09T15:32:38.623591
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (5.07s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.27s in=555 out=227 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (1.99s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.97s in=555 out=227 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (48.22s)
-    · TOOL keyword_search   args={query='Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?'}  0.35s  out=21,345 ký tự  OK
-    · TOOL semantic_search  args={query='Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?'}  48.11s  out=19,447 ký tự  OK
+[2] tool               (4.42s)
+    · TOOL keyword_search   args={query='Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?'}  0.27s  out=21,345 ký tự  OK
+    · TOOL semantic_search  args={query='Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?'}  4.41s  out=19,447 ký tự  OK
     → cập nhật: documents=list[45]  (+45 chunk mới)
 
-[3] grade_documents    (2.82s)
-    · LLM  default × 45 lượt  tổng 39.93s in=17025 out=90
-    → cập nhật: documents=list[21]  (giữ 21/45, loại 24)
+[3] grade_documents    (2.89s)
+    · LLM  default × 45 lượt  tổng 43.14s in=17025 out=90
+    → cập nhật: documents=list[20]  (giữ 20/45, loại 25)
 
-[4] context_evaluator  (1.77s)
-    · LLM  gemini-2.5-flash (google_genai)  1.76s in=2188 out=174
+[4] context_evaluator  (1.60s)
+    · LLM  gemini-2.5-flash (google_genai)  1.60s in=2188 out=174
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (7.07s)
-    · LLM  gemini-2.5-flash (google_genai)  7.07s in=6781 out=1408
+[5] generate           (7.63s)
+    · LLM  gemini-2.5-flash (google_genai)  7.62s in=6782 out=1556
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×1, semantic_search ×1  (tổng 2 lượt, 0 lỗi)
 Số lượt gọi LLM : 48 (Gemini 3, Local 45)
-Chunk cuối cùng : 21
-Node chậm nhất  : tool (48.22s), generate (7.07s), retrieve (5.07s)
+Chunk cuối cùng : 20
+Node chậm nhất  : generate (7.63s), tool (4.42s), grade_documents (2.89s)
 Lỗi             : (không có)
 
 === CÂU HỎI 2 ===
 
 Câu hỏi : Văn bản quy phạm pháp luật có hiệu lực pháp lý cao nhất trong hệ thống pháp luật Việt Nam là văn bản nào?
-Bắt đầu : 2026-09-09 15:51:58
-Tổng thời gian: 14.8s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:32:59
+Tổng thời gian: 12.9s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=12,745 out=2,020 tổng=14,765 | Chi phí ước tính: $0.008873 USD (~225.39 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0855d-e4f3-7240-a6f2-3e5fc19a4711
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0855d-e4f3-7240-a6f2-3e5fc19a4711?trace_id=01a0855d-e4f3-7240-a6f2-3e5fc19a4711&start_time=2026-09-09T08:51:58.323447
+Tokens: in=12,745 out=1,737 tổng=14,482 | Chi phí ước tính: $0.008166 USD (~207.42 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086cd-0a19-7652-8c5e-0a61a8c54c80
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086cd-0a19-7652-8c5e-0a61a8c54c80?trace_id=01a086cd-0a19-7652-8c5e-0a61a8c54c80&start_time=2026-09-09T15:32:59.545626
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.90s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.89s in=555 out=178 → tool_calls: semantic_search
+[1] retrieve           (1.67s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.66s in=555 out=204 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.18s)
-    · TOOL semantic_search  args={query='Văn bản quy phạm pháp luật có hiệu lực pháp lý cao nhất trong hệ thống pháp luật Việt Nam là văn bản nào?'}  1.17s  out=18,503 ký tự  OK
+[2] tool               (0.96s)
+    · TOOL semantic_search  args={query='Văn bản quy phạm pháp luật có hiệu lực pháp lý cao nhất trong hệ thống pháp luật Việt Nam là văn bản nào?'}  0.95s  out=18,503 ký tự  OK
     → cập nhật: documents=list[11]  (+11 chunk mới)
 
-[3] grade_documents    (1.02s)
-    · LLM  default × 11 lượt  tổng 11.03s in=6224 out=22
+[3] grade_documents    (1.01s)
+    · LLM  default × 11 lượt  tổng 11.02s in=6224 out=22
     → cập nhật: documents=list[9]  (giữ 9/11, loại 2)
 
-[4] context_evaluator  (2.98s)
-    · LLM  gemini-2.5-flash (google_genai)  2.98s in=2145 out=524
+[4] context_evaluator  (2.01s)
+    · LLM  gemini-2.5-flash (google_genai)  2.00s in=2145 out=303
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (7.69s)
-    · LLM  gemini-2.5-flash (google_genai)  7.69s in=4376 out=1474
+[5] generate           (7.27s)
+    · LLM  gemini-2.5-flash (google_genai)  7.27s in=4376 out=1412
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
 Số lượt gọi LLM : 14 (Gemini 3, Local 11)
 Chunk cuối cùng : 9
-Node chậm nhất  : generate (7.69s), context_evaluator (2.98s), retrieve (1.90s)
+Node chậm nhất  : generate (7.27s), context_evaluator (2.01s), retrieve (1.67s)
 Lỗi             : (không có)
 
 === CÂU HỎI 3 ===
 
 Câu hỏi : "Quan hệ pháp luật" gồm mấy yếu tố cấu thành, và tên gọi của từng yếu tố đó là gì?
-Bắt đầu : 2026-09-09 15:52:15
-Tổng thời gian: 15.2s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:33:14
+Tổng thời gian: 16.5s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=13,893 out=2,077 tổng=15,970 | Chi phí ước tính: $0.009360 USD (~237.75 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0855e-27c9-7601-9db3-621457cf6650
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0855e-27c9-7601-9db3-621457cf6650?trace_id=01a0855e-27c9-7601-9db3-621457cf6650&start_time=2026-09-09T08:52:15.433016
+Tokens: in=13,893 out=2,143 tổng=16,036 | Chi phí ước tính: $0.009525 USD (~241.95 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086cd-43a9-7221-bb63-9e6671110b94
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086cd-43a9-7221-bb63-9e6671110b94?trace_id=01a086cd-43a9-7221-bb63-9e6671110b94&start_time=2026-09-09T15:33:14.281019
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.92s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.91s in=554 out=200 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (3.34s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  3.34s in=554 out=410 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.07s)
-    · TOOL keyword_search   args={query='Quan hệ pháp luật yếu tố cấu thành tên gọi'}  0.29s  out=1,769 ký tự  OK
-    · TOOL semantic_search  args={query='Quan hệ pháp luật gồm mấy yếu tố cấu thành, và tên gọi của từng yếu tố đó là gì?'}  1.07s  out=17,976 ký tự  OK
+[2] tool               (0.97s)
+    · TOOL keyword_search   args={query='Quan hệ pháp luật yếu tố cấu thành tên gọi'}  0.24s  out=1,769 ký tự  OK
+    · TOOL semantic_search  args={query='Quan hệ pháp luật gồm mấy yếu tố cấu thành, và tên gọi của từng yếu tố đó là gì?'}  0.97s  out=17,976 ký tự  OK
     → cập nhật: documents=list[15]  (+15 chunk mới)
 
-[3] grade_documents    (1.15s)
-    · LLM  default × 15 lượt  tổng 16.82s in=7160 out=30
+[3] grade_documents    (1.12s)
+    · LLM  default × 15 lượt  tổng 16.56s in=7160 out=30
     → cập nhật: documents=list[7]  (giữ 7/15, loại 8)
 
-[4] context_evaluator  (3.24s)
-    · LLM  gemini-2.5-flash (google_genai)  3.24s in=2175 out=490
+[4] context_evaluator  (3.68s)
+    · LLM  gemini-2.5-flash (google_genai)  3.67s in=2175 out=586
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (7.84s)
-    · LLM  gemini-2.5-flash (google_genai)  7.83s in=4558 out=1557
+[5] generate           (7.40s)
+    · LLM  gemini-2.5-flash (google_genai)  7.39s in=4558 out=1527
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×1, semantic_search ×1  (tổng 2 lượt, 0 lỗi)
 Số lượt gọi LLM : 18 (Gemini 3, Local 15)
 Chunk cuối cùng : 7
-Node chậm nhất  : generate (7.84s), context_evaluator (3.24s), retrieve (1.92s)
+Node chậm nhất  : generate (7.40s), context_evaluator (3.68s), retrieve (3.34s)
 Lỗi             : (không có)
 
 === CÂU HỎI 4 ===
 
 Câu hỏi : Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?
-Bắt đầu : 2026-09-09 15:52:32
-Tổng thời gian: 25.7s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:33:32
+Tổng thời gian: 24.4s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=39,779 out=1,218 tổng=40,997 | Chi phí ước tính: $0.014979 USD (~380.46 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0855e-6c19-7d71-a01f-0b8e71ab2fe8
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0855e-6c19-7d71-a01f-0b8e71ab2fe8?trace_id=01a0855e-6c19-7d71-a01f-0b8e71ab2fe8&start_time=2026-09-09T08:52:32.920740
+Tokens: in=39,868 out=1,106 tổng=40,974 | Chi phí ước tính: $0.014725 USD (~374.03 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086cd-8968-7ad1-9372-33a4fe481918
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086cd-8968-7ad1-9372-33a4fe481918?trace_id=01a086cd-8968-7ad1-9372-33a4fe481918&start_time=2026-09-09T15:33:32.136268
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.27s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.26s in=551 out=263 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (2.01s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.01s in=551 out=263 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.04s)
-    · TOOL keyword_search   args={query='Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?'}  0.23s  out=12,652 ký tự  OK
-    · TOOL semantic_search  args={query='Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?'}  1.03s  out=19,944 ký tự  OK
+[2] tool               (0.98s)
+    · TOOL keyword_search   args={query='Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?'}  0.24s  out=12,652 ký tự  OK
+    · TOOL semantic_search  args={query='Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?'}  0.98s  out=19,944 ký tự  OK
     → cập nhật: documents=list[39]  (+39 chunk mới)
 
-[3] grade_documents    (2.16s)
-    · LLM  default × 39 lượt  tổng 30.27s in=13549 out=78
+[3] grade_documents    (2.32s)
+    · LLM  default × 39 lượt  tổng 32.47s in=13549 out=78
     → cập nhật: documents=list[0]  (giữ 0/39, loại 39)
 
 [4] context_evaluator  (0.00s)
@@ -146,232 +146,233 @@ LangSmith: project=slidegen-rag | run_id=01a0855e-6c19-7d71-a01f-0b8e71ab2fe8
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (4.31s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.31s in=582 out=616 → tool_calls: keyword_search, semantic_search
+[5] retrieve           (2.97s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.97s in=582 out=475 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.05s)
-    · TOOL keyword_search   args={query='Thời hiệu khởi kiện Bộ luật Dân sự', top_k=10}  0.24s  out=10,012 ký tự  OK
-    · TOOL semantic_search  args={top_k=10, query='Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?'}  1.02s  out=19,944 ký tự  OK
-    → cập nhật: documents=list[37]  (+37 chunk mới)
+[6] tool               (1.12s)
+    · TOOL keyword_search   args={query='Thời hiệu khởi kiện Bộ luật Dân sự vụ án dân sự', top_k=10}  0.25s  out=9,937 ký tự  OK
+    · TOOL semantic_search  args={query='Thời hiệu khởi kiện vụ án dân sự theo Bộ luật Dân sự', top_k=10}  1.10s  out=20,372 ký tự  OK
+    → cập nhật: documents=list[39]  (+39 chunk mới)
 
-[7] grade_documents    (1.50s)
-    · LLM  default × 37 lượt  tổng 20.24s in=12625 out=74
-    → cập nhật: documents=list[2]  (giữ 2/37, loại 35)
+[7] grade_documents    (1.47s)
+    · LLM  default × 39 lượt  tổng 19.93s in=12941 out=78
+    → cập nhật: documents=list[1]  (giữ 1/39, loại 38)
 
-[8] context_evaluator  (2.48s)
-    · LLM  gemini-2.5-flash (google_genai)  2.46s in=175 out=218
+[8] context_evaluator  (1.89s)
+    · LLM  gemini-2.5-flash (google_genai)  1.88s in=162 out=177
     → context_sufficient=False
-    → feedback: "Context mentions "Thời hiệu khởi kiện" but does not specify the duration (number of years) for the statute of limitations for civil cases. Missing the actual number of years. Try searching for "thời hiệu khởi kiện vụ án dân sự bao nhiêu năm…"
+    → feedback: "Context mentions "Thời hiệu khởi kiện" but does not specify the duration in years for the statute of limitations for civil cases. Missing the actual number of years. Keywords: "thời hiệu khởi kiện vụ án dân sự bao nhiêu năm", "thời hiệu khở…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (3.28s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.27s in=633 out=522 → tool_calls: keyword_search, semantic_search
+[9] retrieve           (3.75s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.74s in=626 out=490 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
 [10] tool               (0.97s)
-    · TOOL keyword_search   args={query='thời hiệu khởi kiện vụ án dân sự bao nhiêu năm', top_k=10}  0.23s  out=11,251 ký tự  OK
-    · TOOL semantic_search  args={query='thời hiệu khởi kiện vụ án dân sự thời hạn', top_k=10}  0.97s  out=15,969 ký tự  OK
-    → cập nhật: documents=list[41]  (+39 chunk mới)
+    · TOOL keyword_search   args={query='Thời hiệu khởi kiện vụ án dân sự bao nhiêu năm Bộ luật Dân sự'}  0.25s  out=10,188 ký tự  OK
+    · TOOL semantic_search  args={query='Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm'}  0.94s  out=19,944 ký tự  OK
+    → cập nhật: documents=list[35]  (+34 chunk mới)
 
-[11] grade_documents    (1.45s)
-    · LLM  default × 41 lượt  tổng 19.25s in=12503 out=82
-    → cập nhật: documents=list[2]  (giữ 2/41, loại 39)
+[11] grade_documents    (1.26s)
+    · LLM  default × 35 lượt  tổng 17.51s in=12371 out=70
+    → cập nhật: documents=list[2]  (giữ 2/35, loại 33)
 
-[12] context_evaluator  (1.70s)
-    · LLM  gemini-2.5-flash (google_genai)  1.69s in=216 out=164
+[12] context_evaluator  (1.62s)
+    · LLM  gemini-2.5-flash (google_genai)  1.61s in=175 out=144
     → context_sufficient=False
-    → feedback: "The context mentions "Thời hiệu khởi kiện" but does not specify the duration in years for a typical civil case as regulated by the Civil Code. It only provides an irrelevant time frame ("trước ngày bầu cử 05 ngày"). Missing the specific num…"
+    → feedback: "Context mentions "Thời hiệu khởi kiện" but does not specify the duration in years for a typical civil case as requested. Missing the actual number of years. Suggest searching for "thời hiệu khởi kiện vụ án dân sự bao nhiêu năm" or "thời hiệ…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (3.53s)
-    · LLM  gemini-2.5-flash (google_genai)  3.52s in=711 out=602
+[13] generate           (4.08s)
+    · LLM  gemini-2.5-flash (google_genai)  4.07s in=670 out=559
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 0 lỗi)
-Số lượt gọi LLM : 123 (Gemini 6, Local 117)
+Số lượt gọi LLM : 119 (Gemini 6, Local 113)
 Chunk cuối cùng : 2
-Node chậm nhất  : retrieve (4.31s), generate (3.53s), retrieve (3.28s)
+Node chậm nhất  : generate (4.08s), retrieve (3.75s), retrieve (2.97s)
 Lỗi             : (không có)
 
 === CÂU HỎI 5 ===
 
 Câu hỏi : Hình thức xử phạt hành chính nhẹ nhất được quy định trong Luật Xử lý vi phạm hành chính là hình thức nào?
-Bắt đầu : 2026-09-09 15:52:59
-Tổng thời gian: 20.8s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:33:58
+Tổng thời gian: 17.4s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=16,060 out=2,037 tổng=18,097 | Chi phí ước tính: $0.009911 USD (~251.73 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0855e-d505-75d0-b5a1-6704c3d95fe1
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0855e-d505-75d0-b5a1-6704c3d95fe1?trace_id=01a0855e-d505-75d0-b5a1-6704c3d95fe1&start_time=2026-09-09T08:52:59.781508
+Tokens: in=16,060 out=2,425 tổng=18,485 | Chi phí ước tính: $0.010881 USD (~276.36 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086cd-ef82-7400-93cc-68821174b2fb
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086cd-ef82-7400-93cc-68821174b2fb?trace_id=01a086cd-ef82-7400-93cc-68821174b2fb&start_time=2026-09-09T15:33:58.273594
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (7.56s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  7.56s in=555 out=185 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (1.75s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.75s in=555 out=185 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.16s)
-    · TOOL keyword_search   args={query='Hình thức xử phạt hành chính nhẹ nhất Luật Xử lý vi phạm hành chính'}  0.28s  out=8,317 ký tự  OK
-    · TOOL semantic_search  args={query='Hình thức xử phạt hành chính nhẹ nhất được quy định trong Luật Xử lý vi phạm hành chính là hình thức nào?'}  1.15s  out=18,896 ký tự  OK
+[2] tool               (1.00s)
+    · TOOL keyword_search   args={query='Hình thức xử phạt hành chính nhẹ nhất Luật Xử lý vi phạm hành chính'}  0.26s  out=8,317 ký tự  OK
+    · TOOL semantic_search  args={query='Hình thức xử phạt hành chính nhẹ nhất được quy định trong Luật Xử lý vi phạm hành chính là hình thức nào?'}  0.99s  out=18,896 ký tự  OK
     → cập nhật: documents=list[34]  (+34 chunk mới)
 
-[3] grade_documents    (1.76s)
-    · LLM  default × 34 lượt  tổng 27.33s in=11951 out=68
+[3] grade_documents    (2.09s)
+    · LLM  default × 34 lượt  tổng 29.69s in=11951 out=68
     → cập nhật: documents=list[8]  (giữ 8/34, loại 26)
 
-[4] context_evaluator  (2.46s)
-    · LLM  gemini-2.5-flash (google_genai)  2.45s in=1807 out=323
+[4] context_evaluator  (2.40s)
+    · LLM  gemini-2.5-flash (google_genai)  2.40s in=1807 out=323
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (7.83s)
-    · LLM  gemini-2.5-flash (google_genai)  7.83s in=2302 out=1646
+[5] generate           (10.13s)
+    · LLM  gemini-2.5-flash (google_genai)  10.13s in=2302 out=2034
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×1, semantic_search ×1  (tổng 2 lượt, 0 lỗi)
 Số lượt gọi LLM : 37 (Gemini 3, Local 34)
 Chunk cuối cùng : 8
-Node chậm nhất  : generate (7.83s), retrieve (7.56s), context_evaluator (2.46s)
+Node chậm nhất  : generate (10.13s), context_evaluator (2.40s), grade_documents (2.09s)
 Lỗi             : (không có)
 
 === CÂU HỎI 6 ===
 
 Câu hỏi : Phân biệt "năng lực pháp luật" và "năng lực hành vi" của chủ thể pháp luật — tại sao một người mất năng lực hành vi vẫn có thể là chủ thể trong quan hệ pháp luật dân sự?
-Bắt đầu : 2026-09-09 15:53:22
-Tổng thời gian: 74.2s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:34:16
+Tổng thời gian: 72.5s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=12,138 out=17,024 tổng=29,162 | Chi phí ước tính: $0.046201 USD (~1173.52 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0855f-2c68-7750-ab41-93ad1935a7cd
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0855f-2c68-7750-ab41-93ad1935a7cd?trace_id=01a0855f-2c68-7750-ab41-93ad1935a7cd&start_time=2026-09-09T08:53:22.152619
+Tokens: in=12,138 out=16,898 tổng=29,036 | Chi phí ước tính: $0.045886 USD (~1165.51 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086ce-385f-7350-abd0-f99c0579a532
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086ce-385f-7350-abd0-f99c0579a532?trace_id=01a086ce-385f-7350-abd0-f99c0579a532&start_time=2026-09-09T15:34:16.926411
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.39s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.39s in=577 out=225 → tool_calls: semantic_search
+[1] retrieve           (1.97s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.96s in=577 out=223 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.11s)
-    · TOOL semantic_search  args={query='Phân biệt "năng lực pháp luật" và "năng lực hành vi" của chủ thể pháp luật — tại sao một người mất năng lực hành vi vẫn có thể là chủ thể trong quan hệ pháp luật dân sự?', top_k=5}  1.06s  out=20,432 ký tự  OK
+[2] tool               (0.98s)
+    · TOOL semantic_search  args={top_k=3, query='Phân biệt "năng lực pháp luật" và "năng lực hành vi" của chủ thể pháp luật — tại sao một người mất năng lực hành vi vẫn có thể là chủ thể trong quan hệ pháp luật dân sự?'}  0.97s  out=20,432 ký tự  OK
     → cập nhật: documents=list[12]  (+12 chunk mới)
 
-[3] grade_documents    (1.12s)
-    · LLM  default × 12 lượt  tổng 13.31s in=7133 out=24
+[3] grade_documents    (1.07s)
+    · LLM  default × 12 lượt  tổng 12.75s in=7133 out=24
     → cập nhật: documents=list[6]  (giữ 6/12, loại 6)
 
-[4] context_evaluator  (5.25s)
-    · LLM  gemini-2.5-flash (google_genai)  5.24s in=2189 out=991
+[4] context_evaluator  (3.43s)
+    · LLM  gemini-2.5-flash (google_genai)  3.43s in=2189 out=494
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (64.33s)
-    · LLM  gemini-2.5-flash (google_genai)  64.32s in=2816 out=16009
+[5] generate           (65.03s)
+    · LLM  gemini-2.5-flash (google_genai)  65.03s in=2816 out=16380
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
 Số lượt gọi LLM : 15 (Gemini 3, Local 12)
 Chunk cuối cùng : 6
-Node chậm nhất  : generate (64.33s), context_evaluator (5.25s), retrieve (2.39s)
+Node chậm nhất  : generate (65.03s), context_evaluator (3.43s), retrieve (1.97s)
 Lỗi             : (không có)
 
 === CÂU HỎI 7 ===
 
 Câu hỏi : "Vi phạm pháp luật" và "vi phạm đạo đức" khác nhau ở điểm cơ bản nào khiến chỉ vi phạm pháp luật mới dẫn đến trách nhiệm pháp lý?
-Bắt đầu : 2026-09-09 15:54:37
-Tổng thời gian: 44.7s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:35:30
+Tổng thời gian: 63.4s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=32,498 out=4,498 tổng=36,996 | Chi phí ước tính: $0.020994 USD (~533.26 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08560-5227-79b2-acd6-33b4c549d7b4
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08560-5227-79b2-acd6-33b4c549d7b4?trace_id=01a08560-5227-79b2-acd6-33b4c549d7b4&start_time=2026-09-09T08:54:37.351161
+Tokens: in=44,895 out=4,339 tổng=49,234 | Chi phí ước tính: $0.024316 USD (~617.63 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086cf-5824-7e52-9043-3144c04de471
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086cf-5824-7e52-9043-3144c04de471?trace_id=01a086cf-5824-7e52-9043-3144c04de471&start_time=2026-09-09T15:35:30.596560
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (4.18s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  4.18s in=564 out=127 → tool_calls: semantic_search
+[1] retrieve           (1.56s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.55s in=564 out=127 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (0.88s)
-    · TOOL semantic_search  args={query='Sự khác biệt cơ bản giữa vi phạm pháp luật và vi phạm đạo đức dẫn đến trách nhiệm pháp lý'}  0.88s  out=17,998 ký tự  OK
+[2] tool               (0.90s)
+    · TOOL semantic_search  args={query='Sự khác biệt cơ bản giữa vi phạm pháp luật và vi phạm đạo đức dẫn đến trách nhiệm pháp lý'}  0.89s  out=17,998 ký tự  OK
     → cập nhật: documents=list[9]  (+9 chunk mới)
 
-[3] grade_documents    (0.87s)
-    · LLM  default × 9 lượt  tổng 6.96s in=5934 out=18
+[3] grade_documents    (0.86s)
+    · LLM  default × 9 lượt  tổng 6.79s in=5934 out=18
     → cập nhật: documents=list[1]  (giữ 1/9, loại 8)
 
-[4] context_evaluator  (3.16s)
-    · LLM  gemini-2.5-flash (google_genai)  3.15s in=187 out=403
+[4] context_evaluator  (2.98s)
+    · LLM  gemini-2.5-flash (google_genai)  2.98s in=187 out=391
     → context_sufficient=False
-    → feedback: "The context only states that legal violations lead to legal responsibility, but it does not explain the fundamental differences between legal violations and moral violations, nor does it explain *why* only legal violations lead to legal res…"
+    → feedback: "The context only states that legal violations lead to legal responsibility, but it does not explain the fundamental differences between legal violations and ethical violations, nor does it explain *why* only legal violations lead to legal r…"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (2.73s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  2.72s in=681 out=326 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (4.81s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.80s in=679 out=597 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.00s)
-    · TOOL keyword_search   args={query='phân biệt vi phạm pháp luật và vi phạm đạo đức bản chất trách nhiệm pháp lý nguồn gốc quy tắc pháp luật và đạo đức'}  0.24s  out=18,446 ký tự  OK
-    · TOOL semantic_search  args={query='Sự khác biệt cơ bản giữa vi phạm pháp luật và vi phạm đạo đức, và tại sao chỉ vi phạm pháp luật mới dẫn đến trách nhiệm pháp lý?'}  1.00s  out=15,876 ký tự  OK
-    → cập nhật: documents=list[41]  (+40 chunk mới)
+[6] tool               (1.12s)
+    · TOOL keyword_search   args={query='phân biệt vi phạm pháp luật vi phạm đạo đức bản chất trách nhiệm pháp lý nguồn gốc quy tắc pháp luật đạo đức'}  0.28s  out=18,446 ký tự  OK
+    · TOOL semantic_search  args={query='Sự khác biệt cơ bản giữa vi phạm pháp luật và vi phạm đạo đức, và tại sao chỉ vi phạm pháp luật mới dẫn đến trách nhiệm pháp lý, bao gồm bản chất, nguồn gốc và cơ chế thực thi.'}  1.12s  out=19,217 ký tự  OK
+    → cập nhật: documents=list[43]  (+42 chunk mới)
 
-[7] grade_documents    (2.06s)
-    · LLM  default × 41 lượt  tổng 28.52s in=15123 out=82
-    → cập nhật: documents=list[5]  (giữ 5/41, loại 36)
+[7] grade_documents    (2.23s)
+    · LLM  default × 43 lượt  tổng 31.47s in=16287 out=86
+    → cập nhật: documents=list[5]  (giữ 5/43, loại 38)
 
-[8] context_evaluator  (3.05s)
-    · LLM  gemini-2.5-flash (google_genai)  3.04s in=898 out=489
+[8] context_evaluator  (4.41s)
+    · LLM  gemini-2.5-flash (google_genai)  4.39s in=951 out=735
     → context_sufficient=False
-    → feedback: "Context defines "vi phạm pháp luật" and "trách nhiệm pháp lý" but does not define "vi phạm đạo đức" or explicitly compare the fundamental differences between "vi phạm pháp luật" and "vi phạm đạo đức" that explain why only the former leads t…"
+    → feedback: "The context defines "vi phạm pháp luật" and explains its elements, which are prerequisites for legal responsibility. However, it does not define "vi phạm đạo đức" or explicitly state the fundamental differences between "vi phạm pháp luật" a…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (5.76s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  5.75s in=690 out=1062 → tool_calls: semantic_search
-    → cập nhật: tool_calls=list[1], retrieve_count=3
+[9] retrieve           (2.12s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.11s in=702 out=276 → tool_calls: semantic_search, keyword_search
+    → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (0.84s)
-    · TOOL semantic_search  args={query='phân biệt cơ bản giữa vi phạm pháp luật và vi phạm đạo đức, bản chất của vi phạm đạo đức, và lý do tại sao chỉ vi phạm pháp luật mới phát sinh trách nhiệm pháp lý', top_k=10}  0.84s  out=19,536 ký tự  OK
-    → cập nhật: documents=list[15]  (+10 chunk mới)
+[10] tool               (1.09s)
+    · TOOL keyword_search   args={query='phân biệt vi phạm pháp luật và vi phạm đạo đức, hậu quả của vi phạm đạo đức, bản chất của vi phạm đạo đức'}  0.25s  out=20,172 ký tự  OK
+    · TOOL semantic_search  args={query='Sự khác biệt cơ bản giữa vi phạm pháp luật và vi phạm đạo đức dẫn đến trách nhiệm pháp lý'}  1.08s  out=17,998 ký tự  OK
+    → cập nhật: documents=list[51]  (+46 chunk mới)
 
-[11] grade_documents    (0.77s)
-    · LLM  default × 15 lượt  tổng 11.21s in=8003 out=30
-    → cập nhật: documents=list[6]  (giữ 6/15, loại 9)
+[11] grade_documents    (2.19s)
+    · LLM  default × 51 lượt  tổng 31.93s in=18355 out=102
+    → cập nhật: documents=list[9]  (giữ 9/51, loại 42)
 
-[12] context_evaluator  (3.04s)
-    · LLM  gemini-2.5-flash (google_genai)  3.02s in=929 out=495
+[12] context_evaluator  (4.95s)
+    · LLM  gemini-2.5-flash (google_genai)  4.94s in=1343 out=889
     → context_sufficient=False
-    → feedback: "The context defines "vi phạm pháp luật" and "trách nhiệm pháp lý" and states that legal violations are the basis for legal responsibility. However, it does not define "vi phạm đạo đức" or explicitly explain the fundamental differences betwe…"
+    → feedback: "The context defines "vi phạm pháp luật" and "trách nhiệm pháp lý" and establishes their direct link. However, it does not define "vi phạm đạo đức" or explicitly compare it with "vi phạm pháp luật" to highlight the fundamental differences (e…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (16.35s)
-    · LLM  gemini-2.5-flash (google_genai)  16.35s in=1424 out=2981
+[13] generate           (34.16s)
+    · LLM  gemini-2.5-flash (google_genai)  34.15s in=1838 out=2118
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×3, keyword_search ×1  (tổng 4 lượt, 0 lỗi)
-Số lượt gọi LLM : 72 (Gemini 7, Local 65)
-Chunk cuối cùng : 6
-Node chậm nhất  : generate (16.35s), retrieve (5.76s), retrieve (4.18s)
+Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
+Số lượt gọi LLM : 110 (Gemini 7, Local 103)
+Chunk cuối cùng : 9
+Node chậm nhất  : generate (34.16s), context_evaluator (4.95s), retrieve (4.81s)
 Lỗi             : (không có)
 
 === CÂU HỎI 8 ===
 
 Câu hỏi : Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?
-Bắt đầu : 2026-09-09 15:55:23
-Tổng thời gian: 30.2s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:36:35
+Tổng thời gian: 27.1s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=26,104 out=325 tổng=26,429 | Chi phí ước tính: $0.008644 USD (~219.55 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08561-068e-76d1-9833-a4f593976eb8
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08561-068e-76d1-9833-a4f593976eb8?trace_id=01a08561-068e-76d1-9833-a4f593976eb8&start_time=2026-09-09T08:55:23.533396
+Tokens: in=26,284 out=736 tổng=27,020 | Chi phí ước tính: $0.009725 USD (~247.02 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d0-559e-7112-8ccc-ca4b28232b42
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d0-559e-7112-8ccc-ca4b28232b42?trace_id=01a086d0-559e-7112-8ccc-ca4b28232b42&start_time=2026-09-09T15:36:35.486329
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.75s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.74s in=565 out=184 → tool_calls: semantic_search
+[1] retrieve           (1.59s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.58s in=565 out=184 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (0.95s)
-    · TOOL semantic_search  args={query='Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?'}  0.94s  out=19,430 ký tự  OK
+[2] tool               (1.68s)
+    · TOOL semantic_search  args={query='Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?'}  1.67s  out=19,430 ký tự  OK
     → cập nhật: documents=list[12]  (+12 chunk mới)
 
-[3] grade_documents    (1.04s)
-    · LLM  default × 12 lượt  tổng 12.36s in=6720 out=24
+[3] grade_documents    (1.06s)
+    · LLM  default × 12 lượt  tổng 12.51s in=6720 out=24
     → cập nhật: documents=list[0]  (giữ 0/12, loại 12)
 
 [4] context_evaluator  (0.00s)
@@ -379,17 +380,17 @@ LangSmith: project=slidegen-rag | run_id=01a08561-068e-76d1-9833-a4f593976eb8
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (10.44s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  10.44s in=596 out=1828 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (10.64s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  10.63s in=596 out=1828 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.05s)
-    · TOOL keyword_search   args={query='tập quán pháp nguồn pháp luật điều kiện'}  0.21s  out=3,477 ký tự  OK
-    · TOOL semantic_search  args={query='Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?'}  1.05s  out=19,430 ký tự  OK
+[6] tool               (1.11s)
+    · TOOL keyword_search   args={query='tập quán pháp nguồn pháp luật điều kiện'}  0.26s  out=3,477 ký tự  OK
+    · TOOL semantic_search  args={query='Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?'}  1.10s  out=19,430 ký tự  OK
     → cập nhật: documents=list[23]  (+23 chunk mới)
 
-[7] grade_documents    (1.06s)
-    · LLM  default × 23 lượt  tổng 13.28s in=9364 out=46
+[7] grade_documents    (1.24s)
+    · LLM  default × 23 lượt  tổng 15.99s in=9364 out=46
     → cập nhật: documents=list[0]  (giữ 0/23, loại 23)
 
 [8] context_evaluator  (0.00s)
@@ -397,135 +398,136 @@ LangSmith: project=slidegen-rag | run_id=01a08561-068e-76d1-9833-a4f593976eb8
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (10.06s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  10.05s in=596 out=1828 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (3.20s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.20s in=596 out=516 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.16s)
-    · TOOL keyword_search   args={query='tập quán pháp nguồn pháp luật điều kiện'}  0.23s  out=3,477 ký tự  OK
-    · TOOL semantic_search  args={query='Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?'}  1.15s  out=19,430 ký tự  OK
+[10] tool               (1.10s)
+    · TOOL keyword_search   args={query='tập quán pháp nguồn của pháp luật điều kiện'}  0.25s  out=3,409 ký tự  OK
+    · TOOL semantic_search  args={query='Tại sao "tập quán pháp" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?'}  1.09s  out=19,430 ký tự  OK
     → cập nhật: documents=list[23]  (+23 chunk mới)
 
-[11] grade_documents    (0.78s)
-    · LLM  default × 23 lượt  tổng 9.69s in=9364 out=46
-    → cập nhật: documents=list[0]  (giữ 0/23, loại 23)
+[11] grade_documents    (0.85s)
+    · LLM  default × 23 lượt  tổng 10.47s in=9355 out=46
+    → cập nhật: documents=list[1]  (giữ 1/23, loại 22)
 
-[12] context_evaluator  (0.00s)
+[12] context_evaluator  (2.22s)
+    · LLM  gemini-2.5-flash (google_genai)  2.21s in=175 out=231
     → context_sufficient=False
-    → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
+    → feedback: "Context does not explain why customary law is considered a source of law despite not being state-enacted, nor does it list the conditions for a custom to become customary law. Keywords for search: "điều kiện tập quán pháp", "nguồn của pháp …"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (1.88s)
-    · LLM  gemini-2.5-flash (google_genai)  1.87s in=656 out=209
+[13] generate           (2.44s)
+    · LLM  gemini-2.5-flash (google_genai)  2.44s in=670 out=389
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 62 (Gemini 4, Local 58)
-Chunk cuối cùng : 0
-Node chậm nhất  : retrieve (10.44s), retrieve (10.06s), generate (1.88s)
+Số lượt gọi LLM : 63 (Gemini 5, Local 58)
+Chunk cuối cùng : 1
+Node chậm nhất  : retrieve (10.64s), retrieve (3.20s), generate (2.44s)
 Lỗi             : (không có)
 
 === CÂU HỎI 9 ===
 
 Câu hỏi : Phân biệt "hiệu lực hồi tố" và "hiệu lực không hồi tố" của văn bản pháp luật — trường hợp nào văn bản được áp dụng hồi tố theo quy định hiện hành?
-Bắt đầu : 2026-09-09 15:55:54
-Tổng thời gian: 23.3s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:37:03
+Tổng thời gian: 73.4s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=16,992 out=3,375 tổng=20,367 | Chi phí ước tính: $0.013535 USD (~343.79 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08561-80a4-7b90-b8e0-b87176949ce7
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08561-80a4-7b90-b8e0-b87176949ce7?trace_id=01a08561-80a4-7b90-b8e0-b87176949ce7&start_time=2026-09-09T08:55:54.788262
+Tokens: in=16,992 out=10,492 tổng=27,484 | Chi phí ước tính: $0.031328 USD (~795.72 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d0-c4df-7d72-bd6c-e51d30b4e034
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d0-c4df-7d72-bd6c-e51d30b4e034?trace_id=01a086d0-c4df-7d72-bd6c-e51d30b4e034&start_time=2026-09-09T15:37:03.966884
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (3.16s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  3.15s in=571 out=326 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (2.60s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.60s in=571 out=326 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.28s)
-    · TOOL keyword_search   args={query='hiệu lực hồi tố, hiệu lực không hồi tố, áp dụng hồi tố, quy định hiện hành'}  0.33s  out=9,390 ký tự  OK
-    · TOOL semantic_search  args={query='Phân biệt hiệu lực hồi tố và hiệu lực không hồi tố của văn bản pháp luật, các trường hợp áp dụng hồi tố theo quy định hiện hành'}  1.27s  out=14,873 ký tự  OK
+[2] tool               (1.11s)
+    · TOOL keyword_search   args={query='hiệu lực hồi tố, hiệu lực không hồi tố, áp dụng hồi tố, quy định hiện hành'}  0.23s  out=9,390 ký tự  OK
+    · TOOL semantic_search  args={query='Phân biệt hiệu lực hồi tố và hiệu lực không hồi tố của văn bản pháp luật, các trường hợp áp dụng hồi tố theo quy định hiện hành'}  1.11s  out=14,873 ký tự  OK
     → cập nhật: documents=list[39]  (+39 chunk mới)
 
-[3] grade_documents    (2.03s)
-    · LLM  default × 39 lượt  tổng 28.23s in=12391 out=78
+[3] grade_documents    (2.27s)
+    · LLM  default × 39 lượt  tổng 30.73s in=12391 out=78
     → cập nhật: documents=list[11]  (giữ 11/39, loại 28)
 
-[4] context_evaluator  (4.21s)
-    · LLM  gemini-2.5-flash (google_genai)  4.19s in=2053 out=643
+[4] context_evaluator  (4.51s)
+    · LLM  gemini-2.5-flash (google_genai)  4.50s in=2053 out=568
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (12.59s)
-    · LLM  gemini-2.5-flash (google_genai)  12.58s in=2548 out=2654
-    → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
+[5] generate           (62.89s)
+    · LLM  gemini-2.5-flash (google_genai)  62.87s in=2548 out=9846
+    → cập nhật: generation sinh xong (48 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×1, semantic_search ×1  (tổng 2 lượt, 0 lỗi)
 Số lượt gọi LLM : 42 (Gemini 3, Local 39)
 Chunk cuối cùng : 11
-Node chậm nhất  : generate (12.59s), context_evaluator (4.21s), retrieve (3.16s)
+Node chậm nhất  : generate (62.89s), context_evaluator (4.51s), retrieve (2.60s)
 Lỗi             : (không có)
 
 === CÂU HỎI 10 ===
 
 Câu hỏi : Trách nhiệm hình sự và trách nhiệm hành chính đều là hậu quả pháp lý bất lợi, vậy điều gì phân biệt hai loại trách nhiệm này về bản chất và thẩm quyền xử lý?
-Bắt đầu : 2026-09-09 15:56:19
-Tổng thời gian: 73.5s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:38:18
+Tổng thời gian: 72.7s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=11,027 out=17,380 tổng=28,407 | Chi phí ước tính: $0.046758 USD (~1187.66 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08561-e1e6-7561-9574-74b2549e94c8
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08561-e1e6-7561-9574-74b2549e94c8?trace_id=01a08561-e1e6-7561-9574-74b2549e94c8&start_time=2026-09-09T08:56:19.686272
+Tokens: in=11,027 out=16,792 tổng=27,819 | Chi phí ước tính: $0.045288 USD (~1150.32 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d1-e9f7-7d80-b957-709ee293ab57
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d1-e9f7-7d80-b957-709ee293ab57?trace_id=01a086d1-e9f7-7d80-b957-709ee293ab57&start_time=2026-09-09T15:38:18.998504
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.80s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.79s in=568 out=142 → tool_calls: semantic_search
+[1] retrieve           (1.59s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.58s in=568 out=142 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (0.97s)
-    · TOOL semantic_search  args={query='Trách nhiệm hình sự và trách nhiệm hành chính đều là hậu quả pháp lý bất lợi, vậy điều gì phân biệt hai loại trách nhiệm này về bản chất và thẩm quyền xử lý?'}  0.96s  out=18,092 ký tự  OK
+[2] tool               (1.08s)
+    · TOOL semantic_search  args={query='Trách nhiệm hình sự và trách nhiệm hành chính đều là hậu quả pháp lý bất lợi, vậy điều gì phân biệt hai loại trách nhiệm này về bản chất và thẩm quyền xử lý?'}  1.07s  out=18,092 ký tự  OK
     → cập nhật: documents=list[6]  (+6 chunk mới)
 
-[3] grade_documents    (0.82s)
-    · LLM  default × 6 lượt  tổng 4.34s in=5460 out=12
+[3] grade_documents    (0.84s)
+    · LLM  default × 6 lượt  tổng 4.49s in=5460 out=12
     → cập nhật: documents=list[3]  (giữ 3/6, loại 3)
 
-[4] context_evaluator  (5.15s)
-    · LLM  gemini-2.5-flash (google_genai)  5.15s in=2186 out=988
+[4] context_evaluator  (5.25s)
+    · LLM  gemini-2.5-flash (google_genai)  5.24s in=2186 out=988
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (64.72s)
-    · LLM  gemini-2.5-flash (google_genai)  64.71s in=3381 out=16380
+[5] generate           (63.92s)
+    · LLM  gemini-2.5-flash (google_genai)  63.91s in=3381 out=15792
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
 Số lượt gọi LLM : 9 (Gemini 3, Local 6)
 Chunk cuối cùng : 3
-Node chậm nhất  : generate (64.72s), context_evaluator (5.15s), retrieve (1.80s)
+Node chậm nhất  : generate (63.92s), context_evaluator (5.25s), retrieve (1.59s)
 Lỗi             : (không có)
 
 === CÂU HỎI 11 ===
 
 Câu hỏi : (Luật Dân sự) Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn — hậu quả pháp lý của hai trường hợp này có giống nhau không?
-Bắt đầu : 2026-09-09 15:57:34
-Tổng thời gian: 30.8s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:39:32
+Tổng thời gian: 40.1s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=50,689 out=601 tổng=51,290 | Chi phí ước tính: $0.016709 USD (~424.41 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08563-0642-7a31-8e3d-4dcd320d3fa3
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08563-0642-7a31-8e3d-4dcd320d3fa3?trace_id=01a08563-0642-7a31-8e3d-4dcd320d3fa3&start_time=2026-09-09T08:57:34.530564
+Tokens: in=51,096 out=476 tổng=51,572 | Chi phí ước tính: $0.016519 USD (~419.58 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d3-0a2d-7983-8602-e414040dfdbd
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d3-0a2d-7983-8602-e414040dfdbd?trace_id=01a086d3-0a2d-7983-8602-e414040dfdbd&start_time=2026-09-09T15:39:32.779897
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.13s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.12s in=573 out=162 → tool_calls: semantic_search
+[1] retrieve           (2.24s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.23s in=573 out=162 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (0.95s)
-    · TOOL semantic_search  args={query='Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn và hậu quả pháp lý của hai trường hợp này'}  0.95s  out=19,741 ký tự  OK
+[2] tool               (0.83s)
+    · TOOL semantic_search  args={query='Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn và hậu quả pháp lý của hai trường hợp này'}  0.82s  out=19,741 ký tự  OK
     → cập nhật: documents=list[17]  (+17 chunk mới)
 
 [3] grade_documents    (1.30s)
-    · LLM  default × 17 lượt  tổng 18.18s in=7650 out=34
+    · LLM  default × 17 lượt  tổng 18.40s in=7650 out=34
     → cập nhật: documents=list[0]  (giữ 0/17, loại 17)
 
 [4] context_evaluator  (0.00s)
@@ -533,35 +535,35 @@ LangSmith: project=slidegen-rag | run_id=01a08563-0642-7a31-8e3d-4dcd320d3fa3
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (3.80s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.80s in=604 out=613 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (13.62s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  13.61s in=604 out=2566 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.00s)
-    · TOOL keyword_search   args={query='hợp đồng vô hiệu giả tạo nhầm lẫn hậu quả pháp lý Luật Dân sự'}  0.27s  out=28,437 ký tự  OK
-    · TOOL semantic_search  args={query='Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn — hậu quả pháp lý của hai trường hợp này có giống nhau không?'}  0.99s  out=16,194 ký tự  OK
-    → cập nhật: documents=list[58]  (+58 chunk mới)
+[6] tool               (0.98s)
+    · TOOL keyword_search   args={query='Luật Dân sự hợp đồng vô hiệu giả tạo nhầm lẫn hậu quả pháp lý'}  0.25s  out=28,437 ký tự  OK
+    · TOOL semantic_search  args={query='(Luật Dân sự) Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn — hậu quả pháp lý của hai trường hợp này có giống nhau không?'}  0.97s  out=19,393 ký tự  OK
+    → cập nhật: documents=list[56]  (+56 chunk mới)
 
-[7] grade_documents    (2.71s)
-    · LLM  default × 58 lượt  tổng 37.72s in=20984 out=116
-    → cập nhật: documents=list[0]  (giữ 0/58, loại 58)
+[7] grade_documents    (2.83s)
+    · LLM  default × 56 lượt  tổng 39.11s in=21391 out=112
+    → cập nhật: documents=list[0]  (giữ 0/56, loại 56)
 
 [8] context_evaluator  (0.00s)
     → context_sufficient=False
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (12.89s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  12.89s in=604 out=2566 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (12.78s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  12.78s in=604 out=2566 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.04s)
+[10] tool               (1.01s)
     · TOOL keyword_search   args={query='Luật Dân sự hợp đồng vô hiệu giả tạo nhầm lẫn hậu quả pháp lý'}  0.22s  out=28,437 ký tự  OK
-    · TOOL semantic_search  args={query='(Luật Dân sự) Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn — hậu quả pháp lý của hai trường hợp này có giống nhau không?'}  1.03s  out=19,393 ký tự  OK
+    · TOOL semantic_search  args={query='(Luật Dân sự) Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn — hậu quả pháp lý của hai trường hợp này có giống nhau không?'}  1.00s  out=19,393 ký tự  OK
     → cập nhật: documents=list[56]  (+56 chunk mới)
 
-[11] grade_documents    (1.94s)
-    · LLM  default × 56 lượt  tổng 27.05s in=21391 out=112
+[11] grade_documents    (2.02s)
+    · LLM  default × 56 lượt  tổng 28.19s in=21391 out=112
     → cập nhật: documents=list[0]  (giữ 0/56, loại 56)
 
 [12] context_evaluator  (0.00s)
@@ -569,780 +571,799 @@ LangSmith: project=slidegen-rag | run_id=01a08563-0642-7a31-8e3d-4dcd320d3fa3
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (2.98s)
-    · LLM  gemini-2.5-flash (google_genai)  2.97s in=664 out=339
+[13] generate           (2.48s)
+    · LLM  gemini-2.5-flash (google_genai)  2.46s in=664 out=218
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 135 (Gemini 4, Local 131)
+Số lượt gọi LLM : 133 (Gemini 4, Local 129)
 Chunk cuối cùng : 0
-Node chậm nhất  : retrieve (12.89s), retrieve (3.80s), generate (2.98s)
+Node chậm nhất  : retrieve (13.62s), retrieve (12.78s), grade_documents (2.83s)
 Lỗi             : (không có)
 
 === CÂU HỎI 12 ===
 
 Câu hỏi : (Luật Hình sự) Các yếu tố nào cấu thành tội phạm (cấu thành tội phạm), và thiếu một trong các yếu tố đó thì hành vi có bị coi là tội phạm không?
-Bắt đầu : 2026-09-09 15:58:06
-Tổng thời gian: 25.1s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:40:14
+Tổng thời gian: 28.0s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=21,862 out=3,730 tổng=25,592 | Chi phí ước tính: $0.015884 USD (~403.44 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08563-844b-7543-a5ad-b5e86e843dfa
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08563-844b-7543-a5ad-b5e86e843dfa?trace_id=01a08563-844b-7543-a5ad-b5e86e843dfa&start_time=2026-09-09T08:58:06.794824
+Tokens: in=21,862 out=4,473 tổng=26,335 | Chi phí ước tính: $0.017741 USD (~450.62 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d3-ac7e-7c12-91f0-5085c5127f5e
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d3-ac7e-7c12-91f0-5085c5127f5e?trace_id=01a086d3-ac7e-7c12-91f0-5085c5127f5e&start_time=2026-09-09T15:40:14.334371
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.93s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.92s in=570 out=387 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (3.09s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  3.08s in=570 out=387 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.07s)
-    · TOOL keyword_search   args={query='Luật Hình sự cấu thành tội phạm các yếu tố'}  0.25s  out=11,619 ký tự  OK
-    · TOOL semantic_search  args={query='Các yếu tố nào cấu thành tội phạm theo Luật Hình sự, và thiếu một trong các yếu tố đó thì hành vi có bị coi là tội phạm không?'}  1.06s  out=19,536 ký tự  OK
+[2] tool               (0.95s)
+    · TOOL keyword_search   args={query='Luật Hình sự cấu thành tội phạm các yếu tố'}  0.22s  out=11,619 ký tự  OK
+    · TOOL semantic_search  args={query='Các yếu tố nào cấu thành tội phạm theo Luật Hình sự, và thiếu một trong các yếu tố đó thì hành vi có bị coi là tội phạm không?'}  0.94s  out=19,536 ký tự  OK
     → cập nhật: documents=list[30]  (+30 chunk mới)
 
-[3] grade_documents    (1.99s)
-    · LLM  default × 30 lượt  tổng 29.78s in=12851 out=60
+[3] grade_documents    (1.90s)
+    · LLM  default × 30 lượt  tổng 28.29s in=12851 out=60
     → cập nhật: documents=list[26]  (giữ 26/30, loại 4)
 
-[4] context_evaluator  (5.55s)
-    · LLM  gemini-2.5-flash (google_genai)  5.55s in=2197 out=988
+[4] context_evaluator  (5.24s)
+    · LLM  gemini-2.5-flash (google_genai)  5.23s in=2197 out=991
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (13.53s)
-    · LLM  gemini-2.5-flash (google_genai)  13.52s in=6814 out=2682
+[5] generate           (16.80s)
+    · LLM  gemini-2.5-flash (google_genai)  16.80s in=6814 out=3422
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×1, semantic_search ×1  (tổng 2 lượt, 0 lỗi)
 Số lượt gọi LLM : 33 (Gemini 3, Local 30)
 Chunk cuối cùng : 26
-Node chậm nhất  : generate (13.53s), context_evaluator (5.55s), retrieve (2.93s)
+Node chậm nhất  : generate (16.80s), context_evaluator (5.24s), retrieve (3.09s)
 Lỗi             : (không có)
 
 === CÂU HỎI 13 ===
 
 Câu hỏi : (Luật Hành chính) Nguyên tắc "pháp chế" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?
-Bắt đầu : 2026-09-09 15:58:33
-Tổng thời gian: 51.4s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:40:44
+Tổng thời gian: 48.6s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=71,896 out=6,322 tổng=78,218 | Chi phí ước tính: $0.037374 USD (~949.29 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08563-ebcc-74a2-b472-af0a79d8599e
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08563-ebcc-74a2-b472-af0a79d8599e?trace_id=01a08563-ebcc-74a2-b472-af0a79d8599e&start_time=2026-09-09T08:58:33.291922
+Tokens: in=69,992 out=5,341 tổng=75,333 | Chi phí ước tính: $0.034350 USD (~872.49 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d4-21bb-7dd1-bca2-0ee61aa2e380
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d4-21bb-7dd1-bca2-0ee61aa2e380?trace_id=01a086d4-21bb-7dd1-bca2-0ee61aa2e380&start_time=2026-09-09T15:40:44.347105
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.89s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.88s in=572 out=297 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (2.09s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.09s in=572 out=234 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.04s)
-    · TOOL keyword_search   args={query='Nguyên tắc pháp chế hoạt động hành chính nhà nước điều kiện ban hành quyết định hành chính'}  0.23s  out=27,607 ký tự  OK
-    · TOOL semantic_search  args={query='Nguyên tắc "pháp chế" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?'}  1.04s  out=18,897 ký tự  OK
-    → cập nhật: documents=list[53]  (+53 chunk mới)
+[2] tool               (1.09s)
+    · TOOL keyword_search   args={query='(Luật Hành chính) Nguyên tắc "pháp chế" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?'}  0.27s  out=25,220 ký tự  OK
+    · TOOL semantic_search  args={query='(Luật Hành chính) Nguyên tắc "pháp chế" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?'}  1.09s  out=18,935 ký tự  OK
+    → cập nhật: documents=list[54]  (+54 chunk mới)
 
-[3] grade_documents    (3.04s)
-    · LLM  default × 53 lượt  tổng 45.10s in=20188 out=106
-    → cập nhật: documents=list[9]  (giữ 9/53, loại 44)
+[3] grade_documents    (3.30s)
+    · LLM  default × 54 lượt  tổng 47.72s in=19760 out=108
+    → cập nhật: documents=list[10]  (giữ 10/54, loại 44)
 
-[4] context_evaluator  (5.62s)
-    · LLM  gemini-2.5-flash (google_genai)  5.62s in=2155 out=1020
+[4] context_evaluator  (5.20s)
+    · LLM  gemini-2.5-flash (google_genai)  5.20s in=2154 out=1020
     → context_sufficient=False
-    → feedback: "The context provides a general definition of the principle of "pháp chế" and states that all state activities, including administrative ones, must be conducted"
+    → feedback: "The context provides a general definition of "pháp chế" and states that all state activities, including those of administrative agencies, must comply with the"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (2.92s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  2.91s in=617 out=398 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (2.75s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.74s in=617 out=385 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (0.93s)
-    · TOOL keyword_search   args={query='pháp chế điều kiện ban hành quyết định hành chính tuân thủ'}  0.21s  out=25,673 ký tự  OK
-    · TOOL semantic_search  args={query='Nguyên tắc pháp chế trong hoạt động hành chính nhà nước và các điều kiện tuân thủ khi ban hành quyết định hành chính'}  0.93s  out=19,199 ký tự  OK
-    → cập nhật: documents=list[50]  (+41 chunk mới)
+[6] tool               (1.03s)
+    · TOOL keyword_search   args={query='điều kiện ban hành quyết định hành chính tuân thủ pháp chế', top_k=10}  0.22s  out=25,673 ký tự  OK
+    · TOOL semantic_search  args={query='Điều kiện tuân thủ nguyên tắc pháp chế khi ban hành quyết định hành chính của cơ quan hành chính nhà nước', top_k=10}  1.02s  out=19,158 ký tự  OK
+    → cập nhật: documents=list[58]  (+48 chunk mới)
 
-[7] grade_documents    (2.43s)
-    · LLM  default × 50 lượt  tổng 37.36s in=19734 out=100
-    → cập nhật: documents=list[12]  (giữ 12/50, loại 38)
+[7] grade_documents    (2.47s)
+    · LLM  default × 58 lượt  tổng 34.96s in=21360 out=116
+    → cập nhật: documents=list[12]  (giữ 12/58, loại 46)
 
-[8] context_evaluator  (6.01s)
-    · LLM  gemini-2.5-flash (google_genai)  6.01s in=2162 out=1020
+[8] context_evaluator  (5.41s)
+    · LLM  gemini-2.5-flash (google_genai)  5.40s in=2060 out=1020
     → context_sufficient=False
-    → feedback: "The context explains the general meaning of "pháp chế" (legality/rule of law) and states that all state activities, including those of administrative agencies, must comply with the law, not violate prohibitions, and be carried out equally, …"
+    → feedback: "The context provides a general definition of "pháp chế" and states that all state activities, including administrative ones, must operate within the legal framework,"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (3.83s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.83s in=688 out=492 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (3.59s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.58s in=618 out=614 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (0.83s)
-    · TOOL keyword_search   args={query='điều kiện ban hành quyết định hành chính', top_k=10}  0.21s  out=16,875 ký tự  OK
-    · TOOL semantic_search  args={query='Nguyên tắc pháp chế và các điều kiện tuân thủ khi cơ quan hành chính ban hành quyết định hành chính', top_k=10}  0.83s  out=18,817 ký tự  OK
-    → cập nhật: documents=list[50]  (+38 chunk mới)
+[10] tool               (1.17s)
+    · TOOL keyword_search   args={query='pháp chế điều kiện ban hành quyết định hành chính'}  0.26s  out=26,804 ký tự  OK
+    · TOOL semantic_search  args={query='Nguyên tắc "pháp chế" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?'}  1.17s  out=18,897 ký tự  OK
+    → cập nhật: documents=list[53]  (+41 chunk mới)
 
-[11] grade_documents    (2.27s)
-    · LLM  default × 50 lượt  tổng 31.36s in=19825 out=100
-    → cập nhật: documents=list[13]  (giữ 13/50, loại 37)
+[11] grade_documents    (2.59s)
+    · LLM  default × 53 lượt  tổng 35.03s in=20043 out=106
+    → cập nhật: documents=list[12]  (giữ 12/53, loại 41)
 
-[12] context_evaluator  (5.69s)
-    · LLM  gemini-2.5-flash (google_genai)  5.68s in=2162 out=1020
+[12] context_evaluator  (6.30s)
+    · LLM  gemini-2.5-flash (google_genai)  6.30s in=2060 out=1020
     → context_sufficient=False
-    → feedback: "The context explains the general meaning and importance of the "pháp chế" principle, stating that all state activities must be conducted according to law, within the legal"
+    → feedback: "The context provides a general definition of "pháp chế" and states that all state activities must be within the framework of the law. It mentions some conditions for"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (13.92s)
-    · LLM  gemini-2.5-flash (google_genai)  13.91s in=5670 out=2956
+[13] generate           (11.62s)
+    · LLM  gemini-2.5-flash (google_genai)  11.62s in=2555 out=1951
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 0 lỗi)
-Số lượt gọi LLM : 160 (Gemini 7, Local 153)
-Chunk cuối cùng : 13
-Node chậm nhất  : generate (13.92s), context_evaluator (6.01s), context_evaluator (5.69s)
+Số lượt gọi LLM : 172 (Gemini 7, Local 165)
+Chunk cuối cùng : 12
+Node chậm nhất  : generate (11.62s), context_evaluator (6.30s), context_evaluator (5.41s)
 Lỗi             : (không có)
 
 === CÂU HỎI 14 ===
 
 Câu hỏi : (Luật Lao động) Thế nào là hợp đồng lao động xác định thời hạn và không xác định thời hạn — trường hợp nào người lao động đương nhiên được chuyển sang hợp đồng không xác định thời hạn?
-Bắt đầu : 2026-09-09 15:59:26
-Tổng thời gian: 47.0s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:41:34
+Tổng thời gian: 44.5s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=34,144 out=4,947 tổng=39,091 | Chi phí ước tính: $0.022611 USD (~574.31 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08564-bc64-7592-908f-583bcd948317
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08564-bc64-7592-908f-583bcd948317?trace_id=01a08564-bc64-7592-908f-583bcd948317&start_time=2026-09-09T08:59:26.692451
+Tokens: in=41,779 out=5,239 tổng=47,018 | Chi phí ước tính: $0.025631 USD (~651.03 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d4-e5d8-79e0-857c-55dc82e8e46a
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d4-e5d8-79e0-857c-55dc82e8e46a?trace_id=01a086d4-e5d8-79e0-857c-55dc82e8e46a&start_time=2026-09-09T15:41:34.551364
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.96s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.95s in=573 out=188 → tool_calls: semantic_search
+[1] retrieve           (1.71s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.71s in=573 out=188 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (0.84s)
-    · TOOL semantic_search  args={query='Thế nào là hợp đồng lao động xác định thời hạn và không xác định thời hạn — trường hợp nào người lao động đương nhiên được chuyển sang hợp đồng không xác định thời hạn?'}  0.84s  out=16,971 ký tự  OK
+[2] tool               (0.96s)
+    · TOOL semantic_search  args={query='Thế nào là hợp đồng lao động xác định thời hạn và không xác định thời hạn — trường hợp nào người lao động đương nhiên được chuyển sang hợp đồng không xác định thời hạn?'}  0.95s  out=16,971 ký tự  OK
     → cập nhật: documents=list[13]  (+13 chunk mới)
 
-[3] grade_documents    (1.04s)
-    · LLM  default × 13 lượt  tổng 13.44s in=6389 out=26
-    → cập nhật: documents=list[7]  (giữ 7/13, loại 6)
+[3] grade_documents    (0.94s)
+    · LLM  default × 13 lượt  tổng 12.12s in=6389 out=26
+    → cập nhật: documents=list[8]  (giữ 8/13, loại 5)
 
-[4] context_evaluator  (6.29s)
-    · LLM  gemini-2.5-flash (google_genai)  6.28s in=2223 out=935
+[4] context_evaluator  (6.01s)
+    · LLM  gemini-2.5-flash (google_genai)  6.01s in=2225 out=1020
     → context_sufficient=False
-    → feedback: "The context defines fixed-term and indefinite-term labor contracts, but it does not explain the specific cases or conditions under which an employee is automatically converted from a fixed-term contract to an indefinite-term contract accord…"
+    → feedback: "The context provides clear definitions for fixed-term and indefinite-term labor contracts. However, it does not explain the specific cases where an employee is *automatically* converted to an indefinite-term labor"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (6.27s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  6.27s in=683 out=1015 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (4.57s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.56s in=628 out=694 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.01s)
-    · TOOL keyword_search   args={query='chuyển đổi hợp đồng lao động xác định thời hạn sang không xác định thời hạn'}  0.22s  out=4,033 ký tự  OK
-    · TOOL semantic_search  args={query='điều kiện chuyển đổi hợp đồng lao động xác định thời hạn sang không xác định thời hạn'}  1.00s  out=6,566 ký tự  OK
-    → cập nhật: documents=list[28]  (+21 chunk mới)
+[6] tool               (0.98s)
+    · TOOL keyword_search   args={query='trường hợp người lao động đương nhiên được chuyển sang hợp đồng không xác định thời hạn'}  0.24s  out=10,314 ký tự  OK
+    · TOOL semantic_search  args={query='điều kiện chuyển đổi hợp đồng lao động sang không xác định thời hạn'}  0.98s  out=6,506 ký tự  OK
+    → cập nhật: documents=list[40]  (+32 chunk mới)
 
-[7] grade_documents    (1.22s)
-    · LLM  default × 28 lượt  tổng 16.91s in=8860 out=56
-    → cập nhật: documents=list[9]  (giữ 9/28, loại 19)
+[7] grade_documents    (1.88s)
+    · LLM  default × 40 lượt  tổng 25.85s in=12323 out=80
+    → cập nhật: documents=list[9]  (giữ 9/40, loại 31)
 
-[8] context_evaluator  (5.67s)
-    · LLM  gemini-2.5-flash (google_genai)  5.66s in=2223 out=935
+[8] context_evaluator  (4.29s)
+    · LLM  gemini-2.5-flash (google_genai)  4.29s in=2223 out=781
     → context_sufficient=False
-    → feedback: "The context defines fixed-term and indefinite-term labor contracts, but it does not explain the specific cases or conditions under which an employee is automatically converted from a fixed-term contract to an indefinite-term contract accord…"
+    → feedback: "The context defines fixed-term and indefinite-term labor contracts, but it does not provide information on the specific cases where an employee is automatically converted to an indefinite-term contract (e.g., after a certain number of renew…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (5.38s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  5.37s in=683 out=1015 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (2.98s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.97s in=688 out=487 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (0.89s)
-    · TOOL keyword_search   args={query='chuyển đổi hợp đồng lao động xác định thời hạn sang không xác định thời hạn'}  0.23s  out=4,033 ký tự  OK
-    · TOOL semantic_search  args={query='điều kiện chuyển đổi hợp đồng lao động xác định thời hạn sang không xác định thời hạn'}  0.89s  out=6,566 ký tự  OK
-    → cập nhật: documents=list[28]  (+19 chunk mới)
+[10] tool               (1.14s)
+    · TOOL keyword_search   args={query='chuyển đổi hợp đồng lao động xác định thời hạn sang không xác định thời hạn, gia hạn hợp đồng lao động'}  0.25s  out=7,077 ký tự  OK
+    · TOOL semantic_search  args={query='Luật Lao động: định nghĩa hợp đồng lao động xác định thời hạn, không xác định thời hạn và các trường hợp chuyển đổi hợp đồng lao động từ xác định thời hạn sang không xác định thời hạn, gia hạn hợp đồng lao động'}  1.14s  out=16,524 ký tự  OK
+    → cập nhật: documents=list[33]  (+24 chunk mới)
 
-[11] grade_documents    (0.90s)
-    · LLM  default × 28 lượt  tổng 12.60s in=8860 out=56
-    → cập nhật: documents=list[9]  (giữ 9/28, loại 19)
+[11] grade_documents    (1.41s)
+    · LLM  default × 33 lượt  tổng 21.91s in=12983 out=66
+    → cập nhật: documents=list[10]  (giữ 10/33, loại 23)
 
-[12] context_evaluator  (4.29s)
-    · LLM  gemini-2.5-flash (google_genai)  4.29s in=2223 out=781
+[12] context_evaluator  (5.43s)
+    · LLM  gemini-2.5-flash (google_genai)  5.42s in=2223 out=781
     → context_sufficient=False
     → feedback: "The context defines fixed-term and indefinite-term labor contracts, but it does not provide information on the specific cases where an employee is automatically converted to an indefinite-term contract (e.g., after a certain number of renew…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (11.19s)
-    · LLM  gemini-2.5-flash (google_genai)  11.19s in=3366 out=2158
+[13] generate           (12.17s)
+    · LLM  gemini-2.5-flash (google_genai)  12.15s in=3413 out=2485
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 76 (Gemini 7, Local 69)
-Chunk cuối cùng : 9
-Node chậm nhất  : generate (11.19s), context_evaluator (6.29s), retrieve (6.27s)
+Số lượt gọi LLM : 93 (Gemini 7, Local 86)
+Chunk cuối cùng : 10
+Node chậm nhất  : generate (12.17s), context_evaluator (6.01s), context_evaluator (5.43s)
 Lỗi             : (không có)
 
 === CÂU HỎI 15 ===
 
 Câu hỏi : (Luật Hôn nhân & Gia đình) Điều kiện kết hôn theo pháp luật Việt Nam gồm những gì, và vi phạm điều kiện nào sẽ dẫn đến hôn nhân bị hủy (khác với ly hôn)?
-Bắt đầu : 2026-09-09 16:00:16
-Tổng thời gian: 38.6s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:42:20
+Tổng thời gian: 33.7s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=22,464 out=3,325 tổng=25,789 | Chi phí ước tính: $0.015052 USD (~382.31 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08565-7fd7-73b1-9aea-36a65e84ebad
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08565-7fd7-73b1-9aea-36a65e84ebad?trace_id=01a08565-7fd7-73b1-9aea-36a65e84ebad&start_time=2026-09-09T09:00:16.727790
+Tokens: in=26,737 out=3,327 tổng=30,064 | Chi phí ước tính: $0.016339 USD (~415.00 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d5-993a-7191-910a-6393cbaae879
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d5-993a-7191-910a-6393cbaae879?trace_id=01a086d5-993a-7191-910a-6393cbaae879&start_time=2026-09-09T15:42:20.473867
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (3.14s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  3.14s in=573 out=249 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (2.56s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.55s in=573 out=249 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (0.96s)
+[2] tool               (1.03s)
     · TOOL keyword_search   args={query='Luật Hôn nhân & Gia đình Điều kiện kết hôn vi phạm hủy hôn nhân ly hôn'}  0.23s  out=2,112 ký tự  OK
-    · TOOL semantic_search  args={query='Điều kiện kết hôn theo pháp luật Việt Nam gồm những gì, và vi phạm điều kiện nào sẽ dẫn đến hôn nhân bị hủy (khác với ly hôn)?'}  0.95s  out=19,402 ký tự  OK
+    · TOOL semantic_search  args={query='Điều kiện kết hôn theo pháp luật Việt Nam gồm những gì, và vi phạm điều kiện nào sẽ dẫn đến hôn nhân bị hủy (khác với ly hôn)?'}  1.02s  out=19,402 ký tự  OK
     → cập nhật: documents=list[16]  (+16 chunk mới)
 
-[3] grade_documents    (1.19s)
-    · LLM  default × 16 lượt  tổng 18.86s in=7875 out=32
-    → cập nhật: documents=list[3]  (giữ 3/16, loại 13)
+[3] grade_documents    (1.13s)
+    · LLM  default × 16 lượt  tổng 17.83s in=7875 out=32
+    → cập nhật: documents=list[2]  (giữ 2/16, loại 14)
 
-[4] context_evaluator  (4.19s)
-    · LLM  gemini-2.5-flash (google_genai)  4.19s in=258 out=477
+[4] context_evaluator  (2.17s)
+    · LLM  gemini-2.5-flash (google_genai)  2.16s in=236 out=259
     → context_sufficient=False
-    → feedback: "The context only vaguely mentions "18 tuổi" as a condition and "hủy việc kết hôn trái pháp luật" without specifying the full list of marriage conditions under Vietnamese law. It also doesn't clarify which specific violations lead to annulme…"
+    → feedback: "Context does not list the specific conditions for marriage under Vietnamese law. It also does not specify which violations of these conditions lead to annulment (hủy hôn nhân) as distinct from divorce. Keywords to try: "điều kiện kết hôn", …"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (3.63s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.63s in=690 out=311 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (3.46s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.45s in=662 out=540 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (0.95s)
-    · TOOL keyword_search   args={query='điều kiện kết hôn Luật Hôn nhân Gia đình, hủy hôn nhân trái pháp luật điều kiện, phân biệt hủy hôn nhân và ly hôn'}  0.21s  out=2,085 ký tự  OK
-    · TOOL semantic_search  args={query='Điều kiện kết hôn theo pháp luật Việt Nam, các trường hợp hủy bỏ hôn nhân trái pháp luật, và sự khác biệt giữa hủy hôn nhân và ly hôn.'}  0.95s  out=7,060 ký tự  OK
-    → cập nhật: documents=list[26]  (+23 chunk mới)
+[6] tool               (1.01s)
+    · TOOL keyword_search   args={query='Luật Hôn nhân và Gia đình điều kiện kết hôn hủy hôn nhân điều kiện vi phạm'}  0.26s  out=2,184 ký tự  OK
+    · TOOL semantic_search  args={query='Điều kiện kết hôn theo pháp luật Việt Nam và các trường hợp vi phạm dẫn đến hủy hôn nhân'}  0.96s  out=20,102 ký tự  OK
+    → cập nhật: documents=list[23]  (+21 chunk mới)
 
-[7] grade_documents    (1.04s)
-    · LLM  default × 26 lượt  tổng 13.27s in=6447 out=52
-    → cập nhật: documents=list[3]  (giữ 3/26, loại 23)
+[7] grade_documents    (1.12s)
+    · LLM  default × 23 lượt  tổng 12.59s in=9281 out=46
+    → cập nhật: documents=list[2]  (giữ 2/23, loại 21)
 
-[8] context_evaluator  (3.45s)
-    · LLM  gemini-2.5-flash (google_genai)  3.44s in=258 out=430
+[8] context_evaluator  (2.88s)
+    · LLM  gemini-2.5-flash (google_genai)  2.88s in=224 out=386
     → context_sufficient=False
-    → feedback: "The context only vaguely mentions age as a condition for marriage and the concept of "hủy việc kết hôn trái pháp luật" (annulment of illegal marriage). It does not list all the conditions for marriage under Vietnamese law, nor does it speci…"
+    → feedback: "The context does not list the specific conditions for marriage under Vietnamese law. It also does not explain which specific violations of these conditions lead to annulment, nor does it differentiate annulment from divorce. Suggested keywo…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (4.03s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.03s in=695 out=510 → tool_calls: keyword_search, semantic_search
+[9] retrieve           (2.09s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.08s in=665 out=326 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.07s)
-    · TOOL keyword_search   args={query='điều kiện kết hôn Luật Hôn nhân Gia đình, hậu quả vi phạm điều kiện kết hôn, phân biệt hủy kết hôn và ly hôn', top_k=10}  0.24s  out=2,037 ký tự  OK
-    · TOOL semantic_search  args={query='Điều kiện kết hôn theo pháp luật Việt Nam, vi phạm điều kiện kết hôn dẫn đến hủy hôn, và sự khác biệt giữa hủy kết hôn và ly hôn', top_k=10}  1.07s  out=13,835 ký tự  OK
-    → cập nhật: documents=list[17]  (+14 chunk mới)
+[10] tool               (0.98s)
+    · TOOL keyword_search   args={query='điều kiện kết hôn luật hôn nhân gia đình Việt Nam hủy kết hôn khác ly hôn vi phạm điều kiện kết hôn hủy hôn nhân', top_k=10}  0.27s  out=2,184 ký tự  OK
+    · TOOL semantic_search  args={query='Điều kiện kết hôn theo pháp luật Việt Nam gồm những gì, và vi phạm điều kiện nào sẽ dẫn đến hôn nhân bị hủy (khác với ly hôn)?', top_k=10}  0.97s  out=19,402 ký tự  OK
+    → cập nhật: documents=list[17]  (+15 chunk mới)
 
-[11] grade_documents    (0.64s)
-    · LLM  default × 17 lượt  tổng 8.84s in=6615 out=34
+[11] grade_documents    (0.67s)
+    · LLM  default × 17 lượt  tổng 8.38s in=8094 out=34
     → cập nhật: documents=list[3]  (giữ 3/17, loại 14)
 
-[12] context_evaluator  (3.51s)
-    · LLM  gemini-2.5-flash (google_genai)  3.50s in=258 out=477
+[12] context_evaluator  (2.92s)
+    · LLM  gemini-2.5-flash (google_genai)  2.91s in=266 out=459
     → context_sufficient=False
-    → feedback: "The context only vaguely mentions "18 tuổi" as a condition and "hủy việc kết hôn trái pháp luật" without specifying the full list of marriage conditions under Vietnamese law. It also doesn't clarify which specific violations lead to annulme…"
+    → feedback: "The context does not list the specific conditions for marriage under Vietnamese law. It also does not specify which violations of these conditions lead to annulment. Better keywords would be "điều kiện kết hôn luật hôn nhân gia đình" or "hủ…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (10.82s)
-    · LLM  gemini-2.5-flash (google_genai)  10.81s in=753 out=1823
+[13] generate           (11.72s)
+    · LLM  gemini-2.5-flash (google_genai)  11.71s in=761 out=2111
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 0 lỗi)
-Số lượt gọi LLM : 66 (Gemini 7, Local 59)
+Số lượt gọi LLM : 63 (Gemini 7, Local 56)
 Chunk cuối cùng : 3
-Node chậm nhất  : generate (10.82s), context_evaluator (4.19s), retrieve (4.03s)
+Node chậm nhất  : generate (11.72s), retrieve (3.46s), context_evaluator (2.92s)
 Lỗi             : (không có)
 
 === CÂU HỎI 16 ===
 
 Câu hỏi : Khái niệm "trách nhiệm pháp lý" xuất hiện ở cả luật dân sự, hình sự và hành chính — hãy so sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong cả ba lĩnh vực này.
-Bắt đầu : 2026-09-09 16:00:59
-Tổng thời gian: 118.4s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:42:55
+Tổng thời gian: 65.0s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=55,706 out=5,538 tổng=61,244 | Chi phí ước tính: $0.030557 USD (~776.14 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08566-2620-7dc3-9152-191376ec5b26
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08566-2620-7dc3-9152-191376ec5b26?trace_id=01a08566-2620-7dc3-9152-191376ec5b26&start_time=2026-09-09T09:00:59.296317
+Tokens: in=62,487 out=9,031 tổng=71,518 | Chi phí ước tính: $0.041324 USD (~1049.62 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d6-2248-7b50-a8cd-c6843c667bd7
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d6-2248-7b50-a8cd-c6843c667bd7?trace_id=01a086d6-2248-7b50-a8cd-c6843c667bd7&start_time=2026-09-09T15:42:55.559761
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.43s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.43s in=581 out=249 → tool_calls: semantic_search
+[1] retrieve           (1.93s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.92s in=581 out=171 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.08s)
-    · TOOL semantic_search  args={query='So sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật dân sự, hình sự và hành chính', top_k=20}  1.08s  out=19,238 ký tự  OK
+[2] tool               (0.91s)
+    · TOOL semantic_search  args={query='So sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật dân sự, hình sự và hành chính.'}  0.90s  out=17,513 ký tự  OK
     → cập nhật: documents=list[6]  (+6 chunk mới)
 
-[3] grade_documents    (0.92s)
-    · LLM  default × 6 lượt  tổng 5.47s in=5884 out=12
+[3] grade_documents    (0.62s)
+    · LLM  default × 6 lượt  tổng 3.69s in=5457 out=12
     → cập nhật: documents=list[2]  (giữ 2/6, loại 4)
 
-[4] context_evaluator  (6.92s)
-    · LLM  gemini-2.5-flash (google_genai)  6.92s in=1639 out=1020
+[4] context_evaluator  (5.73s)
+    · LLM  gemini-2.5-flash (google_genai)  5.73s in=1639 out=1020
     → context_sufficient=False
-    → feedback: "The context provides a good overview of legal responsibility in criminal and administrative law, covering the purpose, subjects of application, and legal consequences to some extent."
+    → feedback: "The context provides a good overview of criminal and administrative responsibility, including their purpose, who applies them, and their consequences. However, it lacks specific details for civil"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (3.52s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.52s in=627 out=524 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (6.05s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  6.04s in=629 out=836 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (0.92s)
-    · TOOL keyword_search   args={query='trách nhiệm pháp lý luật dân sự, trách nhiệm pháp lý luật hình sự, trách nhiệm pháp lý luật hành chính, mục đích, chủ thể áp dụng, hậu quả pháp lý'}  0.22s  out=28,519 ký tự  OK
-    · TOOL semantic_search  args={query='So sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật dân sự, hình sự và hành chính.'}  0.91s  out=17,513 ký tự  OK
-    → cập nhật: documents=list[45]  (+43 chunk mới)
+[6] tool               (0.96s)
+    · TOOL keyword_search   args={query='trách nhiệm pháp lý dân sự hình sự hành chính mục đích chủ thể hậu quả', top_k=10}  0.23s  out=23,718 ký tự  OK
+    · TOOL semantic_search  args={query='so sánh trách nhiệm pháp lý dân sự hình sự hành chính', top_k=10}  0.94s  out=19,048 ký tự  OK
+    → cập nhật: documents=list[57]  (+55 chunk mới)
 
-[7] grade_documents    (2.50s)
-    · LLM  default × 45 lượt  tổng 36.49s in=19275 out=90
-    → cập nhật: documents=list[5]  (giữ 5/45, loại 40)
+[7] grade_documents    (3.12s)
+    · LLM  default × 57 lượt  tổng 44.02s in=21578 out=114
+    → cập nhật: documents=list[6]  (giữ 6/57, loại 51)
 
-[8] context_evaluator  (6.37s)
-    · LLM  gemini-2.5-flash (google_genai)  6.36s in=2275 out=1020
+[8] context_evaluator  (5.25s)
+    · LLM  gemini-2.5-flash (google_genai)  5.24s in=2245 out=1020
     → context_sufficient=False
-    → feedback: "The context provides detailed information about criminal responsibility (purpose, applicable subjects, legal consequences) and some information about administrative responsibility (applicable subjects, general severity, no criminal"
+    → feedback: "Context lacks specific information regarding the purpose, subjects of application, and legal consequences of "trách nhiệm pháp lý" in civil law. It only lists"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (18.65s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  18.64s in=629 out=848 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (6.43s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  6.42s in=627 out=1252 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.02s)
-    · TOOL keyword_search   args={query='trách nhiệm pháp lý dân sự, trách nhiệm pháp lý hình sự, trách nhiệm pháp lý hành chính, mục đích, chủ thể, hậu quả pháp lý'}  0.21s  out=26,792 ký tự  OK
-    · TOOL semantic_search  args={query='so sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật dân sự, hình sự và hành chính'}  1.01s  out=16,527 ký tự  OK
-    → cập nhật: documents=list[49]  (+44 chunk mới)
+[10] tool               (1.45s)
+    · TOOL keyword_search   args={query='trách nhiệm pháp lý luật dân sự hình sự hành chính mục đích chủ thể áp dụng hậu quả pháp lý'}  0.25s  out=28,720 ký tự  OK
+    · TOOL semantic_search  args={query="Khái niệm 'trách nhiệm pháp lý' xuất hiện ở cả luật dân sự, hình sự và hành chính — hãy so sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong cả ba lĩnh vực này."}  1.44s  out=14,242 ký tự  OK
+    → cập nhật: documents=list[61]  (+55 chunk mới)
 
-[11] grade_documents    (1.81s)
-    · LLM  default × 49 lượt  tổng 26.88s in=19667 out=98
-    → cập nhật: documents=list[8]  (giữ 8/49, loại 41)
+[11] grade_documents    (2.78s)
+    · LLM  default × 61 lượt  tổng 39.93s in=23489 out=122
+    → cập nhật: documents=list[10]  (giữ 10/61, loại 51)
 
-[12] context_evaluator  (6.45s)
-    · LLM  gemini-2.5-flash (google_genai)  6.45s in=2275 out=1020
+[12] context_evaluator  (5.86s)
+    · LLM  gemini-2.5-flash (google_genai)  5.85s in=2245 out=1020
     → context_sufficient=False
-    → feedback: "The context provides detailed information about criminal responsibility (purpose, applicable subjects, legal consequences) and some information about administrative responsibility (applicable subjects, general severity, no criminal"
+    → feedback: "Context lacks specific details about the purpose, subjects of application, and legal consequences of "trách nhiệm pháp lý" in the civil law domain. It only lists civil responsibility"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (65.84s)
-    · LLM  gemini-2.5-flash (google_genai)  65.83s in=4691 out=2278
+[13] generate           (23.91s)
+    · LLM  gemini-2.5-flash (google_genai)  23.91s in=5834 out=5723
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 107 (Gemini 7, Local 100)
-Chunk cuối cùng : 8
-Node chậm nhất  : generate (65.84s), retrieve (18.65s), context_evaluator (6.92s)
+Số lượt gọi LLM : 131 (Gemini 7, Local 124)
+Chunk cuối cùng : 10
+Node chậm nhất  : generate (23.91s), retrieve (6.43s), retrieve (6.05s)
 Lỗi             : (không có)
 
 === CÂU HỎI 17 ===
 
 Câu hỏi : Hệ thống pháp luật được xây dựng từ các quy phạm pháp luật — hãy giải thích cấu trúc của một quy phạm pháp luật (giả định – quy định – chế tài) và phân tích xem ba bộ phận này liên kết với nhau như thế nào qua một ví dụ từ luật hình sự.
-Bắt đầu : 2026-09-09 16:02:59
-Tổng thời gian: 21.7s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:44:02
+Tổng thời gian: 20.4s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=12,168 out=3,177 tổng=15,345 | Chi phí ước tính: $0.011593 USD (~294.46 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08567-f9d1-72b0-b27f-2d0330916503
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08567-f9d1-72b0-b27f-2d0330916503?trace_id=01a08567-f9d1-72b0-b27f-2d0330916503&start_time=2026-09-09T09:02:59.025466
+Tokens: in=12,168 out=3,117 tổng=15,285 | Chi phí ước tính: $0.011443 USD (~290.65 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d7-2967-7482-8e0e-ae69ca2dfcde
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d7-2967-7482-8e0e-ae69ca2dfcde?trace_id=01a086d7-2967-7482-8e0e-ae69ca2dfcde&start_time=2026-09-09T15:44:02.919179
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.03s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.02s in=590 out=181 → tool_calls: semantic_search
+[1] retrieve           (1.93s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.92s in=590 out=181 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.15s)
-    · TOOL semantic_search  args={query='Hệ thống pháp luật được xây dựng từ các quy phạm pháp luật — hãy giải thích cấu trúc của một quy phạm pháp luật (giả định – quy định – chế tài) và phân tích xem ba bộ phận này liên kết với nhau như thế nào qua một ví dụ từ luật hình sự.'}  1.14s  out=19,066 ký tự  OK
+[2] tool               (1.00s)
+    · TOOL semantic_search  args={query='Hệ thống pháp luật được xây dựng từ các quy phạm pháp luật — hãy giải thích cấu trúc của một quy phạm pháp luật (giả định – quy định – chế tài) và phân tích xem ba bộ phận này liên kết với nhau như thế nào qua một ví dụ từ luật hình sự.'}  0.99s  out=19,066 ký tự  OK
     → cập nhật: documents=list[10]  (+10 chunk mới)
 
-[3] grade_documents    (1.02s)
-    · LLM  default × 10 lượt  tổng 10.13s in=6628 out=20
+[3] grade_documents    (0.92s)
+    · LLM  default × 10 lượt  tổng 9.07s in=6628 out=20
     → cập nhật: documents=list[6]  (giữ 6/10, loại 4)
 
-[4] context_evaluator  (2.79s)
-    · LLM  gemini-2.5-flash (google_genai)  2.78s in=2233 out=390
+[4] context_evaluator  (3.38s)
+    · LLM  gemini-2.5-flash (google_genai)  3.37s in=2233 out=481
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (14.72s)
-    · LLM  gemini-2.5-flash (google_genai)  14.71s in=3307 out=2767
+[5] generate           (13.20s)
+    · LLM  gemini-2.5-flash (google_genai)  13.20s in=3307 out=2616
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
 Số lượt gọi LLM : 13 (Gemini 3, Local 10)
 Chunk cuối cùng : 6
-Node chậm nhất  : generate (14.72s), context_evaluator (2.79s), retrieve (2.03s)
+Node chậm nhất  : generate (13.20s), context_evaluator (3.38s), retrieve (1.93s)
 Lỗi             : (không có)
 
 === CÂU HỎI 18 ===
 
 Câu hỏi : Nhà nước và pháp luật được trình bày ở các chương khác nhau nhưng có mối quan hệ hữu cơ — hãy phân tích: nhà nước tạo ra pháp luật, nhưng pháp luật lại ràng buộc ngược lại nhà nước như thế nào?
-Bắt đầu : 2026-09-09 16:03:21
-Tổng thời gian: 56.2s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:44:25
+Tổng thời gian: 55.3s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=58,707 out=6,645 tổng=65,352 | Chi phí ước tính: $0.034225 USD (~869.30 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08568-533e-7192-83ff-48e569506e20
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08568-533e-7192-83ff-48e569506e20?trace_id=01a08568-533e-7192-83ff-48e569506e20&start_time=2026-09-09T09:03:21.918280
+Tokens: in=60,429 out=6,711 tổng=67,140 | Chi phí ước tính: $0.034906 USD (~886.62 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d7-8289-7803-ab9d-e9dcc562fc8f
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d7-8289-7803-ab9d-e9dcc562fc8f?trace_id=01a086d7-8289-7803-ab9d-e9dcc562fc8f&start_time=2026-09-09T15:44:25.737412
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (3.24s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  3.23s in=576 out=276 → tool_calls: semantic_search
+[1] retrieve           (2.28s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.27s in=576 out=276 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.02s)
-    · TOOL semantic_search  args={query='Nhà nước và pháp luật được trình bày ở các chương khác nhau nhưng có mối quan hệ hữu cơ — hãy phân tích: nhà nước tạo ra pháp luật, nhưng pháp luật lại ràng buộc ngược lại nhà nước như thế nào?'}  1.01s  out=18,256 ký tự  OK
+[2] tool               (0.91s)
+    · TOOL semantic_search  args={query='Nhà nước và pháp luật được trình bày ở các chương khác nhau nhưng có mối quan hệ hữu cơ — hãy phân tích: nhà nước tạo ra pháp luật, nhưng pháp luật lại ràng buộc ngược lại nhà nước như thế nào?'}  0.91s  out=18,256 ký tự  OK
     → cập nhật: documents=list[17]  (+17 chunk mới)
 
-[3] grade_documents    (1.28s)
-    · LLM  default × 17 lượt  tổng 17.71s in=7454 out=34
-    → cập nhật: documents=list[10]  (giữ 10/17, loại 7)
+[3] grade_documents    (1.23s)
+    · LLM  default × 17 lượt  tổng 16.87s in=7454 out=34
+    → cập nhật: documents=list[11]  (giữ 11/17, loại 6)
 
-[4] context_evaluator  (4.19s)
-    · LLM  gemini-2.5-flash (google_genai)  4.18s in=2193 out=636
+[4] context_evaluator  (5.60s)
+    · LLM  gemini-2.5-flash (google_genai)  5.60s in=2193 out=1020
     → context_sufficient=False
-    → feedback: "Context explains well how the state creates law and uses it as a tool. However, it lacks detailed analysis on how law, in turn, binds or restricts the state itself. It only briefly mentions that state's repressive activities must be "do luậ…"
+    → feedback: "The context sufficiently explains how the state creates law. However, it only briefly touches upon how law binds the state by stating that "Hoạt động trấn"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (3.21s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.20s in=700 out=453 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (6.33s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  6.33s in=622 out=1133 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.28s)
-    · TOOL keyword_search   args={query='nhà nước bị ràng buộc bởi pháp luật OR nguyên tắc pháp quyền OR giới hạn quyền lực nhà nước bởi pháp luật'}  0.33s  out=15,444 ký tự  OK
-    · TOOL semantic_search  args={query='Mối quan hệ giữa nhà nước và pháp luật, đặc biệt là cách pháp luật ràng buộc và giới hạn quyền lực của nhà nước, nguyên tắc pháp quyền'}  1.27s  out=18,033 ký tự  OK
-    → cập nhật: documents=list[42]  (+32 chunk mới)
+[6] tool               (0.97s)
+    · TOOL keyword_search   args={query='pháp luật ràng buộc nhà nước, nhà nước tuân thủ pháp luật, giới hạn quyền lực nhà nước'}  0.25s  out=24,892 ký tự  OK
+    · TOOL semantic_search  args={query='Pháp luật ràng buộc nhà nước như thế nào, giới hạn quyền lực nhà nước bởi pháp luật'}  0.96s  out=20,008 ký tự  OK
+    → cập nhật: documents=list[45]  (+34 chunk mới)
 
-[7] grade_documents    (2.63s)
-    · LLM  default × 42 lượt  tổng 33.63s in=18285 out=84
-    → cập nhật: documents=list[23]  (giữ 23/42, loại 19)
+[7] grade_documents    (2.48s)
+    · LLM  default × 45 lượt  tổng 36.41s in=19953 out=90
+    → cập nhật: documents=list[23]  (giữ 23/45, loại 22)
 
-[8] context_evaluator  (5.60s)
-    · LLM  gemini-2.5-flash (google_genai)  5.57s in=2193 out=1020
+[8] context_evaluator  (5.08s)
+    · LLM  gemini-2.5-flash (google_genai)  5.06s in=2193 out=1020
     → context_sufficient=False
     → feedback: "The context sufficiently explains how the state creates law. However, it only briefly touches upon how law binds the state by stating that "Hoạt động trấn"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (3.60s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.60s in=622 out=526 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (5.98s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  5.98s in=622 out=1133 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (2.88s)
-    · TOOL keyword_search   args={query='pháp luật ràng buộc nhà nước giới hạn quyền lực nhà nước nhà nước tuân thủ pháp luật', top_k=10}  0.35s  out=16,636 ký tự  OK
-    · TOOL semantic_search  args={query='mối quan hệ giữa nhà nước và pháp luật, đặc biệt là cách pháp luật ràng buộc và giới hạn quyền lực của nhà nước', top_k=10}  2.83s  out=19,370 ký tự  OK
-    → cập nhật: documents=list[45]  (+22 chunk mới)
+[10] tool               (1.08s)
+    · TOOL keyword_search   args={query='pháp luật ràng buộc nhà nước, nhà nước tuân thủ pháp luật, giới hạn quyền lực nhà nước'}  0.26s  out=24,892 ký tự  OK
+    · TOOL semantic_search  args={query='Pháp luật ràng buộc nhà nước như thế nào, giới hạn quyền lực nhà nước bởi pháp luật'}  1.07s  out=20,008 ký tự  OK
+    → cập nhật: documents=list[44]  (+21 chunk mới)
 
-[11] grade_documents    (2.66s)
-    · LLM  default × 45 lượt  tổng 37.41s in=19663 out=90
-    → cập nhật: documents=list[30]  (giữ 30/45, loại 15)
+[11] grade_documents    (1.55s)
+    · LLM  default × 44 lượt  tổng 21.49s in=19729 out=88
+    → cập nhật: documents=list[22]  (giữ 22/44, loại 22)
 
-[12] context_evaluator  (5.66s)
-    · LLM  gemini-2.5-flash (google_genai)  5.66s in=2193 out=1020
+[12] context_evaluator  (5.77s)
+    · LLM  gemini-2.5-flash (google_genai)  5.76s in=2193 out=1020
     → context_sufficient=False
     → feedback: "The context sufficiently explains how the state creates law. However, it only briefly touches upon how law binds the state by stating that "Hoạt động trấn"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (18.98s)
-    · LLM  gemini-2.5-flash (google_genai)  18.97s in=6726 out=3761
+[13] generate           (16.00s)
+    · LLM  gemini-2.5-flash (google_genai)  16.00s in=6714 out=3439
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 111 (Gemini 7, Local 104)
-Chunk cuối cùng : 30
-Node chậm nhất  : generate (18.98s), context_evaluator (5.66s), context_evaluator (5.60s)
+Số lượt gọi LLM : 113 (Gemini 7, Local 106)
+Chunk cuối cùng : 22
+Node chậm nhất  : generate (16.00s), retrieve (6.33s), retrieve (5.98s)
 Lỗi             : (không có)
 
 === CÂU HỎI 19 ===
 
 Câu hỏi : "Chủ thể pháp luật" được định nghĩa ở phần lý luận chung, nhưng biểu hiện cụ thể khác nhau trong từng ngành luật — so sánh chủ thể trong quan hệ pháp luật dân sự, hành chính và hình sự.
-Bắt đầu : 2026-09-09 16:04:19
-Tổng thời gian: 108.3s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:45:22
+Tổng thời gian: 60.0s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=80,748 out=11,130 tổng=91,878 | Chi phí ước tính: $0.052049 USD (~1322.05 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08569-33a8-7472-9a5e-17bdf75d281c
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08569-33a8-7472-9a5e-17bdf75d281c?trace_id=01a08569-33a8-7472-9a5e-17bdf75d281c&start_time=2026-09-09T09:04:19.368210
+Tokens: in=75,736 out=7,790 tổng=83,526 | Chi phí ước tính: $0.042196 USD (~1071.77 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d8-6099-7982-813c-9905a7c242df
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d8-6099-7982-813c-9905a7c242df?trace_id=01a086d8-6099-7982-813c-9905a7c242df&start_time=2026-09-09T15:45:22.584593
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.60s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.59s in=576 out=262 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (1.77s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.76s in=576 out=193 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.18s)
-    · TOOL keyword_search   args={query='Chủ thể pháp luật dân sự hành chính hình sự'}  0.25s  out=18,898 ký tự  OK
-    · TOOL semantic_search  args={query='So sánh chủ thể pháp luật trong quan hệ pháp luật dân sự, hành chính và hình sự.'}  1.18s  out=18,647 ký tự  OK
+[2] tool               (1.11s)
+    · TOOL keyword_search   args={query='Chủ thể pháp luật dân sự hành chính hình sự'}  0.23s  out=18,898 ký tự  OK
+    · TOOL semantic_search  args={query='So sánh chủ thể pháp luật trong quan hệ pháp luật dân sự, hành chính và hình sự'}  1.11s  out=18,144 ký tự  OK
     → cập nhật: documents=list[35]  (+35 chunk mới)
 
-[3] grade_documents    (2.38s)
-    · LLM  default × 35 lượt  tổng 33.47s in=15152 out=70
-    → cập nhật: documents=list[9]  (giữ 9/35, loại 26)
+[3] grade_documents    (2.20s)
+    · LLM  default × 35 lượt  tổng 31.13s in=15008 out=70
+    → cập nhật: documents=list[10]  (giữ 10/35, loại 25)
 
-[4] context_evaluator  (6.53s)
-    · LLM  gemini-2.5-flash (google_genai)  6.52s in=2234 out=1020
+[4] context_evaluator  (4.98s)
+    · LLM  gemini-2.5-flash (google_genai)  4.97s in=2201 out=1020
     → context_sufficient=False
-    → feedback: "The context provides some information about legal subjects in civil and administrative law (individuals, organizations, legal entities, state agencies). For criminal law, it mentions "t"
+    → feedback: "The context provides good information about the subjects in civil and administrative law, including their characteristics and capacities. However, it completely lacks specific information about the "ch"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (3.40s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.23s in=624 out=356 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (6.29s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  6.28s in=623 out=1073 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (2.44s)
-    · TOOL keyword_search   args={query='chủ thể pháp luật, chủ thể luật hình sự, chủ thể quan hệ pháp luật hình sự'}  0.96s  out=34,558 ký tự  OK
-    · TOOL semantic_search  args={query='So sánh chủ thể pháp luật trong quan hệ pháp luật dân sự, hành chính và hình sự, đặc biệt tập trung vào định nghĩa và biểu hiện cụ thể trong từng ngành luật.'}  2.41s  out=18,625 ký tự  OK
-    → cập nhật: documents=list[71]  (+62 chunk mới)
+[6] tool               (0.98s)
+    · TOOL keyword_search   args={query='chủ thể pháp luật hình sự', top_k=10}  0.25s  out=25,003 ký tự  OK
+    · TOOL semantic_search  args={query='chủ thể pháp luật hình sự', top_k=10}  0.97s  out=15,847 ký tự  OK
+    → cập nhật: documents=list[63]  (+53 chunk mới)
 
-[7] grade_documents    (3.76s)
-    · LLM  default × 71 lượt  tổng 53.95s in=27471 out=142
-    → cập nhật: documents=list[16]  (giữ 16/71, loại 55)
+[7] grade_documents    (3.15s)
+    · LLM  default × 63 lượt  tổng 48.28s in=23686 out=126
+    → cập nhật: documents=list[21]  (giữ 21/63, loại 42)
 
-[8] context_evaluator  (6.25s)
-    · LLM  gemini-2.5-flash (google_genai)  6.24s in=2234 out=1020
+[8] context_evaluator  (4.83s)
+    · LLM  gemini-2.5-flash (google_genai)  4.83s in=2201 out=1020
     → context_sufficient=False
-    → feedback: "The context provides information about legal subjects in civil and administrative law, including individuals, organizations, and state agencies. It also mentions "chủ thể thực hiện"
+    → feedback: "The context provides good information about the subjects in civil and administrative law, including their characteristics and capacities. However, it completely lacks specific information about the "ch"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (3.75s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.74s in=623 out=472 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (6.43s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  6.43s in=623 out=1073 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.83s)
-    · TOOL keyword_search   args={query='Chủ thể pháp luật dân sự hành chính hình sự chủ thể thực hiện lý luận chung'}  0.43s  out=26,234 ký tự  OK
-    · TOOL semantic_search  args={query='Chủ thể pháp luật được định nghĩa ở phần lý luận chung, nhưng biểu hiện cụ thể khác nhau trong từng ngành luật — so sánh chủ thể trong quan hệ pháp luật dân sự, hành chính và hình sự.'}  1.82s  out=18,222 ký tự  OK
-    → cập nhật: documents=list[68]  (+52 chunk mới)
+[10] tool               (1.04s)
+    · TOOL keyword_search   args={query='chủ thể pháp luật hình sự', top_k=10}  0.24s  out=25,003 ký tự  OK
+    · TOOL semantic_search  args={query='chủ thể pháp luật hình sự', top_k=10}  1.03s  out=15,847 ký tự  OK
+    → cập nhật: documents=list[63]  (+42 chunk mới)
 
-[11] grade_documents    (3.36s)
-    · LLM  default × 68 lượt  tổng 51.74s in=26028 out=136
-    → cập nhật: documents=list[22]  (giữ 22/68, loại 46)
+[11] grade_documents    (2.26s)
+    · LLM  default × 63 lượt  tổng 33.53s in=23686 out=126
+    → cập nhật: documents=list[24]  (giữ 24/63, loại 39)
 
-[12] context_evaluator  (5.99s)
-    · LLM  gemini-2.5-flash (google_genai)  5.99s in=2234 out=1020
+[12] context_evaluator  (5.04s)
+    · LLM  gemini-2.5-flash (google_genai)  5.03s in=2201 out=1020
     → context_sufficient=False
-    → feedback: "The context provides some information about legal subjects in civil and administrative law (individuals, organizations, legal entities, state agencies). For criminal law, it mentions "t"
+    → feedback: "The context provides information about legal subjects in civil and administrative law (individuals, legal entities, administrative agencies, organizations) and their characteristics. However, it lacks specific"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (64.78s)
-    · LLM  gemini-2.5-flash (google_genai)  64.77s in=5395 out=7722
+[13] generate           (19.91s)
+    · LLM  gemini-2.5-flash (google_genai)  19.91s in=6753 out=4408
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 0 lỗi)
-Số lượt gọi LLM : 181 (Gemini 7, Local 174)
-Chunk cuối cùng : 22
-Node chậm nhất  : generate (64.78s), context_evaluator (6.53s), context_evaluator (6.25s)
+Số lượt gọi LLM : 168 (Gemini 7, Local 161)
+Chunk cuối cùng : 24
+Node chậm nhất  : generate (19.91s), retrieve (6.43s), retrieve (6.29s)
 Lỗi             : (không có)
 
 === CÂU HỎI 20 ===
 
 Câu hỏi : Pháp luật có nhiều hình thức thực hiện (tuân thủ, thi hành, sử dụng, áp dụng) — hãy phân tích tại sao "áp dụng pháp luật" là hình thức đặc biệt nhất và nó liên quan thế nào đến hoạt động của cơ quan tư pháp?
-Bắt đầu : 2026-09-09 16:06:08
-Tổng thời gian: 46.9s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:46:23
+Tổng thời gian: 40.9s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=41,895 out=4,233 tổng=46,128 | Chi phí ước tính: $0.023151 USD (~588.04 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856a-de21-7ac2-8f78-22574af537a6
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856a-de21-7ac2-8f78-22574af537a6?trace_id=01a0856a-de21-7ac2-8f78-22574af537a6&start_time=2026-09-09T09:06:08.544931
+Tokens: in=41,895 out=4,055 tổng=45,950 | Chi phí ước tính: $0.022706 USD (~576.73 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d9-500c-7050-83c2-e578b79bf2a7
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d9-500c-7050-83c2-e578b79bf2a7?trace_id=01a086d9-500c-7050-83c2-e578b79bf2a7&start_time=2026-09-09T15:46:23.883086
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.88s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.88s in=585 out=191 → tool_calls: semantic_search
+[1] retrieve           (1.91s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.90s in=585 out=191 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.40s)
-    · TOOL semantic_search  args={query='Pháp luật có nhiều hình thức thực hiện (tuân thủ, thi hành, sử dụng, áp dụng) — hãy phân tích tại sao "áp dụng pháp luật" là hình thức đặc biệt nhất và nó liên quan thế nào đến hoạt động của cơ quan tư pháp?'}  1.39s  out=18,286 ký tự  OK
+[2] tool               (1.07s)
+    · TOOL semantic_search  args={query='Pháp luật có nhiều hình thức thực hiện (tuân thủ, thi hành, sử dụng, áp dụng) — hãy phân tích tại sao "áp dụng pháp luật" là hình thức đặc biệt nhất và nó liên quan thế nào đến hoạt động của cơ quan tư pháp?'}  1.06s  out=18,286 ký tự  OK
     → cập nhật: documents=list[12]  (+12 chunk mới)
 
-[3] grade_documents    (1.01s)
-    · LLM  default × 12 lượt  tổng 11.99s in=6706 out=24
+[3] grade_documents    (0.89s)
+    · LLM  default × 12 lượt  tổng 10.59s in=6706 out=24
     → cập nhật: documents=list[1]  (giữ 1/12, loại 11)
 
-[4] context_evaluator  (4.15s)
-    · LLM  gemini-2.5-flash (google_genai)  4.14s in=520 out=504
+[4] context_evaluator  (3.12s)
+    · LLM  gemini-2.5-flash (google_genai)  3.12s in=520 out=504
     → context_sufficient=False
     → feedback: "Context discusses "áp dụng các biện pháp cưỡng chế" and "áp dụng hình phạt" and their relation to judicial bodies (Tòa án nhân dân), which partially addresses the second part of the query. However, it does not explain *why "áp dụng pháp luậ…"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (4.32s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.32s in=707 out=700 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (4.39s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.38s in=707 out=700 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.05s)
-    · TOOL keyword_search   args={top_k=10, query='áp dụng pháp luật tuân thủ thi hành sử dụng pháp luật so sánh đặc điểm cơ quan tư pháp'}  0.27s  out=11,244 ký tự  OK
-    · TOOL semantic_search  args={top_k=10, query='So sánh áp dụng pháp luật với tuân thủ, thi hành, sử dụng pháp luật và giải thích tính đặc biệt của áp dụng pháp luật'}  1.05s  out=19,247 ký tự  OK
+[6] tool               (0.96s)
+    · TOOL keyword_search   args={query='áp dụng pháp luật tuân thủ thi hành sử dụng pháp luật so sánh đặc điểm cơ quan tư pháp', top_k=10}  0.24s  out=11,244 ký tự  OK
+    · TOOL semantic_search  args={query='So sánh áp dụng pháp luật với tuân thủ, thi hành, sử dụng pháp luật và giải thích tính đặc biệt của áp dụng pháp luật', top_k=10}  0.95s  out=19,247 ký tự  OK
     → cập nhật: documents=list[34]  (+33 chunk mới)
 
-[7] grade_documents    (1.73s)
-    · LLM  default × 34 lượt  tổng 26.98s in=13385 out=68
+[7] grade_documents    (1.91s)
+    · LLM  default × 34 lượt  tổng 27.48s in=13385 out=68
     → cập nhật: documents=list[2]  (giữ 2/34, loại 32)
 
-[8] context_evaluator  (5.96s)
-    · LLM  gemini-2.5-flash (google_genai)  5.95s in=594 out=633
+[8] context_evaluator  (4.64s)
+    · LLM  gemini-2.5-flash (google_genai)  4.64s in=594 out=633
     → context_sufficient=False
     → feedback: "The context does not explain why "áp dụng pháp luật" is considered the most special form among the four forms of law implementation (tuân thủ, thi hành, sử dụng, áp dụng). It also does not fully elaborate on the general relationship between…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (3.71s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.70s in=705 out=537 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (3.36s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.35s in=705 out=537 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.36s)
-    · TOOL keyword_search   args={query='áp dụng pháp luật đặc biệt cơ quan tư pháp so sánh hình thức thực hiện pháp luật', top_k=10}  0.41s  out=22,642 ký tự  OK
-    · TOOL semantic_search  args={query='phân tích sự đặc biệt của áp dụng pháp luật so với tuân thủ, thi hành, sử dụng và mối liên hệ với hoạt động của cơ quan tư pháp', top_k=10}  1.35s  out=18,165 ký tự  OK
+[10] tool               (1.01s)
+    · TOOL keyword_search   args={query='áp dụng pháp luật đặc biệt cơ quan tư pháp so sánh hình thức thực hiện pháp luật', top_k=10}  0.25s  out=22,642 ký tự  OK
+    · TOOL semantic_search  args={query='phân tích sự đặc biệt của áp dụng pháp luật so với tuân thủ, thi hành, sử dụng và mối liên hệ với hoạt động của cơ quan tư pháp', top_k=10}  1.00s  out=18,165 ký tự  OK
     → cập nhật: documents=list[49]  (+47 chunk mới)
 
-[11] grade_documents    (2.38s)
-    · LLM  default × 49 lượt  tổng 36.70s in=19006 out=98
+[11] grade_documents    (2.41s)
+    · LLM  default × 49 lượt  tổng 34.98s in=19006 out=98
     → cập nhật: documents=list[2]  (giữ 2/49, loại 47)
 
-[12] context_evaluator  (5.27s)
-    · LLM  gemini-2.5-flash (google_genai)  5.08s in=594 out=633
+[12] context_evaluator  (3.86s)
+    · LLM  gemini-2.5-flash (google_genai)  3.85s in=594 out=633
     → context_sufficient=False
     → feedback: "The context does not explain why "áp dụng pháp luật" is considered the most special form among the four forms of law implementation (tuân thủ, thi hành, sử dụng, áp dụng). It also does not fully elaborate on the general relationship between…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (12.66s)
-    · LLM  gemini-2.5-flash (google_genai)  12.66s in=1090 out=2273
+[13] generate           (11.35s)
+    · LLM  gemini-2.5-flash (google_genai)  11.34s in=1090 out=2095
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
 Số lượt gọi LLM : 102 (Gemini 7, Local 95)
 Chunk cuối cùng : 2
-Node chậm nhất  : generate (12.66s), context_evaluator (5.96s), context_evaluator (5.27s)
+Node chậm nhất  : generate (11.35s), context_evaluator (4.64s), retrieve (4.39s)
 Lỗi             : (không có)
 
 === CÂU HỎI 21 ===
 
 Câu hỏi : Hãy trình bày khái quát cấu trúc hệ thống pháp luật Việt Nam: từ Hiến pháp đến các ngành luật, và nguyên tắc nào đảm bảo sự thống nhất, không mâu thuẫn trong toàn bộ hệ thống đó?
-Bắt đầu : 2026-09-09 16:06:58
-Tổng thời gian: 29.1s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:47:06
+Tổng thời gian: 25.1s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=12,717 out=4,604 tổng=17,321 | Chi phí ước tính: $0.015325 USD (~389.26 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856b-a192-77e3-88c5-6f39d19f28ee
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856b-a192-77e3-88c5-6f39d19f28ee?trace_id=01a0856b-a192-77e3-88c5-6f39d19f28ee&start_time=2026-09-09T09:06:58.577658
+Tokens: in=12,717 out=4,522 tổng=17,239 | Chi phí ước tính: $0.015120 USD (~384.05 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086d9-f4ca-7a20-9f1a-0c49db8e6c61
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086d9-f4ca-7a20-9f1a-0c49db8e6c61?trace_id=01a086d9-f4ca-7a20-9f1a-0c49db8e6c61&start_time=2026-09-09T15:47:06.057643
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.90s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.89s in=575 out=164 → tool_calls: semantic_search
+[1] retrieve           (1.63s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.62s in=575 out=164 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.20s)
-    · TOOL semantic_search  args={query='Cấu trúc hệ thống pháp luật Việt Nam: từ Hiến pháp đến các ngành luật, và nguyên tắc đảm bảo sự thống nhất, không mâu thuẫn'}  1.20s  out=17,353 ký tự  OK
+[2] tool               (0.83s)
+    · TOOL semantic_search  args={query='Cấu trúc hệ thống pháp luật Việt Nam: từ Hiến pháp đến các ngành luật, và nguyên tắc đảm bảo sự thống nhất, không mâu thuẫn'}  0.83s  out=17,353 ký tự  OK
     → cập nhật: documents=list[6]  (+6 chunk mới)
 
-[3] grade_documents    (0.90s)
-    · LLM  default × 6 lượt  tổng 5.33s in=5404 out=12
+[3] grade_documents    (0.83s)
+    · LLM  default × 6 lượt  tổng 4.93s in=5404 out=12
     → cập nhật: documents=list[4]  (giữ 4/6, loại 2)
 
-[4] context_evaluator  (6.57s)
-    · LLM  gemini-2.5-flash (google_genai)  6.56s in=2251 out=988
+[4] context_evaluator  (5.12s)
+    · LLM  gemini-2.5-flash (google_genai)  5.12s in=2251 out=989
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (18.53s)
-    · LLM  gemini-2.5-flash (google_genai)  18.40s in=5062 out=3604
+[5] generate           (16.69s)
+    · LLM  gemini-2.5-flash (google_genai)  16.68s in=5062 out=3521
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
 Số lượt gọi LLM : 9 (Gemini 3, Local 6)
 Chunk cuối cùng : 4
-Node chậm nhất  : generate (18.53s), context_evaluator (6.57s), retrieve (1.90s)
+Node chậm nhất  : generate (16.69s), context_evaluator (5.12s), retrieve (1.63s)
 Lỗi             : (không có)
 
 === CÂU HỎI 22 ===
 
 Câu hỏi : Toàn bộ môn Pháp luật đại cương xây dựng trên hai trụ cột lớn là "lý luận về nhà nước" và "lý luận về pháp luật" — hai trụ cột này liên hệ với nhau như thế nào và tại sao cần học cả hai?
-Bắt đầu : 2026-09-09 16:07:28
-Tổng thời gian: 28.9s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:47:32
+Tổng thời gian: 40.0s | Số bước node: 9 | Vòng lặp retrieve: 2/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=12,138 out=5,021 tổng=17,159 | Chi phí ước tính: $0.016194 USD (~411.33 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856c-17c9-75c3-9de5-ca09842e25ed
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856c-17c9-75c3-9de5-ca09842e25ed?trace_id=01a0856c-17c9-75c3-9de5-ca09842e25ed&start_time=2026-09-09T09:07:28.840743
+Tokens: in=19,477 out=5,908 tổng=25,385 | Chi phí ước tính: $0.020613 USD (~523.57 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086da-5df1-71a2-a7c0-513d6f6e90a5
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086da-5df1-71a2-a7c0-513d6f6e90a5?trace_id=01a086da-5df1-71a2-a7c0-513d6f6e90a5&start_time=2026-09-09T15:47:32.977742
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (1.88s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.87s in=583 out=155 → tool_calls: semantic_search
+[1] retrieve           (1.52s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.51s in=583 out=155 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.36s)
-    · TOOL semantic_search  args={query='Mối liên hệ giữa lý luận về nhà nước và lý luận về pháp luật, và tại sao cần học cả hai trong môn Pháp luật đại cương?'}  1.35s  out=16,495 ký tự  OK
+[2] tool               (0.93s)
+    · TOOL semantic_search  args={query='Mối liên hệ giữa lý luận về nhà nước và lý luận về pháp luật, và tại sao cần học cả hai trong môn Pháp luật đại cương?'}  0.93s  out=16,495 ký tự  OK
     → cập nhật: documents=list[6]  (+6 chunk mới)
 
-[3] grade_documents    (0.80s)
-    · LLM  default × 6 lượt  tổng 4.01s in=5147 out=12
+[3] grade_documents    (0.73s)
+    · LLM  default × 6 lượt  tổng 4.33s in=5147 out=12
     → cập nhật: documents=list[5]  (giữ 5/6, loại 1)
 
-[4] context_evaluator  (5.67s)
-    · LLM  gemini-2.5-flash (google_genai)  5.67s in=2192 out=991
+[4] context_evaluator  (6.19s)
+    · LLM  gemini-2.5-flash (google_genai)  6.18s in=2192 out=1020
+    → context_sufficient=False
+    → feedback: "The context explains the relationship between the state and law (state creates law, law is a tool for the state, they have an organic relationship). However, it"
+    → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
+
+[5] retrieve           (5.27s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  5.26s in=631 out=761 → tool_calls: semantic_search
+    → cập nhật: tool_calls=list[1], retrieve_count=2
+
+[6] tool               (1.01s)
+    · TOOL semantic_search  args={query='Toàn bộ môn Pháp luật đại cương xây dựng trên hai trụ cột lớn là "lý luận về nhà nước" và "lý luận về pháp luật" — hai trụ cột này liên hệ với nhau như thế nào và tại sao cần học cả hai?'}  1.01s  out=16,495 ký tự  OK
+    → cập nhật: documents=list[6]  (+1 chunk mới)
+
+[7] grade_documents    (0.58s)
+    · LLM  default × 6 lượt  tổng 3.45s in=5147 out=12
+    → cập nhật: documents=list[5]  (giữ 5/6, loại 1)
+
+[8] context_evaluator  (4.77s)
+    · LLM  gemini-2.5-flash (google_genai)  4.77s in=2192 out=991
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (19.22s)
-    · LLM  gemini-2.5-flash (google_genai)  19.21s in=4799 out=4018
+[9] generate           (18.95s)
+    · LLM  gemini-2.5-flash (google_genai)  18.95s in=4799 out=3873
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
-Số lượt gọi LLM : 9 (Gemini 3, Local 6)
+Tool đã gọi     : semantic_search ×2  (tổng 2 lượt, 0 lỗi)
+Số lượt gọi LLM : 17 (Gemini 5, Local 12)
 Chunk cuối cùng : 5
-Node chậm nhất  : generate (19.22s), context_evaluator (5.67s), retrieve (1.88s)
+Node chậm nhất  : generate (18.95s), context_evaluator (6.19s), retrieve (5.27s)
 Lỗi             : (không có)
 
 === CÂU HỎI 23 ===
 
 Câu hỏi : Pháp luật được phân chia thành luật công và luật tư — sự phân chia này phản ánh triết lý gì về quan hệ giữa nhà nước và cá nhân, và các ngành luật trong giáo trình được phân bổ vào hai nhóm này như thế nào?
-Bắt đầu : 2026-09-09 16:07:58
-Tổng thời gian: 22.6s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:48:14
+Tổng thời gian: 21.6s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=28,449 out=459 tổng=28,908 | Chi phí ước tính: $0.009682 USD (~245.93 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856c-8c3d-7092-8839-70f1718e0afa
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856c-8c3d-7092-8839-70f1718e0afa?trace_id=01a0856c-8c3d-7092-8839-70f1718e0afa&start_time=2026-09-09T09:07:58.653078
+Tokens: in=40,010 out=594 tổng=40,604 | Chi phí ước tính: $0.013488 USD (~342.60 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086db-0106-74b3-9435-b2123b05b673
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086db-0106-74b3-9435-b2123b05b673?trace_id=01a086db-0106-74b3-9435-b2123b05b673&start_time=2026-09-09T15:48:14.725498
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.04s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.03s in=580 out=245 → tool_calls: semantic_search
-    → cập nhật: tool_calls=list[1], retrieve_count=1
+[1] retrieve           (2.50s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.50s in=580 out=317 → tool_calls: semantic_search, keyword_search
+    → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.52s)
-    · TOOL semantic_search  args={query='Pháp luật được phân chia thành luật công và luật tư — sự phân chia này phản ánh triết lý gì về quan hệ giữa nhà nước và cá nhân, và các ngành luật trong giáo trình được phân bổ vào hai nhóm này như thế nào?'}  1.51s  out=10,661 ký tự  OK
-    → cập nhật: documents=list[5]  (+5 chunk mới)
+[2] tool               (1.15s)
+    · TOOL keyword_search   args={query='Pháp luật được phân chia thành luật công và luật tư — sự phân chia này phản ánh triết lý gì về quan hệ giữa nhà nước và cá nhân, và các ngành luật trong giáo trình được phân bổ vào hai nhóm này như thế nào?'}  0.28s  out=22,428 ký tự  OK
+    · TOOL semantic_search  args={query='Pháp luật được phân chia thành luật công và luật tư — sự phân chia này phản ánh triết lý gì về quan hệ giữa nhà nước và cá nhân, và các ngành luật trong giáo trình được phân bổ vào hai nhóm này như thế nào?'}  1.14s  out=10,661 ký tự  OK
+    → cập nhật: documents=list[39]  (+39 chunk mới)
 
-[3] grade_documents    (0.67s)
-    · LLM  default × 5 lượt  tổng 2.20s in=3573 out=10
-    → cập nhật: documents=list[0]  (giữ 0/5, loại 5)
+[3] grade_documents    (2.28s)
+    · LLM  default × 39 lượt  tổng 31.24s in=15134 out=78
+    → cập nhật: documents=list[0]  (giữ 0/39, loại 39)
 
 [4] context_evaluator  (0.00s)
     → context_sufficient=False
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (4.04s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.04s in=611 out=685 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (4.01s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.01s in=611 out=685 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.24s)
-    · TOOL keyword_search   args={query='luật công luật tư phân chia triết lý ngành luật'}  0.35s  out=9,292 ký tự  OK
-    · TOOL semantic_search  args={query='Phân loại luật công và luật tư, triết lý và các ngành luật liên quan'}  1.23s  out=15,227 ký tự  OK
+[6] tool               (0.97s)
+    · TOOL keyword_search   args={query='luật công luật tư phân chia triết lý ngành luật'}  0.25s  out=9,292 ký tự  OK
+    · TOOL semantic_search  args={query='Phân loại luật công và luật tư, triết lý và các ngành luật liên quan'}  0.96s  out=15,227 ký tự  OK
     → cập nhật: documents=list[37]  (+37 chunk mới)
 
-[7] grade_documents    (2.24s)
-    · LLM  default × 37 lượt  tổng 29.85s in=12644 out=74
+[7] grade_documents    (2.11s)
+    · LLM  default × 37 lượt  tổng 29.12s in=12644 out=74
     → cập nhật: documents=list[0]  (giữ 0/37, loại 37)
 
-[8] context_evaluator  (0.01s)
+[8] context_evaluator  (0.00s)
     → context_sufficient=False
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (4.09s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.08s in=611 out=573 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (3.37s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.37s in=611 out=573 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (2.57s)
-    · TOOL keyword_search   args={top_k=10, query='luật công luật tư phân chia triết lý'}  0.90s  out=5,503 ký tự  OK
-    · TOOL semantic_search  args={query='triết lý phân chia luật công luật tư và quan hệ nhà nước cá nhân', top_k=10}  2.56s  out=17,776 ký tự  OK
+[10] tool               (1.07s)
+    · TOOL keyword_search   args={top_k=10, query='luật công luật tư phân chia triết lý'}  0.24s  out=5,503 ký tự  OK
+    · TOOL semantic_search  args={query='triết lý phân chia luật công luật tư và quan hệ nhà nước cá nhân', top_k=10}  1.06s  out=17,776 ký tự  OK
     → cập nhật: documents=list[33]  (+33 chunk mới)
 
-[11] grade_documents    (1.70s)
-    · LLM  default × 33 lượt  tổng 25.13s in=11560 out=66
+[11] grade_documents    (1.63s)
+    · LLM  default × 33 lượt  tổng 23.83s in=11560 out=66
     → cập nhật: documents=list[0]  (giữ 0/33, loại 33)
 
 [12] context_evaluator  (0.00s)
@@ -1350,518 +1371,518 @@ LangSmith: project=slidegen-rag | run_id=01a0856c-8c3d-7092-8839-70f1718e0afa
     → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (2.45s)
-    · LLM  gemini-2.5-flash (google_genai)  2.42s in=672 out=309
+[13] generate           (2.51s)
+    · LLM  gemini-2.5-flash (google_genai)  2.51s in=672 out=376
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 79 (Gemini 4, Local 75)
+Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 0 lỗi)
+Số lượt gọi LLM : 113 (Gemini 4, Local 109)
 Chunk cuối cùng : 0
-Node chậm nhất  : retrieve (4.09s), retrieve (4.04s), tool (2.57s)
+Node chậm nhất  : retrieve (4.01s), retrieve (3.37s), generate (2.51s)
 Lỗi             : (không có)
 
 === CÂU HỎI 24 ===
 
 Câu hỏi : Nhìn toàn bộ các ngành luật được giới thiệu trong giáo trình (dân sự, hình sự, hành chính, lao động, hôn nhân–gia đình...), nguyên tắc chung nào xuyên suốt tất cả các ngành về việc bảo vệ quyền và lợi ích hợp pháp của công dân?
-Bắt đầu : 2026-09-09 16:08:22
-Tổng thời gian: 64.5s | Số bước node: 13 | Vòng lặp retrieve: 3/3
-Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=50,238 out=9,017 tổng=59,255 | Chi phí ước tính: $0.037614 USD (~955.39 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856c-e95b-7d03-a55d-074203c266bc
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856c-e95b-7d03-a55d-074203c266bc?trace_id=01a0856c-e95b-7d03-a55d-074203c266bc&start_time=2026-09-09T09:08:22.491052
+Bắt đầu : 2026-09-09 22:48:38
+Tổng thời gian: 226.4s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Kết thúc: ĐỦ NGỮ CẢNH
+Tokens: in=38,254 out=7,401 tổng=45,655 | Chi phí ước tính: $0.029979 USD (~761.46 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086db-5c21-7d73-9c52-61c06d009994
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086db-5c21-7d73-9c52-61c06d009994?trace_id=01a086db-5c21-7d73-9c52-61c06d009994&start_time=2026-09-09T15:48:38.048154
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.02s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.00s in=587 out=186 → tool_calls: semantic_search
+[1] retrieve           (1.75s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.74s in=587 out=186 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (2.26s)
-    · TOOL semantic_search  args={query='Nhìn toàn bộ các ngành luật được giới thiệu trong giáo trình (dân sự, hình sự, hành chính, lao động, hôn nhân–gia đình...), nguyên tắc chung nào xuyên suốt tất cả các ngành về việc bảo vệ quyền và lợi ích hợp pháp của công dân?'}  2.24s  out=19,776 ký tự  OK
+[2] tool               (0.97s)
+    · TOOL semantic_search  args={query='Nhìn toàn bộ các ngành luật được giới thiệu trong giáo trình (dân sự, hình sự, hành chính, lao động, hôn nhân–gia đình...), nguyên tắc chung nào xuyên suốt tất cả các ngành về việc bảo vệ quyền và lợi ích hợp pháp của công dân?'}  0.96s  out=19,776 ký tự  OK
     → cập nhật: documents=list[6]  (+6 chunk mới)
 
-[3] grade_documents    (0.91s)
-    · LLM  default × 6 lượt  tổng 4.90s in=6151 out=12
-    → cập nhật: documents=list[4]  (giữ 4/6, loại 2)
+[3] grade_documents    (0.83s)
+    · LLM  default × 6 lượt  tổng 4.95s in=6151 out=12
+    → cập nhật: documents=list[3]  (giữ 3/6, loại 3)
 
-[4] context_evaluator  (5.93s)
-    · LLM  gemini-2.5-flash (google_genai)  5.92s in=2297 out=1020
+[4] context_evaluator  (5.70s)
+    · LLM  gemini-2.5-flash (google_genai)  5.69s in=2274 out=1020
     → context_sufficient=False
-    → feedback: "The context describes the purpose of various branches of law, often mentioning the protection of rights and interests within each specific branch. It also mentions "Pháp chế"
+    → feedback: "The context describes how various individual laws protect rights and interests, and mentions the Constitution as the highest legal basis for protecting human rights. However, it does not"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (2.81s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  2.80s in=634 out=414 → tool_calls: semantic_search, keyword_search
-    → cập nhật: tool_calls=list[2], retrieve_count=2
+[5] retrieve           (179.59s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  179.59s in=634 out=313 → tool_calls: semantic_search
+    → cập nhật: tool_calls=list[1], retrieve_count=2
 
-[6] tool               (2.16s)
-    · TOOL keyword_search   args={query='Pháp chế OR nguyên tắc chung OR bảo vệ quyền và lợi ích hợp pháp'}  0.60s  out=12,853 ký tự  OK
-    · TOOL semantic_search  args={query='Nguyên tắc chung nào xuyên suốt tất cả các ngành luật về việc bảo vệ quyền và lợi ích hợp pháp của công dân?'}  2.14s  out=14,774 ký tự  OK
-    → cập nhật: documents=list[42]  (+38 chunk mới)
+[6] tool               (1.06s)
+    · TOOL semantic_search  args={query='Nguyên tắc chung nào xuyên suốt tất cả các ngành luật về việc bảo vệ quyền và lợi ích hợp pháp của công dân?', top_k=20}  1.05s  out=14,774 ký tự  OK
+    → cập nhật: documents=list[23]  (+20 chunk mới)
 
-[7] grade_documents    (2.39s)
-    · LLM  default × 42 lượt  tổng 31.93s in=17299 out=84
-    → cập nhật: documents=list[27]  (giữ 27/42, loại 15)
+[7] grade_documents    (1.48s)
+    · LLM  default × 23 lượt  tổng 18.68s in=10226 out=46
+    → cập nhật: documents=list[18]  (giữ 18/23, loại 5)
 
-[8] context_evaluator  (5.67s)
-    · LLM  gemini-2.5-flash (google_genai)  5.66s in=2274 out=1020
+[8] context_evaluator  (6.07s)
+    · LLM  gemini-2.5-flash (google_genai)  6.07s in=2274 out=1020
     → context_sufficient=False
     → feedback: "The context describes how various individual laws aim to protect rights and interests, and mentions the Constitution as the highest legal basis protecting human and citizen rights. However,"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (3.38s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  3.37s in=634 out=494 → tool_calls: semantic_search
+[9] retrieve           (3.67s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.66s in=634 out=494 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=3
 
-[10] tool               (1.58s)
-    · TOOL semantic_search  args={query='nguyên tắc chung bảo vệ quyền và lợi ích hợp pháp của công dân xuyên suốt các ngành luật', top_k=10}  1.57s  out=9,656 ký tự  OK
-    → cập nhật: documents=list[35]  (+8 chunk mới)
+[10] tool               (0.79s)
+    · TOOL semantic_search  args={top_k=10, query='nguyên tắc chung bảo vệ quyền và lợi ích hợp pháp của công dân xuyên suốt các ngành luật'}  0.79s  out=9,656 ký tự  OK
+    → cập nhật: documents=list[26]  (+8 chunk mới)
 
-[11] grade_documents    (1.57s)
-    · LLM  default × 35 lượt  tổng 20.31s in=13145 out=70
-    → cập nhật: documents=list[27]  (giữ 27/35, loại 8)
+[11] grade_documents    (0.94s)
+    · LLM  default × 26 lượt  tổng 12.24s in=10220 out=52
+    → cập nhật: documents=list[18]  (giữ 18/26, loại 8)
 
-[12] context_evaluator  (6.45s)
-    · LLM  gemini-2.5-flash (google_genai)  6.43s in=2274 out=1020
-    → context_sufficient=False
-    → feedback: "The context describes how various individual laws protect rights and interests, and mentions the Constitution as the highest legal basis for protecting human rights. However, it does not"
-    → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
+[12] context_evaluator  (5.15s)
+    · LLM  gemini-2.5-flash (google_genai)  5.13s in=2234 out=990
+    → context_sufficient=True
+    → định tuyến: generate
 
-[13] generate           (27.35s)
-    · LLM  gemini-2.5-flash (google_genai)  27.33s in=6798 out=5791
+[13] generate           (18.35s)
+    · LLM  gemini-2.5-flash (google_genai)  18.34s in=4875 out=4261
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×3, keyword_search ×1  (tổng 4 lượt, 0 lỗi)
-Số lượt gọi LLM : 90 (Gemini 7, Local 83)
-Chunk cuối cùng : 27
-Node chậm nhất  : generate (27.35s), context_evaluator (6.45s), context_evaluator (5.93s)
+Tool đã gọi     : semantic_search ×3  (tổng 3 lượt, 0 lỗi)
+Số lượt gọi LLM : 62 (Gemini 7, Local 55)
+Chunk cuối cùng : 18
+Node chậm nhất  : retrieve (179.59s), generate (18.35s), context_evaluator (6.07s)
 Lỗi             : (không có)
 
 === CÂU HỎI 25 ===
 
 Câu hỏi : Giáo trình Pháp luật đại cương trang bị cho sinh viên không chuyên luật những gì — hãy tổng hợp các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền?
-Bắt đầu : 2026-09-09 16:09:28
-Tổng thời gian: 56.1s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:52:25
+Tổng thời gian: 53.6s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=55,078 out=6,491 tổng=61,569 | Chi phí ước tính: $0.032751 USD (~831.87 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856d-ea17-7813-84d4-9acadf2353a7
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856d-ea17-7813-84d4-9acadf2353a7?trace_id=01a0856d-ea17-7813-84d4-9acadf2353a7&start_time=2026-09-09T09:09:28.214959
+Tokens: in=64,286 out=7,033 tổng=71,319 | Chi phí ước tính: $0.036868 USD (~936.45 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086de-d585-7461-9e33-5e29be7f09de
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086de-d585-7461-9e33-5e29be7f09de?trace_id=01a086de-d585-7461-9e33-5e29be7f09de&start_time=2026-09-09T15:52:25.733699
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.87s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.86s in=574 out=206 → tool_calls: semantic_search
+[1] retrieve           (1.99s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.98s in=574 out=152 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (2.09s)
-    · TOOL semantic_search  args={query='Giáo trình Pháp luật đại cương trang bị cho sinh viên không chuyên luật những gì — hãy tổng hợp các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền?'}  2.07s  out=18,507 ký tự  OK
+[2] tool               (0.92s)
+    · TOOL semantic_search  args={query='Giáo trình Pháp luật đại cương trang bị cho sinh viên không chuyên luật những gì — hãy tổng hợp các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền?'}  0.91s  out=18,507 ký tự  OK
     → cập nhật: documents=list[6]  (+6 chunk mới)
 
-[3] grade_documents    (0.77s)
-    · LLM  default × 6 lượt  tổng 3.97s in=5610 out=12
+[3] grade_documents    (0.69s)
+    · LLM  default × 6 lượt  tổng 4.11s in=5610 out=12
     → cập nhật: documents=list[6]  (giữ 6/6, loại 0)
 
-[4] context_evaluator  (5.86s)
-    · LLM  gemini-2.5-flash (google_genai)  5.85s in=2176 out=1020
+[4] context_evaluator  (6.72s)
+    · LLM  gemini-2.5-flash (google_genai)  6.71s in=2176 out=1020
     → context_sufficient=False
     → feedback: "The context sufficiently answers what the "Giáo trình Pháp luật đại cương" equips non-law students with. However, it does not explicitly list or synthesize the"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (2.64s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  2.63s in=622 out=317 → tool_calls: semantic_search
-    → cập nhật: tool_calls=list[1], retrieve_count=2
+[5] retrieve           (2.50s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.50s in=622 out=384 → tool_calls: keyword_search, semantic_search
+    → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (2.09s)
-    · TOOL semantic_search  args={query='các năng lực pháp lý cơ bản cần có của một công dân trong xã hội pháp quyền'}  2.08s  out=19,685 ký tự  OK
-    → cập nhật: documents=list[14]  (+8 chunk mới)
+[6] tool               (1.11s)
+    · TOOL keyword_search   args={query='năng lực pháp lý cơ bản công dân xã hội pháp quyền OR kỹ năng pháp lý công dân OR kiến thức pháp luật công dân', top_k=10}  0.25s  out=27,029 ký tự  OK
+    · TOOL semantic_search  args={top_k=10, query='các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền'}  1.10s  out=11,887 ký tự  OK
+    → cập nhật: documents=list[50]  (+44 chunk mới)
 
-[7] grade_documents    (1.34s)
-    · LLM  default × 14 lượt  tổng 18.08s in=11819 out=28
-    → cập nhật: documents=list[13]  (giữ 13/14, loại 1)
+[7] grade_documents    (3.15s)
+    · LLM  default × 50 lượt  tổng 45.43s in=22719 out=100
+    → cập nhật: documents=list[25]  (giữ 25/50, loại 25)
 
-[8] context_evaluator  (6.71s)
-    · LLM  gemini-2.5-flash (google_genai)  6.69s in=2176 out=1020
+[8] context_evaluator  (6.23s)
+    · LLM  gemini-2.5-flash (google_genai)  6.22s in=2176 out=1020
     → context_sufficient=False
     → feedback: "The context sufficiently answers what the "Giáo trình Pháp luật đại cương" equips non-law students with. However, it does not explicitly list or synthesize the"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (2.61s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  2.60s in=622 out=384 → tool_calls: keyword_search, semantic_search
+[9] retrieve           (3.15s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  3.14s in=622 out=384 → tool_calls: keyword_search, semantic_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (2.88s)
-    · TOOL keyword_search   args={query='năng lực pháp lý cơ bản công dân xã hội pháp quyền OR kỹ năng pháp lý công dân OR kiến thức pháp luật công dân', top_k=10}  0.86s  out=27,029 ký tự  OK
-    · TOOL semantic_search  args={top_k=10, query='các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền'}  2.84s  out=11,887 ký tự  OK
-    → cập nhật: documents=list[53]  (+40 chunk mới)
+[10] tool               (1.08s)
+    · TOOL keyword_search   args={query='năng lực pháp lý cơ bản công dân xã hội pháp quyền OR kỹ năng pháp lý công dân OR kiến thức pháp luật công dân', top_k=10}  0.26s  out=27,029 ký tự  OK
+    · TOOL semantic_search  args={top_k=10, query='các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền'}  1.07s  out=11,887 ký tự  OK
+    → cập nhật: documents=list[50]  (+25 chunk mới)
 
-[11] grade_documents    (3.65s)
-    · LLM  default × 53 lượt  tổng 50.91s in=24396 out=106
-    → cập nhật: documents=list[29]  (giữ 29/53, loại 24)
+[11] grade_documents    (1.97s)
+    · LLM  default × 50 lượt  tổng 28.82s in=22719 out=100
+    → cập nhật: documents=list[25]  (giữ 25/50, loại 25)
 
-[12] context_evaluator  (5.78s)
-    · LLM  gemini-2.5-flash (google_genai)  5.77s in=2176 out=1020
+[12] context_evaluator  (6.43s)
+    · LLM  gemini-2.5-flash (google_genai)  6.42s in=2176 out=1020
     → context_sufficient=False
     → feedback: "The context sufficiently answers what the "Giáo trình Pháp luật đại cương" equips non-law students with. However, it does not explicitly list or synthesize the"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (16.81s)
-    · LLM  gemini-2.5-flash (google_genai)  16.80s in=6725 out=3285
+[13] generate           (17.61s)
+    · LLM  gemini-2.5-flash (google_genai)  17.61s in=6710 out=3761
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×3, keyword_search ×1  (tổng 4 lượt, 0 lỗi)
-Số lượt gọi LLM : 80 (Gemini 7, Local 73)
-Chunk cuối cùng : 29
-Node chậm nhất  : generate (16.81s), context_evaluator (6.71s), context_evaluator (5.86s)
+Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
+Số lượt gọi LLM : 113 (Gemini 7, Local 106)
+Chunk cuối cùng : 25
+Node chậm nhất  : generate (17.61s), context_evaluator (6.72s), context_evaluator (6.43s)
 Lỗi             : (không có)
 
 === CÂU HỎI 26 ===
 
 Câu hỏi : Hãy xây dựng nội dung thuyết trình 10 phút giải thích cho sinh viên năm nhất hiểu quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực — bao gồm các giai đoạn, cơ quan có thẩm quyền và quyền của các bên.
-Bắt đầu : 2026-09-09 16:10:27
-Tổng thời gian: 66.0s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:53:21
+Tổng thời gian: 65.5s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=60,647 out=7,287 tổng=67,934 | Chi phí ước tính: $0.036412 USD (~924.85 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856e-d324-7893-9149-643ae742a190
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856e-d324-7893-9149-643ae742a190?trace_id=01a0856e-d324-7893-9149-643ae742a190&start_time=2026-09-09T09:10:27.875881
+Tokens: in=59,505 out=8,818 tổng=68,323 | Chi phí ước tính: $0.039897 USD (~1013.37 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086df-aec1-7320-bbf8-6bff129f43d3
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086df-aec1-7320-bbf8-6bff129f43d3?trace_id=01a086df-aec1-7320-bbf8-6bff129f43d3&start_time=2026-09-09T15:53:21.344898
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.99s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.98s in=588 out=330 → tool_calls: semantic_search, keyword_search
+[1] retrieve           (2.43s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.42s in=588 out=330 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.71s)
-    · TOOL keyword_search   args={query='quy trình vụ án dân sự, giai đoạn tố tụng dân sự, cơ quan có thẩm quyền giải quyết tranh chấp dân sự, quyền và nghĩa vụ của đương sự trong vụ án dân sự, bản án dân sự có hiệu lực pháp luật'}  0.51s  out=20,788 ký tự  OK
-    · TOOL semantic_search  args={query='quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực, các giai đoạn, cơ quan có thẩm quyền và quyền của các bên'}  1.70s  out=17,747 ký tự  OK
+[2] tool               (1.14s)
+    · TOOL keyword_search   args={query='quy trình vụ án dân sự, giai đoạn tố tụng dân sự, cơ quan có thẩm quyền giải quyết tranh chấp dân sự, quyền và nghĩa vụ của đương sự trong vụ án dân sự, bản án dân sự có hiệu lực pháp luật'}  0.28s  out=20,788 ký tự  OK
+    · TOOL semantic_search  args={query='quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực, các giai đoạn, cơ quan có thẩm quyền và quyền của các bên'}  1.14s  out=17,747 ký tự  OK
     → cập nhật: documents=list[48]  (+48 chunk mới)
 
-[3] grade_documents    (3.22s)
-    · LLM  default × 48 lượt  tổng 50.08s in=18304 out=96
+[3] grade_documents    (2.88s)
+    · LLM  default × 48 lượt  tổng 44.25s in=18304 out=96
     → cập nhật: documents=list[9]  (giữ 9/48, loại 39)
 
-[4] context_evaluator  (7.16s)
-    · LLM  gemini-2.5-flash (google_genai)  7.15s in=2198 out=1020
+[4] context_evaluator  (6.19s)
+    · LLM  gemini-2.5-flash (google_genai)  6.18s in=2198 out=1020
     → context_sufficient=False
     → feedback: "The context provides some details about the initial stages (khởi kiện), some procedural rights (kháng cáo, kháng nghị), and aspects of the trial ("
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (5.09s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  5.08s in=635 out=757 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (4.46s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.45s in=635 out=757 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.75s)
-    · TOOL keyword_search   args={query='quy trình vụ án dân sự giai đoạn tố tụng dân sự cơ quan có thẩm quyền tố tụng dân sự quyền và nghĩa vụ các bên trong tố tụng dân sự bản án có hiệu lực pháp luật'}  0.45s  out=9,408 ký tự  OK
-    · TOOL semantic_search  args={query='quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực, bao gồm các giai đoạn, cơ quan có thẩm quyền và quyền của các bên'}  1.74s  out=17,990 ký tự  OK
+[6] tool               (1.30s)
+    · TOOL keyword_search   args={query='quy trình vụ án dân sự giai đoạn tố tụng dân sự cơ quan có thẩm quyền tố tụng dân sự quyền và nghĩa vụ các bên trong tố tụng dân sự bản án có hiệu lực pháp luật'}  0.29s  out=9,408 ký tự  OK
+    · TOOL semantic_search  args={query='quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực, bao gồm các giai đoạn, cơ quan có thẩm quyền và quyền của các bên'}  1.29s  out=17,990 ký tự  OK
     → cập nhật: documents=list[36]  (+27 chunk mới)
 
-[7] grade_documents    (1.81s)
-    · LLM  default × 36 lượt  tổng 23.00s in=14143 out=72
+[7] grade_documents    (1.62s)
+    · LLM  default × 36 lượt  tổng 21.17s in=14143 out=72
     → cập nhật: documents=list[12]  (giữ 12/36, loại 24)
 
-[8] context_evaluator  (6.58s)
-    · LLM  gemini-2.5-flash (google_genai)  6.57s in=2198 out=1020
-    → context_sufficient=False
-    → feedback: "The context provides some details about the initial stages (khởi kiện), some procedural rights (kháng cáo, kháng nghị), and aspects of the trial ("
-    → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
-
-[9] retrieve           (6.66s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  6.65s in=635 out=1233 → tool_calls: semantic_search, keyword_search
-    → cập nhật: tool_calls=list[2], retrieve_count=3
-
-[10] tool               (1.54s)
-    · TOOL keyword_search   args={query='quy trình tố tụng dân sự, giai đoạn tố tụng dân sự, thẩm quyền tòa án, quyền đương sự, khởi kiện, hòa giải, xét xử sơ thẩm, xét xử phúc thẩm, giám đốc thẩm, tái thẩm, bản án có hiệu lực', top_k=10}  0.39s  out=16,964 ký tự  OK
-    · TOOL semantic_search  args={query='quy trình giải quyết vụ án dân sự từ khi phát sinh tranh chấp đến khi bản án có hiệu lực, bao gồm các giai đoạn, cơ quan có thẩm quyền và quyền của các bên', top_k=10}  1.53s  out=19,951 ký tự  OK
-    → cập nhật: documents=list[47]  (+35 chunk mới)
-
-[11] grade_documents    (1.87s)
-    · LLM  default × 47 lượt  tổng 26.97s in=18000 out=94
-    → cập nhật: documents=list[12]  (giữ 12/47, loại 35)
-
-[12] context_evaluator  (5.93s)
-    · LLM  gemini-2.5-flash (google_genai)  5.93s in=2198 out=1020
+[8] context_evaluator  (5.39s)
+    · LLM  gemini-2.5-flash (google_genai)  5.39s in=2198 out=1020
     → context_sufficient=False
     → feedback: "Context provides some details about the initial stage (khởi kiện), the trial (phiên tòa), and post-judgment rights (kháng cáo, kháng nghị"
+    → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
+
+[9] retrieve           (5.88s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  5.88s in=636 out=948 → tool_calls: semantic_search, keyword_search
+    → cập nhật: tool_calls=list[2], retrieve_count=3
+
+[10] tool               (1.23s)
+    · TOOL keyword_search   args={top_k=10, query='quy trình tố tụng dân sự, giai đoạn tố tụng dân sự, thẩm quyền tòa án dân sự, quyền và nghĩa vụ đương sự, khởi kiện, thụ lý, hòa giải, xét xử sơ thẩm, xét xử phúc thẩm, bản án có hiệu lực'}  0.41s  out=17,363 ký tự  OK
+    · TOOL semantic_search  args={top_k=10, query='quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực, các giai đoạn, cơ quan có thẩm quyền và quyền của các bên'}  1.22s  out=17,747 ký tự  OK
+    → cập nhật: documents=list[45]  (+33 chunk mới)
+
+[11] grade_documents    (1.72s)
+    · LLM  default × 45 lượt  tổng 24.58s in=16969 out=90
+    → cập nhật: documents=list[11]  (giữ 11/45, loại 34)
+
+[12] context_evaluator  (5.49s)
+    · LLM  gemini-2.5-flash (google_genai)  5.48s in=2198 out=1020
+    → context_sufficient=False
+    → feedback: "The context provides some details about the initial stages (khởi kiện), some procedural rights (kháng cáo, kháng nghị), and aspects of the trial ("
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (19.68s)
-    · LLM  gemini-2.5-flash (google_genai)  19.67s in=3606 out=3965
+[13] generate           (25.81s)
+    · LLM  gemini-2.5-flash (google_genai)  25.81s in=3495 out=5500
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 0 lỗi)
-Số lượt gọi LLM : 138 (Gemini 7, Local 131)
-Chunk cuối cùng : 12
-Node chậm nhất  : generate (19.68s), context_evaluator (7.16s), retrieve (6.66s)
+Số lượt gọi LLM : 136 (Gemini 7, Local 129)
+Chunk cuối cùng : 11
+Node chậm nhất  : generate (25.81s), context_evaluator (6.19s), retrieve (5.88s)
 Lỗi             : (không có)
 
 === CÂU HỎI 27 ===
 
 Câu hỏi : Hãy soạn nội dung một buổi tư vấn pháp lý ngắn (5 phút) giải thích cho người lao động phổ thông hiểu những quyền cơ bản của họ trong quan hệ lao động mà họ cần biết để tự bảo vệ mình.
-Bắt đầu : 2026-09-09 16:11:35
-Tổng thời gian: 27.5s | Số bước node: 5 | Vòng lặp retrieve: 1/3
+Bắt đầu : 2026-09-09 22:54:28
+Tổng thời gian: 34.0s | Số bước node: 5 | Vòng lặp retrieve: 1/3
 Kết thúc: ĐỦ NGỮ CẢNH
-Tokens: in=14,104 out=4,656 tổng=18,760 | Chi phí ước tính: $0.015871 USD (~403.13 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a0856f-db8c-7731-8fd0-69abb82de8ed
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a0856f-db8c-7731-8fd0-69abb82de8ed?trace_id=01a0856f-db8c-7731-8fd0-69abb82de8ed&start_time=2026-09-09T09:11:35.564225
+Tokens: in=14,104 out=6,980 tổng=21,084 | Chi phí ước tính: $0.021681 USD (~550.70 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086e0-b56e-72d0-95d3-e3a529c9a2e7
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086e0-b56e-72d0-95d3-e3a529c9a2e7?trace_id=01a086e0-b56e-72d0-95d3-e3a529c9a2e7&start_time=2026-09-09T15:54:28.590176
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.05s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.04s in=575 out=209 → tool_calls: semantic_search
+[1] retrieve           (2.18s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  2.17s in=575 out=209 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.89s)
-    · TOOL semantic_search  args={query='Hãy soạn nội dung một buổi tư vấn pháp lý ngắn (5 phút) giải thích cho người lao động phổ thông hiểu những quyền cơ bản của họ trong quan hệ lao động mà họ cần biết để tự bảo vệ mình.', top_k=10}  1.88s  out=18,879 ký tự  OK
+[2] tool               (0.93s)
+    · TOOL semantic_search  args={query='Hãy soạn nội dung một buổi tư vấn pháp lý ngắn (5 phút) giải thích cho người lao động phổ thông hiểu những quyền cơ bản của họ trong quan hệ lao động mà họ cần biết để tự bảo vệ mình.', top_k=10}  0.93s  out=18,879 ký tự  OK
     → cập nhật: documents=list[13]  (+13 chunk mới)
 
-[3] grade_documents    (1.16s)
-    · LLM  default × 13 lượt  tổng 14.78s in=6778 out=26
+[3] grade_documents    (0.92s)
+    · LLM  default × 13 lượt  tổng 11.80s in=6778 out=26
     → cập nhật: documents=list[11]  (giữ 11/13, loại 2)
 
-[4] context_evaluator  (5.23s)
-    · LLM  gemini-2.5-flash (google_genai)  5.22s in=2118 out=988
+[4] context_evaluator  (4.96s)
+    · LLM  gemini-2.5-flash (google_genai)  4.96s in=2118 out=991
     → context_sufficient=True
     → định tuyến: generate
 
-[5] generate           (17.22s)
-    · LLM  gemini-2.5-flash (google_genai)  17.21s in=5208 out=3642
+[5] generate           (24.97s)
+    · LLM  gemini-2.5-flash (google_genai)  24.95s in=5208 out=5963
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×1  (tổng 1 lượt, 0 lỗi)
 Số lượt gọi LLM : 16 (Gemini 3, Local 13)
 Chunk cuối cùng : 11
-Node chậm nhất  : generate (17.22s), context_evaluator (5.23s), retrieve (2.05s)
+Node chậm nhất  : generate (24.97s), context_evaluator (4.96s), retrieve (2.18s)
 Lỗi             : (không có)
 
 === CÂU HỎI 28 ===
 
 Câu hỏi : Hãy xây dựng nội dung thuyết trình so sánh hệ thống pháp luật Việt Nam với một đặc điểm nổi bật của hệ thống Civil Law (hệ thống luật thành văn lục địa châu Âu) mà Việt Nam chịu ảnh hưởng — dành cho đối tượng là sinh viên kinh tế.
-Bắt đầu : 2026-09-09 16:12:04
-Tổng thời gian: 98.8s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:55:04
+Tổng thời gian: 37.6s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=32,746 out=4,327 tổng=37,073 | Chi phí ước tính: $0.020641 USD (~524.29 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08570-4c29-7092-a7c5-45afaa5a8683
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08570-4c29-7092-a7c5-45afaa5a8683?trace_id=01a08570-4c29-7092-a7c5-45afaa5a8683&start_time=2026-09-09T09:12:04.393496
+Tokens: in=30,118 out=3,665 tổng=33,783 | Chi phí ước tính: $0.018198 USD (~462.23 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086e1-4176-7410-9dfd-46e8dc979996
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086e1-4176-7410-9dfd-46e8dc979996?trace_id=01a086e1-4176-7410-9dfd-46e8dc979996&start_time=2026-09-09T15:55:04.438487
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.61s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.60s in=585 out=267 → tool_calls: semantic_search
+[1] retrieve           (1.44s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  1.43s in=585 out=140 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.61s)
-    · TOOL semantic_search  args={query='Hãy xây dựng nội dung thuyết trình so sánh hệ thống pháp luật Việt Nam với một đặc điểm nổi bật của hệ thống Civil Law (hệ thống luật thành văn lục địa châu Âu) mà Việt Nam chịu ảnh hưởng — dành cho đối tượng là sinh viên kinh tế.'}  1.60s  out=17,896 ký tự  OK
-    → cập nhật: documents=list[9]  (+9 chunk mới)
+[2] tool               (0.99s)
+    · TOOL semantic_search  args={query='So sánh hệ thống pháp luật Việt Nam với đặc điểm nổi bật của hệ thống Civil Law mà Việt Nam chịu ảnh hưởng, dành cho sinh viên kinh tế.'}  0.98s  out=17,550 ký tự  OK
+    → cập nhật: documents=list[13]  (+13 chunk mới)
 
-[3] grade_documents    (1.01s)
-    · LLM  default × 9 lượt  tổng 8.94s in=6223 out=18
-    → cập nhật: documents=list[2]  (giữ 2/9, loại 7)
+[3] grade_documents    (1.00s)
+    · LLM  default × 13 lượt  tổng 12.83s in=6777 out=26
+    → cập nhật: documents=list[2]  (giữ 2/13, loại 11)
 
-[4] context_evaluator  (3.81s)
-    · LLM  gemini-2.5-flash (google_genai)  3.80s in=1253 out=543
+[4] context_evaluator  (3.18s)
+    · LLM  gemini-2.5-flash (google_genai)  3.18s in=297 out=412
     → context_sufficient=False
-    → feedback: "Context thiếu thông tin về các đặc điểm nổi bật của hệ thống Civil Law (luật thành văn lục địa châu Âu) và cách mà hệ thống pháp luật Việt Nam chịu ảnh hưởng từ các đặc điểm đó. Để xây dựng bài thuyết trình so sánh, cần có mô tả chi tiết về…"
+    → feedback: "Ngữ cảnh không cung cấp thông tin về hệ thống Civil Law (luật thành văn lục địa châu Âu), các đặc điểm nổi bật của nó, hay sự ảnh hưởng của nó đối với hệ thống pháp luật Việt Nam. Nó cũng không có nội dung so sánh cụ thể giữa hai hệ thống. …"
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (5.06s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  5.05s in=680 out=606 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (5.54s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  5.53s in=702 out=1012 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.33s)
-    · TOOL keyword_search   args={top_k=10, query='Civil Law đặc điểm ảnh hưởng pháp luật Việt Nam'}  0.33s  out=4,801 ký tự  OK
-    · TOOL semantic_search  args={query='Đặc điểm nổi bật của hệ thống Civil Law và sự ảnh hưởng của nó đến hệ thống pháp luật Việt Nam', top_k=10}  1.32s  out=18,854 ký tự  OK
-    → cập nhật: documents=list[21]  (+19 chunk mới)
+[6] tool               (1.58s)
+    · TOOL keyword_search   args={query='hệ thống pháp luật Civil Law ảnh hưởng Civil Law Việt Nam so sánh hệ thống pháp luật Việt Nam Civil Law'}  0.80s  out=3,421 ký tự  OK
+    · TOOL semantic_search  args={query='so sánh hệ thống pháp luật Việt Nam và Civil Law, đặc điểm nổi bật của Civil Law, ảnh hưởng của Civil Law đến Việt Nam'}  1.58s  out=18,454 ký tự  OK
+    → cập nhật: documents=list[27]  (+25 chunk mới)
 
-[7] grade_documents    (1.44s)
-    · LLM  default × 21 lượt  tổng 18.60s in=10731 out=42
-    → cập nhật: documents=list[3]  (giữ 3/21, loại 18)
+[7] grade_documents    (1.46s)
+    · LLM  default × 27 lượt  tổng 19.99s in=10385 out=54
+    → cập nhật: documents=list[8]  (giữ 8/27, loại 19)
 
-[8] context_evaluator  (3.78s)
-    · LLM  gemini-2.5-flash (google_genai)  3.77s in=1280 out=516
+[8] context_evaluator  (2.53s)
+    · LLM  gemini-2.5-flash (google_genai)  2.52s in=502 out=350
     → context_sufficient=False
-    → feedback: "Ngữ cảnh mô tả hệ thống pháp luật Việt Nam nhưng không nêu rõ một đặc điểm nổi bật của hệ thống Civil Law (luật thành văn) để so sánh. Đồng thời, ngữ cảnh cũng không phân tích sự ảnh hưởng cụ thể của hệ thống Civil Law lên pháp luật Việt Na…"
+    → feedback: "Context lacks information about the specific characteristics of the Civil Law system and how Vietnam has been influenced by it. It also doesn't provide content for a comparison between the two systems. Suggested keywords: "đặc điểm hệ thống…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (6.78s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  6.77s in=694 out=914 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (2.72s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.72s in=672 out=439 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.26s)
-    · TOOL keyword_search   args={query='đặc điểm Civil Law ảnh hưởng pháp luật Việt Nam'}  0.28s  out=4,801 ký tự  OK
-    · TOOL semantic_search  args={query='Đặc điểm cốt lõi của hệ thống Civil Law và sự ảnh hưởng của Civil Law lên pháp luật Việt Nam'}  1.25s  out=16,346 ký tự  OK
-    → cập nhật: documents=list[22]  (+19 chunk mới)
+[10] tool               (0.95s)
+    · TOOL keyword_search   args={query='đặc điểm hệ thống Civil Law ảnh hưởng của Civil Law đến pháp luật Việt Nam so sánh pháp luật Việt Nam và Civil Law'}  0.24s  out=5,105 ký tự  OK
+    · TOOL semantic_search  args={query='Đặc điểm nổi bật của hệ thống Civil Law và ảnh hưởng của nó đến pháp luật Việt Nam, so sánh với hệ thống pháp luật Việt Nam.'}  0.95s  out=10,306 ký tự  OK
+    → cập nhật: documents=list[36]  (+28 chunk mới)
 
-[11] grade_documents    (0.98s)
-    · LLM  default × 22 lượt  tổng 11.95s in=10316 out=44
-    → cập nhật: documents=list[2]  (giữ 2/22, loại 20)
+[11] grade_documents    (1.41s)
+    · LLM  default × 36 lượt  tổng 18.85s in=10474 out=72
+    → cập nhật: documents=list[10]  (giữ 10/36, loại 26)
 
-[12] context_evaluator  (4.15s)
-    · LLM  gemini-2.5-flash (google_genai)  4.14s in=1224 out=542
+[12] context_evaluator  (2.45s)
+    · LLM  gemini-2.5-flash (google_genai)  2.44s in=594 out=332
     → context_sufficient=False
-    → feedback: "Ngữ cảnh mô tả chi tiết về hệ thống pháp luật Việt Nam nhưng không nêu rõ các đặc điểm nổi bật của hệ thống Civil Law (luật thành văn lục địa châu Âu) nói chung để có thể thực hiện so sánh. Để trả lời câu hỏi, cần tìm kiếm thông tin về các …"
+    → feedback: "Ngữ cảnh không định nghĩa hoặc mô tả các đặc điểm nổi bật của hệ thống Civil Law (luật thành văn lục địa châu Âu) và không đề cập đến sự ảnh hưởng của hệ thống này đối với pháp luật Việt Nam. Nó cũng thiếu các điểm so sánh cụ thể giữa hai h…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (64.95s)
-    · LLM  gemini-2.5-flash (google_genai)  64.94s in=1719 out=2622
+[13] generate           (12.38s)
+    · LLM  gemini-2.5-flash (google_genai)  12.37s in=1089 out=2419
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
 Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 59 (Gemini 7, Local 52)
-Chunk cuối cùng : 2
-Node chậm nhất  : generate (64.95s), retrieve (6.78s), retrieve (5.06s)
+Số lượt gọi LLM : 83 (Gemini 7, Local 76)
+Chunk cuối cùng : 10
+Node chậm nhất  : generate (12.38s), retrieve (5.54s), context_evaluator (3.18s)
 Lỗi             : (không có)
 
 === CÂU HỎI 29 ===
 
 Câu hỏi : Hãy soạn nội dung giải thích tại sao vi phạm hợp đồng không phải lúc nào cũng là vi phạm pháp luật, kèm 3 ví dụ tình huống thực tế phân biệt rõ hai trường hợp — dành cho buổi seminar môn học.
-Bắt đầu : 2026-09-09 16:13:44
-Tổng thời gian: 48.3s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:55:43
+Tổng thời gian: 54.3s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=47,514 out=4,244 tổng=51,758 | Chi phí ước tính: $0.024864 USD (~631.55 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08571-d49c-7121-b432-f874b912ee33
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08571-d49c-7121-b432-f874b912ee33?trace_id=01a08571-d49c-7121-b432-f874b912ee33&start_time=2026-09-09T09:13:44.859934
+Tokens: in=48,335 out=7,217 tổng=55,552 | Chi phí ước tính: $0.032543 USD (~826.59 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086e1-da04-7552-9fc1-c687da3c8a6a
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086e1-da04-7552-9fc1-c687da3c8a6a?trace_id=01a086e1-da04-7552-9fc1-c687da3c8a6a&start_time=2026-09-09T15:55:43.492206
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
-[1] retrieve           (2.00s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  1.99s in=576 out=173 → tool_calls: semantic_search
-    → cập nhật: tool_calls=list[1], retrieve_count=1
+[1] retrieve           (3.77s)  vòng #1
+    · LLM  gemini-2.5-flash (google_genai)  3.77s in=576 out=439 → tool_calls: semantic_search, keyword_search
+    → cập nhật: tool_calls=list[2], retrieve_count=1
 
-[2] tool               (1.22s)
-    · TOOL semantic_search  args={query='Giải thích tại sao vi phạm hợp đồng không phải lúc nào cũng là vi phạm pháp luật, kèm ví dụ', top_k=10}  1.21s  out=17,174 ký tự  OK
-    → cập nhật: documents=list[15]  (+15 chunk mới)
+[2] tool               (1.01s)
+    · TOOL keyword_search   args={query='vi phạm hợp đồng vi phạm pháp luật phân biệt hậu quả pháp lý'}  0.22s  out=23,846 ký tự  OK
+    · TOOL semantic_search  args={query='Hãy soạn nội dung giải thích tại sao vi phạm hợp đồng không phải lúc nào cũng là vi phạm pháp luật, kèm 3 ví dụ tình huống thực tế phân biệt rõ hai trường hợp'}  1.00s  out=19,663 ký tự  OK
+    → cập nhật: documents=list[52]  (+52 chunk mới)
 
-[3] grade_documents    (1.12s)
-    · LLM  default × 15 lượt  tổng 16.45s in=6791 out=30
-    → cập nhật: documents=list[1]  (giữ 1/15, loại 14)
+[3] grade_documents    (3.17s)
+    · LLM  default × 52 lượt  tổng 45.55s in=19836 out=104
+    → cập nhật: documents=list[0]  (giữ 0/52, loại 52)
 
-[4] context_evaluator  (2.08s)
-    · LLM  gemini-2.5-flash (google_genai)  2.07s in=209 out=196
+[4] context_evaluator  (0.00s)
     → context_sufficient=False
-    → feedback: "Ngữ cảnh chỉ đưa ra định nghĩa chung về "vi phạm pháp luật" liên quan đến yếu tố lỗi, nhưng không giải thích mối quan hệ hoặc sự khác biệt giữa vi phạm hợp đồng và vi phạm pháp luật. Nó cũng không cung cấp bất kỳ ví dụ nào. Cần tìm kiếm thô…"
+    → feedback: "No relevant documents were retrieved. Try broader search terms or use different keywords."
     → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
 
-[5] retrieve           (4.85s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.84s in=694 out=676 → tool_calls: semantic_search, keyword_search
+[5] retrieve           (4.05s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.05s in=607 out=534 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=2
 
-[6] tool               (1.65s)
-    · TOOL keyword_search   args={top_k=10, query='vi phạm hợp đồng không phải vi phạm pháp luật OR nghĩa vụ hợp đồng nghĩa vụ pháp lý OR ví dụ vi phạm hợp đồng'}  0.38s  out=22,693 ký tự  OK
-    · TOOL semantic_search  args={top_k=10, query='Sự khác biệt giữa vi phạm hợp đồng và vi phạm pháp luật, các trường hợp vi phạm hợp đồng không phải là vi phạm pháp luật, và ví dụ minh họa'}  1.64s  out=11,827 ký tự  OK
-    → cập nhật: documents=list[50]  (+49 chunk mới)
+[6] tool               (0.96s)
+    · TOOL keyword_search   args={query='breach of contract, breach of law, contract law, legal violations, remedies for breach of contract', top_k=10}  0.23s  out=49 ký tự  MỀM-LỖI (tool trả lỗi dạng chuỗi, không raise)
+    · TOOL semantic_search  args={query='distinction between breach of contract and breach of law', top_k=10}  0.96s  out=18,674 ký tự  OK
+    → cập nhật: documents=list[15]  (+15 chunk mới)
 
-[7] grade_documents    (2.61s)
-    · LLM  default × 50 lượt  tổng 39.69s in=16755 out=100
-    → cập nhật: documents=list[1]  (giữ 1/50, loại 49)
+[7] grade_documents    (1.02s)
+    · LLM  default × 15 lượt  tổng 15.07s in=7225 out=30
+    → cập nhật: documents=list[1]  (giữ 1/15, loại 14)
 
-[8] context_evaluator  (2.14s)
-    · LLM  gemini-2.5-flash (google_genai)  2.13s in=209 out=182
+[8] context_evaluator  (2.09s)
+    · LLM  gemini-2.5-flash (google_genai)  2.09s in=183 out=245
     → context_sufficient=False
-    → feedback: "Ngữ cảnh chỉ giải thích khái niệm "vi phạm pháp luật" liên quan đến yếu tố lỗi, nhưng không giải thích mối quan hệ giữa vi phạm hợp đồng và vi phạm pháp luật, cũng như không cung cấp các ví dụ phân biệt. Cần tìm kiếm thông tin về sự khác bi…"
+    → feedback: "Context is too narrow, focusing only on employee violations. It completely lacks the general explanation of why breach of contract is not always a breach of law, and provides no examples. Needed keywords: "vi phạm hợp đồng", "vi phạm pháp l…"
     → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
 
-[9] retrieve           (4.47s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  4.46s in=685 out=617 → tool_calls: semantic_search, keyword_search
+[9] retrieve           (2.38s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  2.37s in=668 out=383 → tool_calls: semantic_search, keyword_search
     → cập nhật: tool_calls=list[2], retrieve_count=3
 
-[10] tool               (1.61s)
-    · TOOL keyword_search   args={query='vi phạm hợp đồng không phải vi phạm pháp luật, trách nhiệm hợp đồng, trách nhiệm pháp lý, ví dụ vi phạm hợp đồng không phải vi phạm pháp luật', top_k=15}  0.35s  out=27,513 ký tự  OK
-    · TOOL semantic_search  args={query='sự khác biệt giữa vi phạm hợp đồng và vi phạm pháp luật, trách nhiệm hợp đồng và trách nhiệm pháp lý, các trường hợp vi phạm hợp đồng không phải vi phạm pháp luật, ví dụ phân biệt vi phạm hợp đồng và vi phạm pháp luật', top_k=15}  1.60s  out=17,945 ký tự  OK
-    → cập nhật: documents=list[65]  (+64 chunk mới)
+[10] tool               (0.90s)
+    · TOOL keyword_search   args={query='vi phạm hợp đồng vi phạm pháp luật phân biệt hậu quả pháp lý trách nhiệm dân sự trách nhiệm hình sự', top_k=10}  0.24s  out=25,998 ký tự  OK
+    · TOOL semantic_search  args={query='Giải thích tại sao vi phạm hợp đồng không phải lúc nào cũng là vi phạm pháp luật và phân biệt hai trường hợp, kèm ví dụ thực tế.', top_k=10}  0.90s  out=12,784 ký tự  OK
+    → cập nhật: documents=list[60]  (+59 chunk mới)
 
-[11] grade_documents    (3.28s)
-    · LLM  default × 65 lượt  tổng 49.92s in=22637 out=130
-    → cập nhật: documents=list[1]  (giữ 1/65, loại 64)
+[11] grade_documents    (2.96s)
+    · LLM  default × 60 lượt  tổng 43.11s in=20178 out=120
+    → cập nhật: documents=list[1]  (giữ 1/60, loại 59)
 
-[12] context_evaluator  (1.69s)
-    · LLM  gemini-2.5-flash (google_genai)  1.68s in=209 out=182
+[12] context_evaluator  (1.54s)
+    · LLM  gemini-2.5-flash (google_genai)  1.53s in=209 out=182
     → context_sufficient=False
     → feedback: "Ngữ cảnh chỉ giải thích khái niệm "vi phạm pháp luật" liên quan đến yếu tố lỗi, nhưng không giải thích mối quan hệ giữa vi phạm hợp đồng và vi phạm pháp luật, cũng như không cung cấp các ví dụ phân biệt. Cần tìm kiếm thông tin về sự khác bi…"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (19.57s)
-    · LLM  gemini-2.5-flash (google_genai)  19.56s in=704 out=3424
+[13] generate           (30.44s)
+    · LLM  gemini-2.5-flash (google_genai)  30.43s in=704 out=6536
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×3, keyword_search ×2  (tổng 5 lượt, 0 lỗi)
-Số lượt gọi LLM : 137 (Gemini 7, Local 130)
+Tool đã gọi     : keyword_search ×3, semantic_search ×3  (tổng 6 lượt, 1 lỗi)
+Số lượt gọi LLM : 133 (Gemini 6, Local 127)
 Chunk cuối cùng : 1
-Node chậm nhất  : generate (19.57s), retrieve (4.85s), retrieve (4.47s)
+Node chậm nhất  : generate (30.44s), retrieve (4.05s), retrieve (3.77s)
 Lỗi             : (không có)
 
 === CÂU HỎI 30 ===
 
 Câu hỏi : Hãy xây dựng nội dung thuyết trình tổng kết toàn bộ môn Pháp luật đại cương theo cấu trúc: lý luận nền tảng → các ngành luật chính → kỹ năng áp dụng pháp luật trong đời sống — sao cho sinh viên hiểu được "bản đồ tư duy" của toàn môn học.
-Bắt đầu : 2026-09-09 16:14:34
-Tổng thời gian: 66.2s | Số bước node: 13 | Vòng lặp retrieve: 3/3
+Bắt đầu : 2026-09-09 22:56:39
+Tổng thời gian: 70.1s | Số bước node: 13 | Vòng lặp retrieve: 3/3
 Kết thúc: HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, 3/3)
-Tokens: in=55,189 out=8,821 tổng=64,010 | Chi phí ước tính: $0.038609 USD (~980.67 VNĐ)
-LangSmith: project=slidegen-rag | run_id=01a08572-9636-78a3-b5eb-403fb89059b8
-           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a08572-9636-78a3-b5eb-403fb89059b8?trace_id=01a08572-9636-78a3-b5eb-403fb89059b8&start_time=2026-09-09T09:14:34.421372
+Tokens: in=49,157 out=8,868 tổng=58,025 | Chi phí ước tính: $0.036917 USD (~937.69 VNĐ)
+LangSmith: project=slidegen-rag | run_id=01a086e2-b489-7783-a7f6-210ba8e76fe0
+           https://smith.langchain.com/o/4f5927f2-ee10-40a4-a258-3acc4cd804fa/projects/p/847299c6-f543-4f67-851b-06e9fca270f3/r/01a086e2-b489-7783-a7f6-210ba8e76fe0?trace_id=01a086e2-b489-7783-a7f6-210ba8e76fe0&start_time=2026-09-09T15:56:39.433671
 
 ── QUỸ ĐẠO THỰC THI ───────────────────────────────────────────────────────
 [1] retrieve           (2.28s)  vòng #1
-    · LLM  gemini-2.5-flash (google_genai)  2.27s in=589 out=301 → tool_calls: semantic_search
+    · LLM  gemini-2.5-flash (google_genai)  2.28s in=589 out=301 → tool_calls: semantic_search
     → cập nhật: tool_calls=list[1], retrieve_count=1
 
-[2] tool               (1.52s)
-    · TOOL semantic_search  args={query='Hãy xây dựng nội dung thuyết trình tổng kết toàn bộ môn Pháp luật đại cương theo cấu trúc: lý luận nền tảng → các ngành luật chính → kỹ năng áp dụng pháp luật trong đời sống — sao cho sinh viên hiểu được "bản đồ tư duy" của toàn môn học.'}  1.51s  out=16,869 ký tự  OK
+[2] tool               (1.03s)
+    · TOOL semantic_search  args={query='Hãy xây dựng nội dung thuyết trình tổng kết toàn bộ môn Pháp luật đại cương theo cấu trúc: lý luận nền tảng → các ngành luật chính → kỹ năng áp dụng pháp luật trong đời sống — sao cho sinh viên hiểu được "bản đồ tư duy" của toàn môn học.'}  1.02s  out=16,869 ký tự  OK
     → cập nhật: documents=list[8]  (+8 chunk mới)
 
-[3] grade_documents    (0.86s)
-    · LLM  default × 8 lượt  tổng 6.01s in=5629 out=16
+[3] grade_documents    (0.87s)
+    · LLM  default × 8 lượt  tổng 6.90s in=5629 out=16
     → cập nhật: documents=list[7]  (giữ 7/8, loại 1)
 
-[4] context_evaluator  (7.12s)
-    · LLM  gemini-2.5-flash (google_genai)  7.11s in=2163 out=1020
-    → context_sufficient=False
-    → feedback: "The context provides good information for the "lý luận nền tảng" (foundational theory) part, covering definitions, nature, functions, and purpose"
-    → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
-
-[5] retrieve           (2.73s)  vòng #2  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  2.73s in=636 out=333 → tool_calls: semantic_search
-    → cập nhật: tool_calls=list[1], retrieve_count=2
-
-[6] tool               (1.33s)
-    · TOOL semantic_search  args={query='các ngành luật chính, kỹ năng áp dụng pháp luật trong đời sống'}  1.33s  out=18,880 ký tự  OK
-    → cập nhật: documents=list[14]  (+7 chunk mới)
-
-[7] grade_documents    (1.24s)
-    · LLM  default × 14 lượt  tổng 16.98s in=10468 out=28
-    → cập nhật: documents=list[13]  (giữ 13/14, loại 1)
-
-[8] context_evaluator  (5.90s)
-    · LLM  gemini-2.5-flash (google_genai)  5.89s in=2163 out=1020
-    → context_sufficient=False
-    → feedback: "The context provides good information for the "lý luận nền tảng" (foundational theory) part, covering definitions, nature, functions, and purpose"
-    → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
-
-[9] retrieve           (6.02s)  vòng #3  (có feedback)
-    · LLM  gemini-2.5-flash (google_genai)  6.01s in=636 out=1110 → tool_calls: semantic_search, keyword_search
-    → cập nhật: tool_calls=list[2], retrieve_count=3
-
-[10] tool               (1.39s)
-    · TOOL keyword_search   args={query='ngành luật chính, kỹ năng áp dụng pháp luật, luật hình sự, luật dân sự, luật hành chính, luật hiến pháp, luật lao động, luật đất đai'}  0.39s  out=29,366 ký tự  OK
-    · TOOL semantic_search  args={query='các ngành luật chính trong pháp luật đại cương, kỹ năng áp dụng pháp luật trong đời sống, phân loại các ngành luật'}  1.38s  out=17,166 ký tự  OK
-    → cập nhật: documents=list[56]  (+43 chunk mới)
-
-[11] grade_documents    (3.23s)
-    · LLM  default × 56 lượt  tổng 45.82s in=25922 out=112
-    → cập nhật: documents=list[43]  (giữ 43/56, loại 13)
-
-[12] context_evaluator  (6.53s)
-    · LLM  gemini-2.5-flash (google_genai)  6.51s in=2163 out=1020
+[4] context_evaluator  (5.71s)
+    · LLM  gemini-2.5-flash (google_genai)  5.70s in=2163 out=1020
     → context_sufficient=False
     → feedback: "The context provides a good foundation for the "lý luận nền tảng" (foundational theories) part, defining law, its functions, and"
+    → định tuyến: retrieve  (retrieve_count=1 < MAX_RETRIEVE=3)
+
+[5] retrieve           (4.32s)  vòng #2  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  4.31s in=635 out=605 → tool_calls: semantic_search
+    → cập nhật: tool_calls=list[1], retrieve_count=2
+
+[6] tool               (0.80s)
+    · TOOL semantic_search  args={top_k=10, query='các ngành luật chính và kỹ năng áp dụng pháp luật trong đời sống'}  0.79s  out=16,822 ký tự  OK
+    → cập nhật: documents=list[13]  (+6 chunk mới)
+
+[7] grade_documents    (1.00s)
+    · LLM  default × 13 lượt  tổng 12.84s in=9745 out=26
+    → cập nhật: documents=list[12]  (giữ 12/13, loại 1)
+
+[8] context_evaluator  (5.55s)
+    · LLM  gemini-2.5-flash (google_genai)  5.54s in=2175 out=1020
+    → context_sufficient=False
+    → feedback: "Context provides good information for the "lý luận nền tảng" section. However, it only mentions "ngành luật Hiến pháp" as"
+    → định tuyến: retrieve  (retrieve_count=2 < MAX_RETRIEVE=3)
+
+[9] retrieve           (11.60s)  vòng #3  (có feedback)
+    · LLM  gemini-2.5-flash (google_genai)  11.60s in=635 out=1950 → tool_calls: semantic_search, semantic_search, keyword_search
+    → cập nhật: tool_calls=list[3], retrieve_count=3
+
+[10] tool               (1.57s)
+    · TOOL keyword_search   args={query='các ngành luật chính', top_k=10}  0.24s  out=4,581 ký tự  OK
+    · TOOL semantic_search  args={query='kỹ năng và cách thức áp dụng pháp luật trong đời sống hàng ngày', top_k=10}  1.48s  out=19,090 ký tự  OK
+    · TOOL semantic_search  args={query='các ngành luật chính trong hệ thống pháp luật Việt Nam bao gồm những gì', top_k=10}  1.57s  out=17,802 ký tự  OK
+    → cập nhật: documents=list[42]  (+30 chunk mới)
+
+[11] grade_documents    (2.49s)
+    · LLM  default × 42 lượt  tổng 35.65s in=20522 out=84
+    → cập nhật: documents=list[27]  (giữ 27/42, loại 15)
+
+[12] context_evaluator  (6.50s)
+    · LLM  gemini-2.5-flash (google_genai)  6.49s in=2175 out=1020
+    → context_sufficient=False
+    → feedback: "The context provides good information for the "lý luận nền tảng" (foundational theory) section, covering the nature, functions, and forms of"
     → định tuyến: generate  (hết lượt retrieve, best-effort 3/3)
 
-[13] generate           (26.10s)
-    · LLM  gemini-2.5-flash (google_genai)  26.04s in=6681 out=5605
+[13] generate           (26.40s)
+    · LLM  gemini-2.5-flash (google_genai)  26.40s in=6748 out=5682
     → cập nhật: generation sinh xong (241 ký tự đã tóm tắt)
 
 ── THỐNG KÊ ───────────────────────────────────────────────────────────────
-Tool đã gọi     : semantic_search ×3, keyword_search ×1  (tổng 4 lượt, 0 lỗi)
-Số lượt gọi LLM : 85 (Gemini 7, Local 78)
-Chunk cuối cùng : 43
-Node chậm nhất  : generate (26.10s), context_evaluator (7.12s), context_evaluator (6.53s)
+Tool đã gọi     : semantic_search ×4, keyword_search ×1  (tổng 5 lượt, 0 lỗi)
+Số lượt gọi LLM : 70 (Gemini 7, Local 63)
+Chunk cuối cùng : 27
+Node chậm nhất  : generate (26.40s), retrieve (11.60s), context_evaluator (6.50s)
 Lỗi             : (không có)

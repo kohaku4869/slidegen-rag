@@ -358,7 +358,8 @@ def get_answers_and_chunks_for_topic(
     """
     from main import load_ra
     from agent.graph.builder import build_graph
-    from agent.tools.tools import set_retrieval_augmentation
+    from agent.tools.tools import set_retrieval_augmentation, set_web_search_enabled
+    from agent.observability.trajectory import make_initial_state
 
     question_file = DATA_TEST_DIR / topic / "question.txt"
     reference_file = DATA_TEST_DIR / topic / "reference.txt"
@@ -405,6 +406,7 @@ def get_answers_and_chunks_for_topic(
 
     ra = load_ra(index_path)
     set_retrieval_augmentation(ra)
+    set_web_search_enabled(False)  # benchmark closed-book, xem evaluate.py
     graph = build_graph()
 
     results = []
@@ -422,15 +424,7 @@ def get_answers_and_chunks_for_topic(
 
         logger.info(f"[{topic}] Agent đang trả lời câu {num}/{total}: {q_text[:70]}...")
 
-        initial_state = {
-            "query": q_text,
-            "tool_calls": [],
-            "documents": [],
-            "feedback": "",
-            "context_sufficient": False,
-            "generation": "",
-            "retrieve_count": 0,
-        }
+        initial_state = make_initial_state(q_text)
 
         try:
             state_res = asyncio.run(graph.ainvoke(initial_state))
@@ -464,7 +458,13 @@ def get_answers_and_chunks_for_topic(
 # =============================================================================
 
 def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
-    """Tính tỷ lệ bao phủ từ khóa cơ bản từ Reference xuất hiện trong các chunks."""
+    """Tính tỷ lệ bao phủ từ khóa cơ bản từ Reference xuất hiện trong các chunks.
+
+    LƯU Ý: dùng SUBSTRING match, không phải khớp theo ranh giới từ — điểm này
+    tăng gần như đơn điệu theo SỐ LƯỢNG chunk (xem `calculate_keyword_coverage_strict`
+    và evaluate/evaluate.py để có con số đáng tin hơn). Giữ hàm này để không
+    mất khả năng đối chiếu với điểm cũ.
+    """
     if not reference:
         return 100.0
     if not used_chunks:
@@ -477,6 +477,38 @@ def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
 
     unique_words = list(set(words))
     matched = sum(1 for w in unique_words if w in all_chunks_text)
+    coverage = (matched / len(unique_words)) * 100.0
+    return min(100.0, coverage)
+
+
+_VN_STOPWORDS = {
+    "và", "của", "là", "có", "được", "cho", "các", "một", "những", "này",
+    "đó", "khi", "với", "để", "trong", "về", "theo", "như", "từ", "hay",
+    "hoặc", "thì", "nếu", "nên", "mà", "đã", "sẽ", "đang", "bị", "do",
+    "vì", "nhưng", "còn", "cũng", "chỉ", "rất", "vào", "ra", "trên",
+    "dưới", "giữa", "sau", "trước", "tại", "bởi", "cả", "mỗi", "tất",
+}
+
+
+def calculate_keyword_coverage_strict(reference: str, used_chunks: list[str]) -> float:
+    """Bản coverage khớp theo ranh giới từ (token-set), bỏ stopword tiếng
+    Việt — không bị thổi phồng bởi việc thêm chunk không liên quan. Xem
+    evaluate/evaluate.py:calculate_keyword_coverage_strict để biết chi tiết."""
+    if not reference:
+        return 100.0
+    if not used_chunks:
+        return 0.0
+
+    chunk_tokens: set[str] = set()
+    for c in used_chunks:
+        chunk_tokens.update(re.findall(r"\b\w{2,}\b", c.lower()))
+
+    ref_words = [w for w in re.findall(r"\b\w{2,}\b", reference.lower()) if w not in _VN_STOPWORDS]
+    if not ref_words:
+        return 100.0
+
+    unique_words = set(ref_words)
+    matched = sum(1 for w in unique_words if w in chunk_tokens)
     coverage = (matched / len(unique_words)) * 100.0
     return min(100.0, coverage)
 
@@ -646,6 +678,7 @@ def run_evaluation_for_topic(
         )
 
         coverage = calculate_keyword_coverage(ref, chunks)
+        coverage_strict = calculate_keyword_coverage_strict(ref, chunks)
 
         if eval_res is not None:
             is_success = True
@@ -676,6 +709,7 @@ def run_evaluation_for_topic(
             "context_precision": ctx_prec_val,
             "total_score": total_score,
             "coverage_pct": round(coverage, 1),
+            "coverage_pct_strict": round(coverage_strict, 1),
             "chunks_count": len(chunks),
             "feedback": feedback_val,
             "is_success": is_success,
@@ -696,6 +730,7 @@ def run_evaluation_for_topic(
             "context_precision": float(valid_df["context_precision"].dropna().astype(float).mean()) if not valid_df["context_precision"].dropna().empty else 0.0,
             "total_score": float(valid_df["total_score"].dropna().astype(float).mean()) if not valid_df["total_score"].dropna().empty else 0.0,
             "coverage_pct": float(valid_df["coverage_pct"].astype(float).mean()),
+            "coverage_pct_strict": float(valid_df["coverage_pct_strict"].astype(float).mean()),
             "avg_chunks": float(detail_df["chunks_count"].mean()),
             "total_questions": len(detail_df),
             "success_count": success_count,
@@ -709,6 +744,7 @@ def run_evaluation_for_topic(
             "context_precision": 0.0,
             "total_score": 0.0,
             "coverage_pct": 0.0,
+            "coverage_pct_strict": 0.0,
             "avg_chunks": 0.0,
             "total_questions": len(detail_df),
             "success_count": 0,

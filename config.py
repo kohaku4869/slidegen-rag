@@ -103,8 +103,11 @@ class RetrieverConfig:
     # Cosine similarity threshold khi dùng mode "threshold"
     THRESHOLD: float = 0.5
 
-    # Số node tối đa trả về trong một lần truy xuất
-    TOP_K: int = 10
+    # Số node tối đa trả về trong một lần truy xuất. Giảm 10 -> 3: retrieve_node
+    # giờ phân rã câu hỏi thành nhiều facet, mỗi facet 1 tool call hẹp — top_k
+    # nhỏ giữ mỗi call gọn (trước đây bug ở tree_retriever.py ghi đè cứng
+    # top_k=20 nên giá trị này chưa từng có tác dụng thật).
+    TOP_K: int = 3
 
     # Chiến lược chọn node: "top_k" hoặc "threshold"
     SELECTION_MODE: str = "top_k"

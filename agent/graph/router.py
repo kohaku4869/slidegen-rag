@@ -29,4 +29,12 @@ def decide_after_context_eval(state: AgentState) -> str:
     if retrieve_count >= MAX_RETRIEVE:
         return "generate"  # best-effort, tránh infinite loop
 
+    # No-progress guard: vòng vừa rồi không mang về chunk MỚI nào (tool_node
+    # ghi đè pending_documents mỗi vòng) — lặp lại retrieve cũng vô ích vì
+    # retrieve_node đã lọc trùng (tool, query), nên thử thêm 1 vòng nữa chỉ
+    # tốn token mà không đổi được gì. Chỉ áp dụng từ vòng 2 trở đi để vẫn cho
+    # phép retry sau lần retrieve đầu tiên.
+    if retrieve_count >= 2 and not state.get("pending_documents", []):
+        return "generate"
+
     return "retrieve"

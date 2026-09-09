@@ -8,8 +8,8 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 from tree.models.EmbeddingModels import BaseEmbeddingModel, EmbeddingModel
 from tree.retriever.Retrievers import BaseRetriever
 from tree.structure.tree_structure import Node, Tree
-from tree.utils import (distances_from_embeddings, get_children, get_embeddings,
-                    get_node_list, get_text,
+from tree.utils import (dedup_parent_child, distances_from_embeddings, get_children,
+                    get_embeddings, get_node_list, get_text,
                     indices_of_nearest_neighbors_from_distances,
                     reverse_mapping)
 
@@ -161,13 +161,21 @@ class TreeRetriever(BaseRetriever):
 
         Args:
             query (str): The query text.
+            top_k (int): The maximum number of nodes to consider.
             max_tokens (int): The maximum number of tokens.
 
         Returns:
             str: The context created using the most relevant nodes.
         """
-        top_k = 20
-        max_tokens = 10000
+        # NOTE: trước đây hàm này ghi đè cứng top_k=20, max_tokens=10000, khiến
+        # mọi tham số top_k/max_tokens truyền từ tools.py hay config đều vô nghĩa.
+        # Giữ giá trị mặc định tương đương khi caller không truyền gì (None),
+        # nhưng nếu có truyền thì phải tôn trọng để agent thực sự điều khiển
+        # được độ rộng/hẹp của mỗi lần retrieve.
+        if top_k is None:
+            top_k = 20
+        if max_tokens is None:
+            max_tokens = 10000
         query_embedding = self.create_embedding(query)
 
         selected_nodes = []
@@ -185,6 +193,12 @@ class TreeRetriever(BaseRetriever):
         for idx in indices[:top_k]:
 
             node = node_list[idx]
+
+            # Node rỗng (vd. super-root do build lỗi) không mang thông tin gì,
+            # bỏ qua để không chiếm suất trong top_k lẫn ngân sách token.
+            if not node.text or not node.text.strip():
+                continue
+
             node_tokens = len(self.tokenizer.encode(node.text))
 
             if total_tokens + node_tokens > max_tokens:
@@ -193,6 +207,10 @@ class TreeRetriever(BaseRetriever):
             selected_nodes.append(node)
             total_tokens += node_tokens
             node_similarities[node.index] = float(1.0 - distances[idx])
+
+        # Loại node cha nếu con của nó cũng lọt vào cùng kết quả — tránh
+        # context trùng lặp (cha thường tóm tắt lại đúng nội dung các con).
+        selected_nodes = dedup_parent_child(selected_nodes)
 
         context = get_text(selected_nodes)
         return selected_nodes, context, node_similarities
