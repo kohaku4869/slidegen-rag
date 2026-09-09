@@ -1,5 +1,5 @@
 """
-evaluate-ragas.py — Giao diện Dashboard đánh giá chất lượng hệ thống RAG / CRAG Agent bằng RAGAS.
+evaluate_ragas.py — Giao diện Dashboard đánh giá chất lượng hệ thống RAG / CRAG Agent bằng RAGAS.
 Đo lường 4 chỉ số cốt lõi chuẩn RAGAS và chuyển đổi toàn diện sang THANG ĐIỂM 10:
   1. Faithfulness (Tính trung thực / Chống ảo giác dựa trên Context Chunks)
   2. Answer Relevance (Độ liên quan và tập trung của câu trả lời so với câu hỏi)
@@ -10,7 +10,7 @@ Tự động cache câu trả lời vào answer.txt và các chunks tài liệu 
 để tái sử dụng nhanh chóng mà không cần chạy lại Agent mỗi lần đánh giá.
 
 Sử dụng:
-    python evaluate/evaluate-ragas.py
+    python evaluate/evaluate_ragas.py
 """
 
 import asyncio

@@ -17,7 +17,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_QUESTION_FILE = ROOT_DIR / "data" / "test" / "pldc" / "question.txt"
 DEFAULT_REFERENCE_FILE = ROOT_DIR / "data" / "test" / "pldc" / "reference.txt"
 DEFAULT_NOTEBOOK_URL = "https://notebooklm.google.com/notebook/dc53252a-4dc2-4fd7-a7f1-e56a7f60eb0d"
-USER_DATA_DIR = ROOT_DIR / "test" / ".notebooklm_browser_data"
+USER_DATA_DIR = ROOT_DIR / "benchmarks" / ".notebooklm_browser_data"
 
 
 def load_questions(file_path: Path) -> List[Dict[str, str]]:
@@ -336,7 +336,7 @@ async def main():
 
     # 3. Lựa chọn chế độ kết nối trình duyệt
     print("\nChọn cách khởi chạy trình duyệt:")
-    print("  1. Mở Chrome/Chromium với Stealth + Profile (Lưu phiên tại test/.notebooklm_browser_data) [Khuyên dùng]")
+    print("  1. Mở Chrome/Chromium với Stealth + Profile (Lưu phiên tại benchmarks/.notebooklm_browser_data) [Khuyên dùng]")
     print("  2. Kết nối tới Chrome đang mở sẵn qua cổng Remote Debugging (localhost:9222)")
     
     mode_choice = input("Nhập lựa chọn (1 hoặc 2, mặc định 1): ").strip() or "1"

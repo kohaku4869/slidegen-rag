@@ -23,4 +23,26 @@ dependencies = [
     "matplotlib>=3.10.0",
     "scikit-learn>=1.5.0",
     "umap-learn>=0.5.6",
+    # Previously transitive-only; imported directly so declared explicitly:
+    "numpy>=2.5.1",
+    "scipy>=1.18.0",
+    "tenacity>=9.1.4",
+    "tqdm>=4.70.0",
+    "torch>=2.13.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "integration: needs stubbed LLM/tools, slower than pure unit tests",
+    "live: needs a real LLM/embedding endpoint, never run in CI",
+]
+asyncio_mode = "auto"

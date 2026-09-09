@@ -11,5 +11,5 @@ wheels/
 .env
 models_cache
 data/index
-.notebooklm_browser_data
+benchmarks/.notebooklm_browser_data
 
