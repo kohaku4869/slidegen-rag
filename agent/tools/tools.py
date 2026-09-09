@@ -16,6 +16,22 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 tavily_api_key = os.getenv("TAVILY_API_KEY")
 tavily_client = TavilyClient(api_key=tavily_api_key) if tavily_api_key else None
 
+# Tiền tố các thông báo "lỗi mềm" — khi search thất bại, các tool dưới đây
+# KHÔNG raise exception mà trả về 1 chuỗi lỗi như kết quả bình thường (để
+# LLM/pipeline không crash). agent/nodes/tool_node.py dùng để lọc chunk lỗi
+# khỏi kết quả; agent/observability/trajectory.py dùng để đánh dấu
+# ToolCallRecord.soft_failed trong trajectory.txt. Sửa tool nào ở đây thì
+# phải cập nhật tiền tố tương ứng trong tuple này.
+SOFT_FAILURE_PREFIXES = (
+    "Semantic search failed",
+    "Keyword search failed",
+    "Error searching",
+    "No relevant results found",
+    "No web search results found",
+    "No tree available",
+    "Tavily API key is not configured",
+)
+
 # Module-level RA instance — must be set before using semantic_search / keyword_search
 _ra: Optional[RetrievalAugmentation] = None
 

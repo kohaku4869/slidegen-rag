@@ -58,6 +58,42 @@ class TreeConfig:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# RAPTOR Tree Builder Config (raptor_tree package — GMM + UMAP clustering)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class RaptorTreeConfig:
+    """
+    Tham số cho quá trình xây dựng cây theo đúng thuật toán paper RAPTOR
+    (Sarthi et al.): chunk text cố định + GMM clustering (soft) với UMAP giảm chiều,
+    đệ quy tới khi còn 1 root. Không phụ thuộc cấu trúc heading như TreeConfig.
+    """
+
+    # ── Embedding (dùng chung tham số với TreeConfig để nhất quán) ───────────
+    EMBEDDING_MODEL_NAME: str = TreeConfig.EMBEDDING_MODEL_NAME
+    EMBEDDING_MODEL_KEY: str = "SBERT"
+    CLUSTER_EMBEDDING_MODEL: str = "SBERT"
+
+    # ── Chunking (leaf nodes) ──────────────────────────────────────────────
+    # Số token tối đa mỗi chunk lá (theo paper, thường 100)
+    MAX_TOKENS: int = 100
+    CHUNK_OVERLAP: int = 0
+
+    # ── Clustering (GMM + UMAP) ────────────────────────────────────────────
+    NUM_LAYERS: int = 5
+    # Số chiều giảm còn lại sau UMAP; cũng là ngưỡng "quá ít node để cluster"
+    REDUCTION_DIMENSION: int = 10
+    # Ngưỡng xác suất GMM để gán node vào 1 cluster (soft assignment)
+    CLUSTER_THRESHOLD: float = 0.1
+    # Giới hạn số cluster tối đa khi tìm kiếm BIC-optimal
+    MAX_CLUSTERS: int = 50
+    # Nếu tổng token 1 cluster vượt ngưỡng này, đệ quy tách nhỏ cluster trước khi tóm tắt
+    MAX_LENGTH_IN_CLUSTER: int = 3500
+
+    # ── Summarization ──────────────────────────────────────────────────────
+    SUMMARIZATION_LENGTH: int = TreeConfig.SUMMARIZATION_LENGTH
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Tree Retriever Config
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -113,6 +149,52 @@ class LLMConfig:
 
     # Temperature riêng cho bước retrieve (cần output tool_call ổn định hơn)
     RETRIEVE_TEMPERATURE: float = 0.0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Observability Config (LangSmith tracing + trajectory logging)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _env_flag(name: str, default: bool = False) -> bool:
+    """Đọc biến môi trường dạng boolean ('true'/'1'/'yes'/'on')."""
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    return raw.strip().lower() in ("true", "1", "yes", "on")
+
+
+class LangSmithConfig:
+    """
+    Tham số cho LangSmith tracing và ghi trajectory của Agent.
+
+    Toàn bộ đọc từ .env. Nguyên tắc fail-soft: thiếu API key hoặc lỗi mạng
+    LangSmith KHÔNG được làm hỏng lượt chạy Agent — chỉ log cảnh báo rồi tắt.
+    """
+
+    # Endpoint LangSmith (mặc định là cloud SaaS)
+    ENDPOINT: str = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com").strip()
+
+    # API key; rỗng => tự động tắt tracing
+    API_KEY: str = os.getenv("LANGSMITH_API_KEY", "").strip()
+
+    # Tên project hiển thị trên LangSmith UI
+    PROJECT: str = os.getenv("LANGSMITH_PROJECT", "slidegen-rag").strip()
+
+    # Bật tracing: cần LANGSMITH_TRACING=true VÀ có API key
+    ENABLED: bool = _env_flag("LANGSMITH_TRACING", default=False) and bool(API_KEY)
+
+    # Gọi thêm 1 read API để lấy URL trace ghi vào trajectory.txt.
+    # Tắt đi nếu muốn chạy nhanh hơn — run_id vẫn luôn được ghi và tra được trên UI.
+    RESOLVE_RUN_URL: bool = _env_flag("LANGSMITH_RESOLVE_RUN_URL", default=True)
+
+    # ── Trajectory logging (độc lập với LangSmith, luôn chạy được offline) ──
+    TRAJECTORY_ENABLED: bool = _env_flag("TRAJECTORY_ENABLED", default=True)
+
+    # Số ký tự output tool giữ lại làm preview trong trajectory
+    TRAJECTORY_TOOL_OUTPUT_PREVIEW: int = 200
+
+    # Tên file trajectory sinh ra trong data/test/<topic>/
+    TRAJECTORY_FILENAME: str = "trajectory.txt"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

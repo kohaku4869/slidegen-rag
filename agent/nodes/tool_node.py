@@ -2,22 +2,23 @@ import asyncio
 import logging
 
 from langchain_core.messages import ToolMessage
+from langchain_core.runnables import RunnableConfig
 
 from agent.graph.state import AgentState
-from agent.tools.tools import TOOL_MAP
+from agent.tools.tools import SOFT_FAILURE_PREFIXES, TOOL_MAP
 
 logger = logging.getLogger(__name__)
 
 
 def _extract_chunks(raw: str) -> list[str]:
-    """Tách raw tool output thành các chunk, bỏ chunk lỗi."""
+    """Tách raw tool output thành các chunk, bỏ chunk lỗi mềm (xem
+    agent/tools/tools.py:SOFT_FAILURE_PREFIXES)."""
     if not raw or not isinstance(raw, str):
         return []
-    error_prefixes = ("Semantic search failed", "Keyword search failed", "Error searching")
     chunks = []
     for chunk in raw.split("\n\n"):
         chunk = chunk.strip()
-        if chunk and not any(chunk.startswith(p) for p in error_prefixes):
+        if chunk and not any(chunk.startswith(p) for p in SOFT_FAILURE_PREFIXES):
             chunks.append(chunk)
     return chunks
 
@@ -33,7 +34,7 @@ def _merge_documents(existing: list[str], new_chunks: list[str]) -> list[str]:
     return merged
 
 
-async def tool_node(state: AgentState) -> dict:
+async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
     """
     Thực thi các tool_calls được tạo ra bởi retrieve_node.
 
@@ -46,6 +47,11 @@ async def tool_node(state: AgentState) -> dict:
     Args:
         state (AgentState): Cần có 'tool_calls'. 'documents' có thể có sẵn
                             từ các lần retrieve trước (sẽ được merge thêm).
+        config (RunnableConfig): LangGraph tự truyền vào (annotation phải
+                            đúng tên RunnableConfig để được inject). Được
+                            forward vào tool_func.invoke để tool span nối
+                            đúng vào trace của node này trên LangSmith và
+                            TrajectoryCallbackHandler bắt được on_tool_*.
 
     Returns:
         dict: {"documents": list[str]} — tất cả raw chunks từ tool execution,
@@ -73,7 +79,7 @@ async def tool_node(state: AgentState) -> dict:
             return ""
 
         try:
-            result = await asyncio.to_thread(tool_func.invoke, tool_args)
+            result = await asyncio.to_thread(tool_func.invoke, tool_args, config)
             logger.info(f"[tool_node] '{tool_name}' completed | output len={len(str(result))}")
             return str(result)
         except Exception as e:

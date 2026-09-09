@@ -25,6 +25,7 @@ import os
 import re
 import sys
 import traceback
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -225,6 +226,27 @@ def save_chunks(file_path: Path, chunks: dict[int, list[str]]):
                     f.write(f"[CHUNK {idx}]\n{doc.strip()}\n\n")
 
 
+def load_trajectory_texts(file_path: Path) -> dict[int, str]:
+    """
+    Đọc lại nội dung trajectory.txt (text thô, đã render sẵn) theo từng câu
+    hỏi — dùng để hiển thị lại trên dashboard khi chạy từ cache (không cần
+    parse thành Trajectory object, chỉ cần hiển thị).
+    """
+    if not file_path.exists() or file_path.stat().st_size == 0:
+        return {}
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    q_blocks = re.split(r"(?:^|\n)===\s*(?:CÂU HỎI|QUESTION)\s*(\d+)\s*===\n*", content)
+    texts: dict[int, str] = {}
+    i = 1
+    while i < len(q_blocks) - 1:
+        q_num = int(q_blocks[i])
+        texts[q_num] = q_blocks[i + 1].strip()
+        i += 2
+    return texts
+
+
 # =============================================================================
 # 3. KHỞI TẠO LLM EVALUATOR (JUDGE)
 # =============================================================================
@@ -289,11 +311,19 @@ def get_answers_and_chunks_for_topic(
     from main import load_ra
     from agent.graph.builder import build_graph
     from agent.tools.tools import set_retrieval_augmentation
+    from agent.observability.trajectory import (
+        TrajectoryRecorder,
+        Trajectory,
+        make_initial_state,
+        save_trajectories,
+    )
+    from config import LangSmithConfig
 
     question_file = DATA_TEST_DIR / topic / "question.txt"
     reference_file = DATA_TEST_DIR / topic / "reference.txt"
     answer_file = DATA_TEST_DIR / topic / "answer.txt"
     chunks_file = DATA_TEST_DIR / topic / "chunks.txt"
+    trajectory_file = DATA_TEST_DIR / topic / LangSmithConfig.TRAJECTORY_FILENAME
     index_path = DATA_INDEX_DIR / f"{topic}.pkl"
 
     questions = load_questions(question_file)
@@ -315,6 +345,7 @@ def get_answers_and_chunks_for_topic(
         if progress_callback:
             progress_callback(f"[{topic}] Đã nạp {len(questions)} câu từ cache (answer.txt & chunks.txt)")
         logger.info(f"[{topic}] Sử dụng kết quả có sẵn từ answer.txt & chunks.txt")
+        cached_trajectories = load_trajectory_texts(trajectory_file)
         results = []
         for q in questions:
             num = q["num"]
@@ -324,6 +355,7 @@ def get_answers_and_chunks_for_topic(
                 "response": cached_answers.get(num, ""),
                 "reference": references.get(num, ""),
                 "used_chunks": cached_chunks.get(num, []),
+                "trajectory": cached_trajectories.get(num),
             })
         return results, True
 
@@ -333,13 +365,18 @@ def get_answers_and_chunks_for_topic(
     if progress_callback:
         progress_callback(f"[{topic}] Đang khởi tạo CRAG Agent...")
 
-    ra = load_ra(index_path)
+    # Quy ước: topic kết thúc bằng "_raptor" (vd: "pldc_raptor") => dùng backend
+    # raptor_tree (GMM+UMAP), index tương ứng "<topic>.pkl" đã có hậu tố sẵn
+    # (xem ingest.py --raptor). Ngược lại dùng backend tree mặc định.
+    ra = load_ra(index_path, use_raptor=topic.endswith("_raptor"))
     set_retrieval_augmentation(ra)
     graph = build_graph()
+    recorder = TrajectoryRecorder(graph, tags=["evaluate", topic], metadata={"topic": topic})
 
     results = []
     new_answers = {}
     new_chunks = {}
+    new_trajectories: dict[int, Trajectory] = {}
     total = len(questions)
 
     for idx, q in enumerate(questions):
@@ -352,27 +389,27 @@ def get_answers_and_chunks_for_topic(
 
         logger.info(f"[{topic}] Agent đang trả lời câu {num}/{total}: {q_text[:70]}...")
 
-        initial_state = {
-            "query": q_text,
-            "tool_calls": [],
-            "documents": [],
-            "feedback": "",
-            "context_sufficient": False,
-            "generation": "",
-            "retrieve_count": 0,
-        }
-
         try:
-            state_res = asyncio.run(graph.ainvoke(initial_state))
-            answer = state_res.get("generation", "").strip()
+            state_res, traj = recorder.run(
+                make_initial_state(q_text),
+                run_name=f"{topic}:Q{num}",
+                metadata={
+                    "topic": topic,
+                    "question_num": num,
+                    "raptor": topic.endswith("_raptor"),
+                },
+            )
+            answer = (state_res.get("generation") or "").strip()
             used_docs = state_res.get("documents", [])
         except Exception as e:
             logger.error(f"[{topic}] Lỗi khi chạy Agent câu {num}: {e}")
             answer = f"[LỖI AGENT] {e}"
             used_docs = []
+            traj = Trajectory(query=q_text, started_at=datetime.now(), error=str(e))
 
         new_answers[num] = answer
         new_chunks[num] = used_docs
+        new_trajectories[num] = traj
 
         results.append({
             "num": num,
@@ -380,11 +417,16 @@ def get_answers_and_chunks_for_topic(
             "response": answer,
             "reference": ref,
             "used_chunks": used_docs,
+            "trajectory": traj.render_text(),
         })
 
     save_answers(answer_file, new_answers)
     save_chunks(chunks_file, new_chunks)
-    logger.info(f"[{topic}] Đã lưu câu trả lời vào {answer_file} và chunks vào {chunks_file}")
+    save_trajectories(trajectory_file, new_trajectories, topic)
+    logger.info(
+        f"[{topic}] Đã lưu câu trả lời vào {answer_file}, chunks vào {chunks_file}, "
+        f"trajectory vào {trajectory_file}"
+    )
 
     return results, False
 
@@ -569,6 +611,24 @@ Trả về JSON duy nhất có cấu trúc:
     return None
 
 
+def _parse_trajectory_summary(traj_text: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """
+    Trích 2 chỉ số ngắn gọn từ text trajectory (dùng chung cho cả câu vừa
+    chạy lẫn câu nạp từ cache — cả hai đều ở dạng text render sẵn, nên chỉ
+    cần parse text thay vì phải giữ lại Trajectory object).
+
+    Returns:
+        (traj_loops: "2/3" hoặc None, traj_tools: "semantic_search x1, ..." hoặc None)
+    """
+    if not traj_text:
+        return None, None
+    loop_match = re.search(r"Vòng lặp retrieve:\s*(\d+/\d+)", traj_text)
+    tools_match = re.search(r"Tool đã gọi\s*:\s*(.+)", traj_text)
+    traj_loops = loop_match.group(1) if loop_match else None
+    traj_tools = tools_match.group(1).strip() if tools_match else None
+    return traj_loops, traj_tools
+
+
 def run_evaluation_for_topic(
     topic: str,
     force_rerun: bool = False,
@@ -599,6 +659,8 @@ def run_evaluation_for_topic(
         resp = item["response"]
         ref = item["reference"]
         chunks = item["used_chunks"]
+        traj_text = item.get("trajectory")
+        traj_loops, traj_tools = _parse_trajectory_summary(traj_text)
 
         if progress_callback:
             progress_callback(f"[{topic}] LLM Judge đang chấm câu {idx}/{total}...")
@@ -644,6 +706,9 @@ def run_evaluation_for_topic(
             "feedback": feedback_val,
             "is_success": is_success,
             "used_chunks": chunks,
+            "traj_loops": traj_loops,
+            "traj_tools": traj_tools,
+            "traj_text": traj_text or "(chưa có trajectory — cache cũ trước khi bật tính năng này)",
         })
 
     detail_df = pd.DataFrame(rows)
@@ -923,7 +988,7 @@ def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Pro
 
 
 def inspect_question_handler(selected_q_text: str):
-    """Handler hiển thị chi tiết câu hỏi, đáp án, chunks và feedback."""
+    """Handler hiển thị chi tiết câu hỏi, đáp án, chunks, feedback và trajectory."""
     global _current_detail_df
     if _current_detail_df is None or not selected_q_text:
         return "", "", "", ""
@@ -983,7 +1048,14 @@ def inspect_question_handler(selected_q_text: str):
 {item['feedback']}
 """
 
-    return col1_content, col2_content, col3_content
+    traj_text = item.get("traj_text") or "*(Không có trajectory)*"
+    col4_content = f"""### 🧭 Trajectory (quỹ đạo thực thi Agent)
+```
+{traj_text}
+```
+"""
+
+    return col1_content, col2_content, col3_content, col4_content
 
 
 def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
@@ -1156,6 +1228,11 @@ def build_gradio_app():
                         inspect_col2 = gr.Markdown("")
                     with gr.Column(scale=1):
                         inspect_col3 = gr.Markdown("")
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        inspect_col4 = gr.Markdown(
+                            label="Trajectory (quỹ đạo thực thi Agent)",
+                        )
 
                 btn_eval_single.click(
                     fn=evaluate_single_topic_handler,
@@ -1166,7 +1243,7 @@ def build_gradio_app():
                 inspect_dropdown.change(
                     fn=inspect_question_handler,
                     inputs=[inspect_dropdown],
-                    outputs=[inspect_col1, inspect_col2, inspect_col3],
+                    outputs=[inspect_col1, inspect_col2, inspect_col3, inspect_col4],
                 )
 
             # ─────────────────────────────────────────────────────────────────

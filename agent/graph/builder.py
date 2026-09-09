@@ -30,6 +30,7 @@ from agent.nodes.generate_node import generate_node
 from agent.nodes.grade_documents_node import grade_documents_node
 from agent.nodes.retrieve_node import retrieve_node
 from agent.nodes.tool_node import tool_node
+from agent.observability.tracing import init_langsmith
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,11 @@ def build_graph():
     Returns:
         CompiledGraph: Graph sẵn sàng để invoke / ainvoke / stream.
     """
+    # Bật LangSmith tracing (nếu .env cấu hình) — điểm khởi tạo duy nhất, tự
+    # phủ mọi entry point (main.py, evaluate.py). Fail-soft: không API key
+    # thì tự tắt, không raise.
+    init_langsmith()
+
     workflow = StateGraph(AgentState)
 
     # ── Đăng ký nodes ─────────────────────────────────────────────────────
