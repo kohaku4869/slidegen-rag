@@ -55,7 +55,7 @@ flowchart TD
 - **`trajectory.txt` per evaluation topic**: `evaluate/evaluate.py` writes `data/test/<topic>/trajectory.txt` alongside `answer.txt`/`chunks.txt`, one `=== CÂU HỎI N ===` block per question, plus a "Question Inspector" panel on the dashboard to view it per question.
 
 ### 📊 5. Comprehensive Evaluation Suite & Gradio Dashboard
-- **LLM-as-a-Judge**: Evaluates 4 core quality dimensions on a 10-point scale:
+- **LLM-as-a-Judge (bias-reduced)**: Evaluates 4 core quality dimensions on a 10-point scale, each scored by its **own independent prompt** (run concurrently, so total judging latency per question stays the same) instead of one combined prompt — this avoids the "halo effect" where a single prompt's scores for unrelated dimensions drift together:
   - 🎯 **Accuracy**: Factuality against reference answers.
   - 📚 **Completeness**: Coverage of key arguments and legal bases.
   - 🔍 **Relevance**: Conciseness and direct focus.
