@@ -1,0 +1,1342 @@
+﻿STT,topic,question,response,reference,accuracy,completeness,relevance,faithfulness,total_score,coverage_pct,coverage_pct_strict,chunks_count,feedback,is_success,traj_loops,traj_tools
+1,pldc,Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?,"Rất tiếc, tôi không thể cung cấp câu trả lời cho câu hỏi của bạn dựa trên ngữ cảnh được cung cấp.
+
+Ngữ cảnh được trích xuất cho yêu cầu này là **""No context was retrieved.""**, có nghĩa là không có bất kỳ thông tin hay tài liệu nào được cung cấp để phân tích và tổng hợp. Do đó, tôi không có cơ sở để xác định độ tuổi xác lập năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam.
+
+Để có được câu trả lời chính xác, bạn vui lòng cung cấp các đoạn ngữ cảnh liên quan đến chủ đề này.","Theo pháp luật dân sự Việt Nam, **năng lực hành vi dân sự đầy đủ** của cá nhân được xác lập từ độ tuổi **đủ 18 tuổi trở lên** (tức là khi cá nhân đó đã trở thành **người thành niên**).
+
+Cụ thể, các quy định liên quan trong nguồn tài liệu được thể hiện như sau:
+- **Người thành niên** (người từ đủ 18 tuổi trở lên) có năng lực hành vi dân sự đầy đủ. Họ có quyền tự mình xác lập, thực hiện giao dịch, giao kết hợp đồng dân sự và tự chịu trách nhiệm về việc thực hiện các nghĩa vụ dân sự đó.
+- Ngược lại, những người **chưa đủ 18 tuổi** được coi là người chưa thành niên. Khi xác lập hay thực hiện các giao dịch dân sự, họ phải được người đại diện theo pháp luật đồng ý, trừ các giao dịch phục vụ nhu cầu sinh hoạt hàng ngày phù hợp với lứa tuổi hoặc trường hợp người từ đủ 15 tuổi đến chưa đủ 18 tuổi có tài sản riêng để bảo đảm thực hiện nghĩa vụ.
+
+Tuy nhiên, một cá nhân dù đã từ đủ 18 tuổi trở lên cũng sẽ **không có hoặc bị hạn chế năng lực hành vi dân sự đầy đủ** nếu thuộc vào một trong các trường hợp đặc biệt do Tòa án quyết định tuyên bố sau đây:
+- **Mất năng lực hành vi dân sự:** Người do bị bệnh tâm thần hoặc mắc bệnh khác đến mức không thể nhận thức, làm chủ được hành vi của mình.
+- **Có khó khăn trong nhận thức, làm chủ hành vi:** Người do tình trạng thể chất hoặc tinh thần mà không đủ khả năng nhận thức, làm chủ hành vi nhưng chưa đến mức mất năng lực hành vi dân sự.
+- **Hạn chế năng lực hành vi dân sự:** Người nghiện ma túy hoặc nghiện các chất kích thích khác dẫn đến phá tán tài sản của gia đình.",0.0,0.0,2.0,10.0,3.0,0.0,0.0,0,"**Accuracy**: Câu trả lời sai lệch nghiêm trọng về sự thật cốt lõi. Hệ thống từ chối trả lời do không có ngữ cảnh, trong khi câu hỏi yêu cầu kiến thức pháp luật chung (đủ 18 tuổi) và Reference Answer đã cung cấp thông tin chính xác. Việc phủ nhận khả năng trả lời khi câu hỏi thuộc kiến thức phổ thông là sai hoàn toàn.
+**Completeness**: Câu trả lời hoàn toàn thiếu thông tin về độ tuổi và các điều kiện pháp lý liên quan. Hệ thống từ chối trả lời do không có ngữ cảnh, dẫn đến việc bỏ sót 100% các ý chính, căn cứ pháp lý và chi tiết quan trọng được yêu cầu trong đáp án tham chiếu.
+**Relevance**: Câu trả lời không giải quyết được trọng tâm câu hỏi về độ tuổi cụ thể mà chỉ báo cáo lỗi hệ thống (không có ngữ cảnh). Mặc dù phản hồi trung thực về việc thiếu dữ liệu, nhưng về mặt độ liên quan, nó bị coi là 'lạc đề' hoặc 'né tránh' vì không cung cấp bất kỳ thông tin nào liên quan trực tiếp đến nội dung pháp lý được hỏi.
+**Faithfulness**: Câu trả lời hoàn toàn trung thực và không có ảo giác. Hệ thống nhận diện chính xác việc không có ngữ cảnh được cung cấp (Retrieved Chunks rỗng) và từ chối đưa ra thông tin cụ thể thay vì bịa đặt. Đây là hành vi đúng đắn để đảm bảo tính Faithfulness.",True,2/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+2,pldc,Văn bản quy phạm pháp luật có hiệu lực pháp lý cao nhất trong hệ thống pháp luật Việt Nam là văn bản nào?,"Dựa trên các đoạn ngữ cảnh được cung cấp, **Hiến pháp** là văn bản quy phạm pháp luật có hiệu lực pháp lý cao nhất trong hệ thống pháp luật Việt Nam.
+
+### 1. Văn bản có hiệu lực pháp lý cao nhất
+
+*   **Hiến pháp** được xác định là **luật cơ bản**, có **hiệu lực pháp lý cao nhất** trong hệ thống các văn bản pháp luật.
+*   Các văn bản luật nói chung (bao gồm Hiến pháp và các đạo luật) do Quốc hội ban hành cũng được khẳng định là có **giá trị pháp lý cao nhất**. Tất cả các văn bản khác khi ban hành phải căn cứ vào văn bản luật, không được trái, không được mâu thuẫn với các quy định trong các văn bản luật.
+
+### 2. Đặc điểm và vai trò của Hiến pháp
+
+Hiến pháp quy định những vấn đề cơ bản nhất của quốc gia, cụ thể bao gồm:
+*   **Hình thức, bản chất nhà nước**: Xác định thể chế chính trị và bản chất của Nhà nước.
+*   **Chế độ chính trị**: Các nguyên tắc tổ chức và hoạt động của hệ thống chính trị.
+*   **Chế độ kinh tế**: Các quy định về nền kinh tế quốc dân.
+*   **Chế độ văn hóa xã hội**: Các chính sách và nguyên tắc về văn hóa, giáo dục, y tế, an sinh xã hội.
+*   **An ninh quốc phòng**: Các quy định liên quan đến quốc phòng và an ninh quốc gia.
+
+### 3. Phân loại văn bản luật và vị trí của Hiến pháp
+
+Theo ngữ cảnh, các văn bản luật do Quốc hội ban hành có hai hình thức chính:
+1.  **Hiến pháp**: Là luật cơ bản, đứng đầu và có hiệu lực pháp lý cao nhất.
+2.  **Các đạo luật, bộ luật**: Được ban hành để cụ thể hóa Hiến pháp, điều chỉnh các loại quan hệ xã hội trong các lĩnh vực đời sống nhà nước và xã hội.
+
+Trong hệ thống văn bản quy phạm pháp luật được liệt kê, Hiến pháp luôn đứng ở vị trí đầu tiên, khẳng định vai trò tối thượng của nó.","Trong hệ thống pháp luật Việt Nam, văn bản quy phạm pháp luật có **hiệu lực pháp lý cao nhất** là **Hiến pháp**.
+
+Hiến pháp được coi là **luật cơ bản** (đạo luật gốc) của quốc gia. Tất cả các văn bản quy phạm pháp luật khác khi được ban hành đều phải căn cứ vào các văn bản luật (mà tối cao là Hiến pháp), đồng thời **không được phép trái hoặc mâu thuẫn** với các quy định của Hiến pháp. Văn bản này quy định những vấn đề nền tảng và quan trọng nhất của đất nước, bao gồm hình thức và bản chất nhà nước, chế độ chính trị, kinh tế, văn hóa, xã hội, quốc phòng, an ninh, cũng như các quyền và nghĩa vụ cơ bản của công dân.",9.5,9.5,9.5,9.5,9.5,77.8,81.2,2,"**Accuracy**: Câu trả lời xác định chính xác Hiến pháp là văn bản có hiệu lực cao nhất, đúng với đáp án chuẩn. Tuy nhiên, đoạn văn bản 'Các văn bản luật nói chung (bao gồm Hiến pháp và các đạo luật) do Quốc hội ban hành cũng được khẳng định là có giá trị pháp lý cao nhất' gây ra sự mơ hồ về thứ bậc, khi Hiến pháp có vị trí tối thượng riêng biệt chứ không chỉ chung chung là 'cao nhất' cùng các đạo luật. Sai sót nhỏ này làm giảm độ chính xác tuyệt đối.
+**Completeness**: Câu trả lời đã bao quát đầy đủ các ý chính: xác định Hiến pháp là văn bản có hiệu lực cao nhất, giải thích vai trò là luật cơ bản, và liệt kê các nội dung nền tảng (hình thức nhà nước, chế độ chính trị, kinh tế, an ninh...). Tuy nhiên, thiếu một chi tiết nhỏ trong đáp án mẫu về việc các văn bản khác 'không được phép trái hoặc mâu thuẫn' một cách trực tiếp, dù ý này đã được ngụ ý trong phần phân loại.
+**Relevance**: Câu trả lời đi thẳng vào trọng tâm, xác định chính xác Hiến pháp là văn bản có hiệu lực cao nhất. Các phần giải thích về đặc điểm và phân loại văn bản đều liên quan mật thiết, giúp làm rõ vai trò tối thượng của Hiến pháp mà không lan man hay chứa thông tin thừa ngoài phạm vi câu hỏi.
+**Faithfulness**: Câu trả lời bám sát 100% thông tin trong Retrieved Chunks, xác định chính xác Hiến pháp là văn bản có hiệu lực cao nhất và liệt kê đúng các nội dung quy định. Không có thông tin bịa đặt hay suy diễn sai lệch so với ngữ cảnh.",True,1/3,"semantic_search ×1  (tổng 1 lượt, 0 lỗi)"
+3,pldc,"""Quan hệ pháp luật"" gồm mấy yếu tố cấu thành, và tên gọi của từng yếu tố đó là gì?","Dựa trên các tài liệu ngữ cảnh được cung cấp, **quan hệ pháp luật** bao gồm **ba (03)** yếu tố cấu thành cơ bản. Tên gọi và chi tiết của từng yếu tố này được trình bày như sau:
+
+## Các Yếu Tố Cấu Thành Của Quan Hệ Pháp Luật
+
+Quan hệ pháp luật được cấu thành từ ba yếu tố chính:
+
+1.  **Chủ thể của quan hệ pháp luật**
+2.  **Nội dung của quan hệ pháp luật**
+3.  **Khách thể của quan hệ pháp luật**
+
+Dưới đây là phân tích chi tiết từng yếu tố:
+
+### 1. Chủ Thể Của Quan Hệ Pháp Luật
+
+*   **Định nghĩa:** Chủ thể của quan hệ pháp luật là **các bên tham gia quan hệ pháp luật**, có thể là **cá nhân** hoặc **tổ chức**.
+*   **Yêu cầu đối với chủ thể:** Các bên tham gia phải có **năng lực chủ thể**, bao gồm:
+    *   **Năng lực pháp luật:**
+        *   Là **khả năng** của chủ thể có được các **quyền chủ thể** và **nghĩa vụ pháp lý** mà nhà nước thừa nhận.
+        *   Khả năng này được nhà nước thừa nhận bằng cách **quy định trong pháp luật**.
+    *   **Năng lực hành vi:**
+        *   Là **khả năng** của chủ thể được nhà nước thừa nhận bằng các **hành vi của mình thực hiện trên thực tế** các quyền chủ thể và nghĩa vụ pháp lý.
+        *   Điều này đồng nghĩa với việc chủ thể có khả năng **tham gia vào các quan hệ pháp luật** thông qua hành vi của mình.
+*   **Các loại chủ thể điển hình:** Bao gồm **công dân, người nước ngoài và người không có quốc tịch, các tổ chức**...
+
+### 2. Nội Dung Của Quan Hệ Pháp Luật
+
+*   **Định nghĩa:** Nội dung của quan hệ pháp luật chính là **các quyền chủ thể và nghĩa vụ pháp lý** của các bên tham gia.
+*   **Phân loại và đặc điểm:**
+    *   **Quyền chủ thể trong quan hệ pháp luật:**
+        *   Là **khả năng xử sự** của chủ thể tham gia quan hệ.
+        *   Khả năng này được **quy phạm pháp luật quy định trước** và được **bảo vệ bởi sự cưỡng chế của nhà nước**.
+        *   **Đặc điểm của quyền chủ thể:**
+            *   **Khả năng được hành động** trong khuôn khổ do quy phạm pháp luật xác định trước.
+            *   **Khả năng yêu cầu bên kia thực hiện nghĩa vụ của họ** (bằng hành động hoặc không hành động).
+            *   **Khả năng yêu cầu các cơ quan nhà nước áp dụng các biện pháp chế tài cần thiết** khi quyền chủ thể bị vi phạm.
+    *   **Nghĩa vụ pháp lý:**
+        *   Là cách **xử sự bắt buộc** (tức là sự cần thiết phải xử sự) được quy phạm pháp luật xác định trước.
+        *   Một bên phải thực hiện nghĩa vụ này nhằm **đáp ứng việc thực hiện quyền chủ thể của bên kia**.
+        *   **Đặc điểm của nghĩa vụ pháp lý:**
+            *   **Bắt buộc có những xử sự nhất định** do quy phạm pháp luật xác định trước.
+
+### 3. Khách Thể Của Quan Hệ Pháp Luật
+
+*   **Định nghĩa:** Khách thể của quan hệ pháp luật là **những lợi ích vật chất, chính trị hoặc tinh thần** mà các công dân, tổ chức, cơ quan nhà nước mong muốn đạt được.
+*   **Mục đích:** Các chủ thể mong muốn đạt được những lợi ích này nhằm **thỏa mãn những nhu cầu của mình** khi tham gia vào các quan hệ pháp luật và thực hiện quyền chủ thể, nghĩa vụ pháp lý.
+*   **Cách thức đạt được:** Để đạt được các lợi ích nói trên, các chủ thể phải thực hiện thông qua **những hành vi (cách xử sự) nhất định**.","Trong tài liệu học tập, các yếu tố liên quan đến cấu thành và sự hình thành của một **quan hệ pháp luật** được trình bày tại Mục 2.3.2. Theo cấu trúc phân chia của giáo trình, có **4 yếu tố** được liệt kê dưới mục các yếu tố cấu thành bao gồm: **Chủ thể**, **Nội dung**, **Khách thể** và **Sự kiện pháp lý**.
+
+Dưới đây là chi tiết về tên gọi và nội dung của từng yếu tố:
+
+1. **Chủ thể của quan hệ pháp luật**
+   - **Khái niệm**: Là các bên tham gia vào quan hệ pháp luật, có thể là cá nhân (công dân, người nước ngoài, người không có quốc tịch) hoặc các tổ chức.
+   - **Điều kiện**: Các bên tham gia phải có năng lực chủ thể, bao gồm **năng lực pháp luật** (khả năng có được các quyền chủ thể và nghĩa vụ pháp lý được nhà nước thừa nhận) và **năng lực hành vi** (khả năng được nhà nước thừa nhận bằng các hành vi của mình để thực hiện trên thực tế các quyền và nghĩa vụ đó).
+
+2. **Nội dung của quan hệ pháp luật**
+   - Là các **quyền chủ thể** và **nghĩa vụ pháp lý** của các bên tham gia.
+   - **Quyền chủ thể**: Là khả năng xử sự của chủ thể tham gia quan hệ được quy phạm pháp luật quy định trước và được bảo vệ bởi sự cưỡng chế của nhà nước. Quyền này bao gồm khả năng tự hành động trong khuôn khổ, yêu cầu bên kia thực hiện nghĩa vụ, hoặc yêu cầu cơ quan nhà nước can thiệp áp dụng chế tài khi quyền bị xâm phạm.
+   - **Nghĩa vụ pháp lý**: Là cách xử sự bắt buộc được quy phạm pháp luật xác định trước mà một bên phải thực hiện nhằm đáp ứng việc thực hiện quyền chủ thể của bên kia.
+
+3. **Khách thể của quan hệ pháp luật**
+   - **Khái niệm**: Là những **lợi ích vật chất, chính trị hoặc tinh thần** mà các công dân, tổ chức, cơ quan nhà nước mong muốn đạt được nhằm thỏa mãn những nhu cầu của mình khi tham gia vào các quan hệ pháp luật. Để đạt được những lợi ích này, các chủ thể phải thực hiện thông qua những hành vi (cách xử sự) nhất định.
+
+4. **Sự kiện pháp lý**
+   - **Khái niệm**: Là những điều kiện, hoàn cảnh, tình huống của đời sống thực tế được chỉ ra trong phần giả định của quy phạm pháp luật mà nhà làm luật gắn sự xuất hiện, thay đổi và chấm dứt của quan hệ pháp luật với sự tồn tại của nó.
+   - **Lưu ý về mặt lý luận**: Mặc dù được xếp trong chương mục các yếu tố cấu thành của tài liệu, về mặt bản chất phát sinh quan hệ, việc ban hành các quy phạm pháp luật chỉ đặt cơ sở cho sự xuất hiện của quan hệ pháp luật chứ không mặc nhiên sinh ra nó. Để quan hệ pháp luật xuất hiện trên thực tế, phải có đầy đủ cả hai điều kiện khác là **sự kiện pháp lý** và **chủ thể có năng lực hành vi**, đồng thời xuất hiện trong những hoàn cảnh cụ thể được dự kiến trong phần giả định của quy phạm pháp luật đó.",3.0,5.0,9.0,4.0,5.25,56.9,54.3,2,"**Accuracy**: Câu trả lời sai lệch nghiêm trọng về sự thật cốt lõi. Reference Answer và ngữ cảnh (dù ngữ cảnh chỉ liệt kê 3 yếu tố) đều chỉ rõ có 4 yếu tố cấu thành bao gồm cả 'Sự kiện pháp lý'. Generated Answer khẳng định chỉ có 3 yếu tố, bỏ sót hoàn toàn yếu tố thứ 4, dẫn đến sai lệch cơ bản về cấu trúc lý thuyết.
+**Completeness**: Câu trả lời chỉ liệt kê đúng 3 yếu tố (Chủ thể, Nội dung, Khách thể) trong khi đáp án chuẩn yêu cầu 4 yếu tố (thiếu 'Sự kiện pháp lý'). Việc bỏ sót một yếu tố cấu thành quan trọng được nêu rõ trong tài liệu tham chiếu khiến câu trả lời thiếu sót nghiêm trọng về độ bao quát thông tin.
+**Relevance**: Câu trả lời tập trung tốt vào việc liệt kê 3 yếu tố cấu thành quan hệ pháp luật và giải thích chi tiết từng yếu tố như yêu cầu. Tuy nhiên, do câu hỏi chỉ hỏi về tên gọi và số lượng, phần giải thích chi tiết về định nghĩa và đặc điểm của từng yếu tố có thể coi là thông tin bổ trợ hơi dài, làm giảm độ súc tích tối đa.
+**Faithfulness**: Câu trả lời bị hallucination nghiêm trọng về số lượng yếu tố. Generated Answer khẳng định có 3 yếu tố, trong khi Reference Answer và ngữ cảnh (dù ngữ cảnh bị cắt) đều chỉ rõ có 4 yếu tố (bao gồm cả 'Sự kiện pháp lý'). Việc loại bỏ một yếu tố cấu thành quan trọng là sai lệch thông tin cơ bản so với tài liệu tham chiếu.",True,2/3,"semantic_search ×2, expand_node ×1  (tổng 3 lượt, 0 lỗi)"
+4,pldc,Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?,,"Tài liệu của bạn **không đề cập trực tiếp đến thời hiệu khởi kiện vụ án dân sự thông thường** theo quy định của Bộ luật Dân sự Việt Nam.
+
+Tuy nhiên, tài liệu này có ghi nhận cụ thể các loại thời hiệu và thời hạn liên quan trong các lĩnh vực pháp lý khác để bạn tham khảo:
+*   **Trong tố tụng hành chính**: Thời hiệu khởi kiện vụ án hành chính thông thường là **01 năm** kể từ ngày nhận được hoặc biết được quyết định hành chính, hành vi hành chính, quyết định kỷ luật buộc thôi việc; hoặc **30 ngày** kể từ ngày nhận được quyết định giải quyết khiếu nại về quyết định xử lý vụ việc cạnh tranh.
+*   **Trong tranh chấp lao động cá nhân**: Thời hiệu yêu cầu hòa giải viên lao động thực hiện hòa giải là **06 tháng**; thời hiệu yêu cầu Tòa án giải quyết tranh chấp lao động cá nhân là **01 năm** kể từ ngày phát hiện ra hành vi mà mỗi bên cho rằng quyền và lợi ích hợp pháp của mình bị vi phạm.
+*   **Trong tranh chấp lao động tập thể**: Thời hiệu yêu cầu giải quyết tranh chấp lao động tập thể về quyền là **01 năm** kể từ ngày phát hiện ra hành vi vi phạm.
+*   **Trong luật hình sự (thời hiệu truy cứu trách nhiệm hình sự)**: **05 năm** đối với tội phạm ít nghiêm trọng, **10 năm** đối với tội phạm nghiêm trọng, **15 năm** đối với tội phạm rất nghiêm trọng, và **20 năm** đối với tội phạm đặc biệt nghiêm trọng.
+*   **Trong thi hành án dân sự**: Nếu người phải thi hành án không tự nguyện thi hành thì thời hạn cá nhân có quyền gửi đơn yêu cầu thi hành án là **03 năm** (đối với tổ chức là **01 năm**) kể từ ngày bản án, quyết định có hiệu lực pháp luật.",0.0,0.0,0.0,10.0,2.5,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (Không có câu trả lời), trong khi Reference Answer cung cấp thông tin chi tiết về các loại thời hiệu pháp lý khác. Việc không đưa ra bất kỳ nội dung nào là sai lệch nghiêm trọng so với yêu cầu và đáp án chuẩn.
+**Completeness**: Câu trả lời trống rỗng, hoàn toàn không cung cấp bất kỳ thông tin nào so với đáp án tham chiếu. Hệ thống đã bỏ sót 100% nội dung bắt buộc, bao gồm cả việc xác nhận thiếu thông tin và các dữ liệu tham chiếu khác.
+**Relevance**: Hệ thống không đưa ra bất kỳ câu trả lời nào (Empty Response). Việc thiếu hoàn toàn nội dung trả lời khiến độ liên quan và trọng tâm bằng 0, vì không có thông tin nào được cung cấp để đánh giá sự tập trung vào câu hỏi.
+**Faithfulness**: Hệ thống trả lời 'Không có câu trả lời' do không có ngữ cảnh được cung cấp (Retrieved Chunks rỗng). Điều này hoàn toàn trung thực, không bịa đặt thông tin hay suy diễn sai lệch từ dữ liệu thiếu hụt. Hệ thống tuân thủ nguyên tắc không hallucinate khi không có dữ liệu đầu vào.",True,1/3,"keyword_search ×1  (tổng 1 lượt, 0 lỗi)"
+5,pldc,Hình thức xử phạt hành chính nhẹ nhất được quy định trong Luật Xử lý vi phạm hành chính là hình thức nào?,,"Trong hệ thống pháp luật Việt Nam, hình thức xử phạt hành chính nhẹ nhất được quy định là **Cảnh cáo**.
+
+Cụ thể, việc áp dụng hình thức xử phạt cảnh cáo được quy định như sau:
+*   **Đối tượng và điều kiện áp dụng**:
+    *   Áp dụng đối với tổ chức, cá nhân vi phạm hành chính **không nghiêm trọng, vi phạm lần đầu, có tình tiết giảm nhẹ** và theo quy định thì bị áp dụng hình thức xử phạt cảnh cáo.
+    *   Áp dụng đối với mọi hành vi vi phạm hành chính do **người chưa thành niên từ đủ 14 tuổi đến dưới 16 tuổi** thực hiện.
+*   **Hình thức quyết định**: Quyết định xử phạt cảnh cáo bắt buộc phải được lập **bằng văn bản**.
+
+Để bạn dễ đối chiếu, hệ thống đầy đủ các hình thức xử phạt vi phạm hành chính bao gồm:
+1.  **Cảnh cáo**
+2.  **Phạt tiền** (mức phạt tiền từ 50.000đ đến 1.000.000.000đ đối với cá nhân và từ 100.000đ đến 2.000.000.000đ đối với tổ chức)
+3.  **Tước quyền sử dụng giấy phép, chứng chỉ hành nghề có thời hạn hoặc đình chỉ hoạt động có thời hạn**
+4.  **Tịch thu tang vật vi phạm hành chính, phương tiện được sử dụng để vi phạm hành chính**
+5.  **Trục xuất**
+
+Đi kèm với các hình thức xử phạt trên, cá nhân hoặc tổ chức vi phạm còn có thể phải chịu một hoặc nhiều **biện pháp khắc phục hậu quả** tùy theo tính chất hành vi (như buộc khôi phục lại tình trạng ban đầu, buộc tháo dỡ công trình không phép, buộc tiêu hủy hàng hóa gây hại...).",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời' trong khi ngữ cảnh tài liệu cũng trống rỗng. Câu trả lời không cung cấp bất kỳ thông tin nào để giải quyết câu hỏi, vi phạm nghiêm trọng yêu cầu về độ chính xác và hoàn toàn không đáp ứng được mục tiêu của hệ thống RAG.
+**Completeness**: Câu trả lời trống rỗng (Không có câu trả lời), hoàn toàn thiếu mọi thông tin cần thiết so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào về hình thức xử phạt nhẹ nhất, điều kiện áp dụng hay các hình thức khác, vi phạm nghiêm trọng yêu cầu về độ đầy đủ thông tin.
+**Relevance**: Hệ thống trả lời 'Không có câu trả lời' mặc dù câu hỏi yêu cầu xác định hình thức xử phạt nhẹ nhất. Câu trả lời hoàn toàn không giải quyết được trọng tâm câu hỏi, không cung cấp bất kỳ thông tin nào liên quan, do đó vi phạm nghiêm trọng tiêu chí độ liên quan.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Mặc dù không có thông tin bịa đặt (hallucination), nhưng việc không cung cấp bất kỳ nội dung nào khiến hệ thống không thể đáp ứng yêu cầu dựa trên ngữ cảnh hoặc kiến thức tham chiếu. Theo tiêu chí Faithfulness, câu trả lời không thể được coi là trung thực khi không có dữ liệu để đối chiếu.",True,1/3,"semantic_search ×1  (tổng 1 lượt, 0 lỗi)"
+6,pldc,"Phân biệt ""năng lực pháp luật"" và ""năng lực hành vi"" của chủ thể pháp luật — tại sao một người mất năng lực hành vi vẫn có thể là chủ thể trong quan hệ pháp luật dân sự?",,"### 1. Phân biệt ""Năng lực pháp luật"" và ""Năng lực hành vi"" của chủ thể pháp luật
+
+Dựa trên tài liệu giảng dạy, năng lực chủ thể của một cá nhân hay tổ chức tham gia vào quan hệ pháp luật bao gồm hai thuộc tính cốt lõi với những đặc điểm phân biệt sau:
+
+| Tiêu chí | Năng lực pháp luật (dân sự) | Năng lực hành vi (dân sự) |
+| :--- | :--- | :--- |
+| **Khái niệm** | Là khả năng của chủ thể **có được các quyền** chủ thể và **nghĩa vụ** pháp lý mà nhà nước thừa nhận và quy định trong pháp luật. | Là khả năng của chủ thể được nhà nước thừa nhận **bằng các hành vi của chính mình** thực hiện trên thực tế các quyền chủ thể và nghĩa vụ pháp lý (tự mình tham gia vào các quan hệ pháp luật). |
+| **Thời điểm phát sinh và chấm dứt** | Đối với cá nhân, năng lực pháp luật dân sự **có từ khi người đó sinh ra và chấm dứt khi người đó chết**. | Không xuất hiện từ lúc sinh ra mà **hình thành, phát triển dần theo độ tuổi, mức độ nhận thức** và **tình trạng sức khỏe** của cá nhân. |
+| **Sự đồng đều giữa các chủ thể** | **Mọi cá nhân đều có năng lực pháp luật dân sự như nhau**, không bị hạn chế trừ trường hợp do pháp luật quy định. | **Không đồng đều giữa các cá nhân**. Tùy thuộc vào độ tuổi và khả năng nhận thức mà một người có thể có năng lực hành vi đầy đủ, chưa đầy đủ, không có năng lực hành vi, hoặc bị tuyên bố mất, hạn chế năng lực hành vi. |
+
+---
+
+### 2. Tại sao một người mất năng lực hành vi vẫn có thể là chủ thể trong quan hệ pháp luật dân sự?
+
+Một người bị Tòa án ra quyết định tuyên bố **mất năng lực hành vi dân sự** (do bị bệnh tâm thần hoặc mắc bệnh khác đến mức không thể nhận thức, làm chủ được hành vi của mình) **vẫn hoàn toàn có thể là chủ thể** trong các quan hệ pháp luật dân sự vì hai lý do pháp lý sau:
+
+*   **Họ vẫn có năng lực pháp luật dân sự:** Năng lực pháp luật dân sự của cá nhân chỉ chấm dứt khi người đó chết. Việc bị Tòa án tuyên bố mất năng lực hành vi dân sự **chỉ tước đi khả năng tự mình thực hiện hành vi** để xác lập giao dịch, chứ **không tước bỏ năng lực pháp luật** của họ. Họ vẫn có quyền sở hữu, quyền thừa kế tài sản và các quyền nhân thân khác được pháp luật bảo hộ. Do đó, họ vẫn là chủ thể có quyền và nghĩa vụ dân sự.
+*   **Sử dụng cơ chế đại diện theo pháp luật:** Để bảo đảm quyền lợi cho người mất năng lực hành vi, tài liệu quy định: **""Giao dịch dân sự của người mất năng lực hành vi dân sự phải do người đại diện theo pháp luật xác lập, thực hiện""**. Khi người đại diện theo pháp luật (như cha, mẹ, người giám hộ...) thay mặt họ thực hiện các giao dịch, thì quyền và nghĩa vụ phát sinh từ giao dịch đó vẫn trực tiếp thuộc về chính người mất năng lực hành vi. Nhờ cơ chế này, họ vẫn tham gia vào quan hệ pháp luật dân sự với tư cách là chủ thể thụ hưởng quyền hoặc chịu nghĩa vụ pháp lý.",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Hệ thống đã hoàn toàn thất bại trong việc cung cấp thông tin, không trả lời được câu hỏi và không sử dụng bất kỳ ngữ cảnh nào. Điều này vi phạm nghiêm trọng yêu cầu cơ bản về độ chính xác và sự hiện diện của thông tin.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Do đó, hệ thống không cung cấp bất kỳ thông tin nào để phân biệt hai khái niệm hoặc giải thích lý do, dẫn đến thiếu hoàn toàn 100% nội dung bắt buộc so với đáp án tham chiếu.
+**Relevance**: Câu trả lời là '(Không có câu trả lời)', hoàn toàn không giải quyết được câu hỏi về sự phân biệt năng lực pháp luật và hành vi cũng như lý do người mất năng lực hành vi vẫn là chủ thể. Hệ thống không cung cấp bất kỳ thông tin nào liên quan, vi phạm hoàn toàn yêu cầu trọng tâm.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không có nội dung để đối chiếu, không thể xác định tính trung thực hay mức độ ảo giác. Tuy nhiên, việc không trả lời khi có ngữ cảnh và câu hỏi rõ ràng là một lỗi nghiêm trọng, tương đương với việc không tuân thủ yêu cầu nhiệm vụ, dẫn đến điểm tối đa cho tiêu chí Faithfulness là 0.0.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+7,pldc,"""Vi phạm pháp luật"" và ""vi phạm đạo đức"" khác nhau ở điểm cơ bản nào khiến chỉ vi phạm pháp luật mới dẫn đến trách nhiệm pháp lý?",,"Sự khác biệt cơ bản giữa **vi phạm pháp luật** và **vi phạm đạo đức** dẫn đến việc chỉ có vi phạm pháp luật mới chịu trách nhiệm pháp lý được thể hiện qua các điểm cốt lõi sau:
+
+### 1. Sự khác biệt về nguồn gốc và chủ thể ban hành
+*   **Pháp luật**: Là hệ thống các quy phạm (quy tắc xử sự) do **Nhà nước ban hành hoặc thừa nhận**. Nội dung của pháp luật thể hiện ý chí của Nhà nước.
+*   **Đạo đức**: Là một loại quy phạm xã hội khác tồn tại trong đời sống xã hội, không do cơ quan nhà nước ban hành hay thể chế hóa (trừ trường hợp quy tắc đạo đức đó đã được Nhà nước luật hóa).
+
+### 2. Sự khác biệt về tính bắt buộc và phương thức bảo đảm thực hiện
+*   **Pháp luật**: Mang **tính quy phạm phổ biến (tính bắt buộc chung)**, là khuôn mẫu xử sự có tính bắt buộc đối với tất cả mọi người, mọi cơ quan và tổ chức trong xã hội. Đặc biệt, pháp luật có **tính được bảo đảm bằng nhà nước**. Điều này có nghĩa là Nhà nước trao cho quy phạm pháp luật tính quyền lực bắt buộc chung, áp dụng các biện pháp từ tổ chức, khuyến khích cho đến các biện pháp **cưỡng chế cần thiết** để bảo đảm pháp luật được thực hiện đúng trên thực tế.
+*   **Đạo đức**: Các quy phạm đạo đức không mang tính bắt buộc chung do Nhà nước áp đặt và không được bảo đảm thực hiện bằng sức mạnh quyền lực hay cưỡng chế của bộ máy nhà nước.
+
+### 3. Cơ sở thực tế của trách nhiệm pháp lý
+*   **Cơ sở thực tế duy nhất**: Theo quy định, **cơ sở thực tế của trách nhiệm pháp lý là hành vi vi phạm pháp luật**. Trách nhiệm pháp lý chỉ phát sinh khi và chỉ khi có hành vi vi phạm pháp luật xảy ra từ các chủ thể có lỗi.
+*   **Biện pháp cưỡng chế nhà nước đặc thù**: Bản chất của trách nhiệm pháp lý là **sự phản ứng tiêu cực của nhà nước** đối với chủ thể vi phạm. Sự phản ứng này được thể hiện bằng việc áp dụng các **biện pháp cưỡng chế nhà nước đặc thù** mang tính chất trừng phạt (tước đoạt, làm thiệt hại đến quyền lợi của chủ thể vi phạm) hoặc khôi phục lại tình trạng pháp lý ban đầu.
+
+Vì vi phạm đạo đức thuần túy không xâm hại tới các quy tắc bắt buộc do Nhà nước ban hành, nên nó không thể là cơ sở thực tế để Nhà nước phản ứng và áp dụng các biện pháp cưỡng chế pháp lý đặc thù này. Người vi phạm đạo đức chỉ phải chịu các chế tài phi chính thức của xã hội (như sự lên án của dư luận hoặc sự tự phán xét của lương tâm).",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không cung cấp bất kỳ nội dung nào để so sánh với đáp án tham chiếu, độ chính xác thực tế bằng 0. Câu trả lời hoàn toàn thiếu thông tin cần thiết.
+**Completeness**: Câu trả lời trống rỗng (Không có câu trả lời), hoàn toàn thiếu mọi thông tin, ý chính và chi tiết so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào để đánh giá độ đầy đủ.
+**Relevance**: Câu trả lời là 'Không có câu trả lời', hoàn toàn không giải quyết được câu hỏi. Hệ thống không cung cấp bất kỳ thông tin nào về sự khác biệt giữa vi phạm pháp luật và vi phạm đạo đức, dẫn đến việc lạc đề hoàn toàn và không có sự liên quan nào.
+**Faithfulness**: Hệ thống trả lời rỗng ('Không có câu trả lời') trong khi ngữ cảnh và câu hỏi đều tồn tại. Việc không cung cấp bất kỳ thông tin nào, dù là trích xuất từ tài liệu hay tham chiếu, được coi là thất bại hoàn toàn trong việc tuân thủ ngữ cảnh, tương đương với mức độ ảo giác nghiêm trọng nhất trong tiêu chí Faithfulness.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+8,pldc,"Tại sao ""tập quán pháp"" được xem là nguồn của pháp luật dù không do nhà nước ban hành — điều kiện nào để tập quán trở thành tập quán pháp?","Dựa trên các đoạn ngữ cảnh được cung cấp, dưới đây là phân tích chi tiết về việc ""tập quán pháp"" được xem là nguồn của pháp luật và các điều kiện để một tập quán trở thành tập quán pháp.
+
+---
+
+### 1. Tại sao ""Tập quán pháp"" được xem là nguồn của pháp luật dù không do nhà nước ban hành?
+
+Theo học thuyết Mác-Lênin và định nghĩa về pháp luật được trình bày trong ngữ cảnh, pháp luật không chỉ bao gồm các quy phạm do nhà nước **ban hành** mà còn bao gồm các quy phạm được nhà nước **thừa nhận**. Đây chính là căn cứ cốt lõi để ""tập quán pháp"" được coi là một nguồn của pháp luật.
+
+Cụ thể:
+
+*   **Định nghĩa về Pháp luật:** Ngữ cảnh định nghĩa pháp luật là ""hệ thống các quy phạm (quy tắc hành vi hay quy tắc xử sự) có tính bắt buộc chung nhằm điều chỉnh các quan hệ xã hội **do nhà nước ban hành hoặc thừa nhận** thể hiện ý chí nhà nước và được nhà nước bảo đảm thực hiện bằng các biện pháp khác nhau.""
+    *   Điểm mấu chốt ở đây là cụm từ ""**hoặc thừa nhận**"". Điều này cho thấy nhà nước không nhất thiết phải tạo ra mọi quy tắc pháp luật từ đầu; nó có thể công nhận và nâng tầm các quy tắc xã hội đã tồn tại lên thành pháp luật.
+*   **Tính được đảm bảo bằng nhà nước:** Một trong ba thuộc tính cơ bản của pháp luật là ""tính được đảm bảo bằng nhà nước"".
+    *   Thuộc tính này khẳng định rằng pháp luật ""do nhà nước ban hành hoặc thừa nhận vì vậy được nhà nước bảo đảm thực hiện"". Điều đó có nghĩa là nhà nước ""đã trao cho các quy phạm pháp luật tính quyền lực bắt buộc đối với mọi cơ quan, tổ chức và công dân"".
+    *   Dù một tập quán không phải do nhà nước ban hành, nhưng một khi nó được nhà nước ""thừa nhận"" và ""bảo đảm thực hiện"" (bằng các biện pháp từ tổ chức, khuyến khích đến cưỡng chế), nó sẽ mang tính quyền lực bắt buộc và trở thành pháp luật.
+*   **Vai trò lịch sử của Tập quán pháp:** Ngữ cảnh cũng chỉ ra vai trò quan trọng của tập quán pháp trong các kiểu pháp luật lịch sử:
+    *   **Pháp luật chủ nô:** ""chủ yếu sử dụng **tập quán pháp** và tiền lệ pháp.""
+    *   **Pháp luật phong kiến:** ""tập quán pháp và tiền lệ pháp vẫn đóng vai trò chủ yếu.""
+    *   Điều này minh chứng rằng trong các giai đoạn lịch sử trước đây, các nhà nước đã công nhận và sử dụng rộng rãi các tập quán xã hội như là pháp luật để điều chỉnh các quan hệ xã hội, thể hiện ý chí của giai cấp thống trị.
+*   **Tính dân tộc của pháp luật:** Ngữ cảnh cũng đề cập rằng ""Pháp luật cũng có tính dân tộc, phản ánh phong tục, tập quán và đặc điểm văn hóa của dân tộc"". Điều này cho thấy việc nhà nước thừa nhận tập quán có thể xuất phát từ nhu cầu phản ánh và duy trì các giá trị văn hóa, xã hội truyền thống đã ăn sâu vào đời sống của cộng đồng.
+
+Tóm lại, ""tập quán pháp"" được coi là nguồn của pháp luật không phải vì nó được nhà nước trực tiếp tạo ra, mà vì nó là những quy tắc xử sự đã tồn tại trong xã hội, được nhà nước **công nhận** và **bảo đảm thực hiện** bằng quyền lực nhà nước, từ đó mang tính bắt buộc chung như các quy phạm pháp luật khác.
+
+### 2. Điều kiện để tập quán trở thành tập quán pháp
+
+Ngữ cảnh được cung cấp **không trực tiếp liệt kê các điều kiện cụ thể** để một tập quán trở thành tập quán pháp. Tuy nhiên, dựa trên định nghĩa và các thuộc tính của pháp luật, có thể suy luận ra điều kiện cốt lõi và duy nhất được nhắc đến một cách gián tiếp:
+
+*   **Sự thừa nhận và bảo đảm thực hiện của Nhà nước:**
+    *   Như đã phân tích ở trên, định nghĩa pháp luật nhấn mạnh ""do nhà nước ban hành **hoặc thừa nhận**"" và ""được nhà nước bảo đảm thực hiện bằng các biện pháp khác nhau"".
+    *   Do đó, để một tập quán xã hội thông thường (những quy tắc xử sự hình thành tự phát trong cộng đồng) trở thành ""tập quán pháp"" (một nguồn của pháp luật), điều kiện tiên quyết và bắt buộc là tập quán đó phải được **nhà nước chính thức thừa nhận** và **cam kết bảo đảm thực hiện** bằng quyền lực nhà nước, bao gồm cả các biện pháp cưỡng chế khi cần thiết.
+    *   Sự thừa nhận này biến một quy tắc xã hội tự nguyện thành một quy tắc có tính chất quyền lực, bắt buộc chung đối với mọi chủ thể trong phạm vi điều chỉnh của nhà nước.
+
+Ngữ cảnh không đi sâu vào các tiêu chí cụ thể mà nhà nước sử dụng để quyết định thừa nhận một tập quán (ví dụ: tập quán đó phải tồn tại lâu đời, phổ biến, không trái đạo đức xã hội, không trái pháp luật hiện hành), mà chỉ nêu bật bản chất của sự chuyển hóa từ tập quán sang tập quán pháp thông qua hành vi ""thừa nhận"" của nhà nước.","**Tập quán pháp** được xem là một trong những nguồn (hình thức) của pháp luật xuất hiện sớm nhất trong lịch sử. Dù không do nhà nước trực tiếp soạn thảo và ban hành từ đầu, tập quán pháp vẫn có đầy đủ giá trị bắt buộc chung nhờ vào các lý do cốt lõi sau:
+
+*   **Sự thừa nhận của Nhà nước:** Theo định nghĩa pháp lý, pháp luật là hệ thống các quy phạm bắt buộc chung do nhà nước ban hành hoặc **thừa nhận**. Khi nhà nước thừa nhận những phong tục, tập quán sẵn có trong xã hội và nâng chúng lên thành luật, những quy tắc xử sự này sẽ mang ý chí của nhà nước. Từ thời điểm đó, chúng được nhà nước bảo đảm thực hiện bằng các biện pháp quyền lực, kể cả cưỡng chế pháp lý khi có hành vi vi phạm.
+
+*   **Thấm nhuần tính dân tộc:** Để pháp luật được người dân tự nguyện chấp nhận và tuân thủ rộng rãi, hệ thống pháp luật đó phải được xây dựng trên nền tảng dân tộc và phản ánh được phong tục, tập quán, đặc điểm lịch sử, văn hóa của cộng đồng dân cư. Việc thừa nhận tập quán pháp giúp luật hóa những cách ứng xử hợp lý, khách quan vốn đã được số đông thừa nhận từ trước.
+
+*   **Vai trò lịch sử quan trọng:** Trong các thời kỳ đầu của lịch sử pháp lý (pháp luật chủ nô và pháp luật phong kiến), khi các văn bản luật viết tay còn tản mạn và xuất hiện muộn, tập quán pháp chính là công cụ chủ đạo điều chỉnh các quan hệ xã hội.
+
+**Về điều kiện để một tập quán trở thành tập quán pháp:**
+
+Tài liệu học tập của bạn **chưa quy định chi tiết các tiêu chí cụ thể** để một tập quán đời thường chuyển hóa thành tập quán pháp, ngoại trừ điều kiện bắt buộc mang tính pháp lý là **phải được nhà nước thừa nhận và bảo đảm thực hiện**.
+
+Nếu bạn muốn đi sâu hơn vào lý luận pháp học, tôi có thể thực hiện **nghiên cứu trên internet** để cung cấp cho bạn các điều kiện chuẩn mực (chẳng hạn như: tính phổ biến, tính lặp đi lặp lại lâu đời, tính rõ ràng, và điều kiện không được trái với đạo đức xã hội hay các nguyên tắc cơ bản của luật pháp quốc gia). Bạn có muốn tôi thực hiện tìm kiếm này không?",9.5,9.0,9.5,9.5,9.38,82.8,81.5,10,"**Accuracy**: Câu trả lời chính xác tuyệt đối về lý do tập quán pháp là nguồn của pháp luật (sự thừa nhận của nhà nước). Phần điều kiện cũng phản ánh đúng thực tế ngữ cảnh: chỉ có điều kiện bắt buộc là sự thừa nhận, không liệt kê các tiêu chí cụ thể khác như tính phổ biến hay lâu đời. Thông tin hoàn toàn phù hợp với Reference Answer.
+**Completeness**: Câu trả lời bao quát đầy đủ các lý do chính (sự thừa nhận, tính dân tộc, vai trò lịch sử) và điều kiện cốt lõi (thừa nhận của nhà nước) như trong đáp án mẫu. Tuy nhiên, phần điều kiện chưa liệt kê chi tiết các tiêu chuẩn lý luận pháp học (tính phổ biến, lặp lại, không trái đạo đức) mà Reference Answer đề cập là có thể tìm kiếm thêm, dù đã giải thích rõ ngữ cảnh không cung cấp chi tiết này.
+**Relevance**: Câu trả lời tập trung trực diện vào hai phần của câu hỏi: lý do tập quán pháp là nguồn luật và điều kiện để trở thành tập quán pháp. Cấu trúc mạch lạc, trích dẫn chính xác các thuộc tính pháp luật từ ngữ cảnh để giải thích. Không có thông tin lan man hay lạc đề.
+**Faithfulness**: Câu trả lời bám sát 100% nội dung trong Retrieved Chunks, đặc biệt là định nghĩa pháp luật và vai trò lịch sử của tập quán. Hệ thống trung thực khi nhận định ngữ cảnh không liệt kê chi tiết các điều kiện cụ thể (như tính phổ biến, lâu đời) mà chỉ nêu rõ điều kiện cốt lõi là sự thừa nhận của nhà nước. Không có thông tin bịa đặt.",True,3/3,"semantic_search ×4, keyword_search ×2  (tổng 6 lượt, 0 lỗi)"
+9,pldc,"Phân biệt ""hiệu lực hồi tố"" và ""hiệu lực không hồi tố"" của văn bản pháp luật — trường hợp nào văn bản được áp dụng hồi tố theo quy định hiện hành?",,"**Hiệu lực hồi tố (hiệu lực trở về trước)** và **hiệu lực không hồi tố (không trở về trước)** là các khái niệm thể hiện giới hạn tác động theo thời gian của văn bản quy phạm pháp luật. Sự phân biệt giữa hai khái niệm này và các trường hợp áp dụng cụ thể được quy định như sau:
+
+### 1. Phân biệt hiệu lực hồi tố và không hồi tố
+
+*   **Hiệu lực không hồi tố (Nguyên tắc chung):** Nhìn chung, hệ thống pháp luật Việt Nam hoạt động theo nguyên tắc không có hiệu lực trở về trước. Điều này nghĩa là một văn bản quy phạm pháp luật mới được thông qua chỉ điều chỉnh những quan hệ xã hội xuất hiện **sau khi** văn bản đó bắt đầu có hiệu lực. Các hành vi hay quan hệ phát sinh trước thời điểm đó sẽ không chịu sự điều chỉnh của văn bản mới.
+
+*   **Hiệu lực hồi tố (Ngoại lệ):** Là trường hợp đặc biệt khi văn bản quy phạm pháp luật mới được áp dụng để điều chỉnh cả những quan hệ xã hội xuất hiện **trước khi** văn bản đó bắt đầu có hiệu lực.
+
+---
+
+### 2. Các trường hợp được áp dụng hồi tố theo quy định hiện hành
+
+Một văn bản quy phạm pháp luật được áp dụng hồi tố trong các trường hợp cụ thể sau đây:
+
+*   **Được quy định trực tiếp trong văn bản vì lợi ích xã hội:** Trong một số rất ít trường hợp ngoại lệ, nếu việc áp dụng hiệu lực trở về trước phù hợp với **lợi ích của xã hội** thì ngay trong văn bản pháp luật đó sẽ quy định trực tiếp hiệu lực hồi tố. Khi đó, hành vi xảy ra trước ngày văn bản có hiệu lực sẽ được áp dụng theo quy định hồi tố này.
+
+*   **Áp dụng quy định mới có lợi hơn cho chủ thể:** Trường hợp văn bản quy phạm pháp luật mới **không quy định trách nhiệm pháp lý** hoặc **quy định trách nhiệm pháp lý nhẹ hơn** đối với hành vi xảy ra trước ngày văn bản có hiệu lực thì sẽ áp dụng văn bản mới.
+
+---
+
+### ⚠️ Các trường hợp tuyệt đối KHÔNG ĐƯỢC quy định hiệu lực hồi tố
+
+Pháp luật nghiêm cấm việc quy định hiệu lực trở về trước (hồi tố) trong hai trường hợp sau nhằm bảo đảm quyền lợi hợp pháp của công dân:
+
+1.  **Quy định trách nhiệm pháp lý** đối với hành vi mà vào thời điểm thực hiện hành vi đó, pháp luật hoàn toàn không quy định trách nhiệm pháp lý.
+
+2.  **Quy định trách nhiệm pháp lý nặng hơn** đối với hành vi đó.
+
+---
+
+💡 Bên cạnh giới hạn về thời gian, văn bản quy phạm pháp luật còn có các giới hạn quan trọng về không gian và đối tượng áp dụng. Bạn có muốn chúng ta cùng tiếp tục làm rõ các nội dung này không?",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không cung cấp bất kỳ nội dung nào để so sánh với đáp án tham chiếu, hệ thống hoàn toàn không đáp ứng được yêu cầu về độ chính xác thực tế của câu hỏi.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Hệ thống hoàn toàn thiếu thông tin, không đề cập đến bất kỳ nội dung nào của câu hỏi, đáp án mẫu hay ngữ cảnh. Do đó, độ đầy đủ thông tin bằng 0.
+**Relevance**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời là 'Không có câu trả lời'). Do đó, nội dung hoàn toàn không giải quyết được trọng tâm câu hỏi, không có sự liên quan hay tập trung vào chủ đề được yêu cầu.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không có nội dung để đối chiếu, không thể xác định tính trung thực hay mức độ ảo giác. Tuy nhiên, việc không trả lời trong ngữ cảnh RAG được coi là thất bại hoàn toàn về khả năng trích xuất thông tin từ ngữ cảnh, tương đương với mức điểm thấp nhất cho tiêu chí Faithfulness.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+10,pldc,"Trách nhiệm hình sự và trách nhiệm hành chính đều là hậu quả pháp lý bất lợi, vậy điều gì phân biệt hai loại trách nhiệm này về bản chất và thẩm quyền xử lý?",,"**Trách nhiệm hình sự** và **trách nhiệm hành chính** dù đều là những phản ứng tiêu cực của nhà nước hướng tới chủ thể vi phạm pháp luật nhằm buộc họ gánh chịu những hậu quả pháp lý bất lợi, nhưng giữa hai loại trách nhiệm này có sự khác biệt sâu sắc về bản chất pháp lý và thẩm quyền xử lý.
+
+### 1. Khác biệt về bản chất pháp lý
+
+*   **Cơ sở thực tế (Hành vi vi phạm phát sinh):**
+
+    *   **Trách nhiệm hình sự:** Phát sinh khi có hành vi phạm tội (vi phạm hình sự) xảy ra. Tội phạm là những hành vi có **mức độ nguy hiểm cao nhất cho xã hội**, xâm phạm các quan hệ xã hội đặc biệt quan trọng được bảo vệ nghiêm ngặt và quy định cụ thể trong Bộ luật Hình sự.
+
+    *   **Trách nhiệm hành chính:** Phát sinh khi có vi phạm hành chính xảy ra. Vi phạm hành chính là hành vi trái pháp luật, có lỗi nhưng **mức độ nguy hiểm cho xã hội ít nghiêm trọng hơn** so với tội phạm, xâm phạm các quan hệ xã hội về quản lý nhà nước được pháp luật hành chính bảo vệ.
+
+*   **Hậu quả pháp lý và mức độ nghiêm khắc:**
+
+    *   **Trách nhiệm hình sự:** Là loại trách nhiệm pháp lý **nghiêm khắc nhất** trong hệ thống pháp luật. Biện pháp cưỡng chế được áp dụng mang tính chất **hình phạt** (như phạt tù có thời hạn, tù chung thân, tử hình...), có thể tước đoạt các quyền thiết thân nhất của người bị kết án (tự do, tài sản, chính trị, hay thậm chí quyền sống). Người chịu trách nhiệm hình sự sẽ **phải mang án tích**.
+
+    *   **Trách nhiệm hành chính:** Có tính chất **ít nghiêm khắc hơn** trách nhiệm hình sự. Chế tài áp dụng chủ yếu gồm cảnh cáo, phạt tiền (mức phạt tiền có giới hạn từ 50.000đ đến 2.000.000.000đ tùy cá nhân hay tổ chức), tịch thu tang vật/phương tiện, tước quyền sử dụng giấy phép/chứng chỉ hành nghề có thời hạn, hoặc trục xuất. Người chịu trách nhiệm hành chính **không bị coi là có án tích**.
+
+*   **Chủ thể chịu trách nhiệm:**
+
+    *   **Trách nhiệm hình sự:** Chỉ áp dụng đối với **cá nhân phạm tội** (từ đủ 14 hoặc 16 tuổi tùy theo mức độ nghiêm trọng của tội phạm) và **pháp nhân thương mại phạm tội**.
+
+    *   **Trách nhiệm hành chính:** Áp dụng rộng rãi hơn đối với cả **cá nhân** (từ đủ 14 tuổi trở lên đối với vi phạm cố ý, từ đủ 16 tuổi trở lên đối với mọi vi phạm) lẫn **các tổ chức**, cơ quan nhà nước, đơn vị kinh tế... thực hiện vi phạm hành chính.
+
+---
+
+### 2. Khác biệt về thẩm quyền xử lý
+
+*   **Trách nhiệm hình sự (Trình tự tư pháp hình sự):**
+
+    *   Thuộc thẩm quyền phán quyết duy nhất của **Tòa án nhân dân** thông qua việc xét xử công khai và ban hành bản án hình sự.
+
+    *   Việc truy cứu trách nhiệm hình sự phải tuân thủ nghiêm ngặt theo các giai đoạn tố tụng hình sự chặt chẽ bao gồm: khởi tố, điều tra, truy tố, xét xử sơ thẩm, xét xử phúc thẩm... do các cơ quan tư pháp phối hợp tiến hành.
+
+*   **Trách nhiệm hành chính (Trình tự hành chính):**
+
+    *   Chủ yếu do **các cơ quan quản lý nhà nước (cơ quan hành chính)** hoặc người có thẩm quyền trong bộ máy hành chính thực hiện (ví dụ: Thanh tra, Ủy ban nhân dân các cấp, Công an...).
+
+    *   Quy trình xử lý hoàn toàn **nằm ngoài trình tự tư pháp** (không cần qua thủ tục xét xử của Tòa án, trừ trường hợp có khiếu kiện quyết định hành chính ra trước Tòa án tố tụng hành chính).
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời trống rỗng). Do đó, không thể đánh giá được độ chính xác so với đáp án tham chiếu. Theo tiêu chí, việc không trả lời hoặc trả lời sai hoàn toàn phải nhận điểm tối thiểu.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời', do đó hoàn toàn thiếu mọi thông tin, ý chính và chi tiết so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào để đánh giá độ đầy đủ.
+**Relevance**: Câu trả lời là 'Không có câu trả lời', hoàn toàn không giải quyết được câu hỏi về sự khác biệt giữa trách nhiệm hình sự và hành chính. Hệ thống không cung cấp bất kỳ thông tin nào, do đó độ liên quan và trọng tâm bằng 0.
+**Faithfulness**: Hệ thống không cung cấp câu trả lời (Empty Response). Do không có nội dung để đối chiếu với ngữ cảnh, không thể xác định tính trung thực hay mức độ ảo giác. Việc thiếu hoàn toàn câu trả lời được coi là thất bại trong việc tuân thủ ngữ liệu, tương đương với mức điểm thấp nhất cho tiêu chí Faithfulness.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+11,pldc,(Luật Dân sự) Hợp đồng dân sự vô hiệu do giả tạo khác gì với hợp đồng vô hiệu do nhầm lẫn — hậu quả pháp lý của hai trường hợp này có giống nhau không?,,"Trong tài liệu bài giảng **""Pháp luật đại cương""** của bạn, phần **Luật Dân sự** (Chương 6) **không quy định hay đề cập đến trường hợp hợp đồng dân sự vô hiệu do giả tạo hay vô hiệu do nhầm lẫn**, cũng như **không có nội dung về hậu quả pháp lý** của hai trường hợp này.
+
+Về chế định hợp đồng dân sự, tài liệu hiện tại mới chỉ dừng lại ở việc giới thiệu các nội dung nền tảng sau:
+
+*   **Khái niệm:** Hợp đồng dân sự là sự thoả thuận giữa các bên về việc xác lập, thay đổi hoặc chấm dứt quyền và nghĩa vụ dân sự.
+
+*   **Nguyên tắc giao kết:** Tự do giao kết hợp đồng (trong khuôn khổ không trái pháp luật, đạo đức xã hội) và bảo đảm tính tự nguyện, bình đẳng, thiện chí, hợp tác, trung thực, ngay thẳng.
+
+*   **Chủ thể giao kết:** Quy định các điều kiện về độ tuổi của cá nhân khi tham gia giao kết hợp đồng (như nhóm từ đủ 6 tuổi đến dưới 15 tuổi, từ đủ 15 tuổi đến dưới 18 tuổi, và người từ đủ 18 tuổi trở lên) cũng như quy định đối với pháp nhân.
+
+*   **Hình thức:** Hợp đồng có thể được giao kết bằng lời nói (miệng), văn bản hoặc hành vi cụ thể.
+
+*   **Nội dung chủ yếu và các loại hợp đồng thông dụng** (như hợp đồng mua bán, trao đổi, tặng cho, vay, thuê tài sản...).
+
+Để hỗ trợ bạn học tập và nghiên cứu sâu hơn theo đúng quy định thực tế của pháp luật Việt Nam hiện hành (Bộ luật Dân sự 2015), tôi có thể **thực hiện nghiên cứu trên internet** để giải đáp chi tiết cho bạn:
+
+1. Cách phân biệt bản chất của hợp đồng vô hiệu do giả tạo (Điều 124) và vô hiệu do nhầm lẫn (Điều 126).
+
+2. Phân tích hậu quả pháp lý của hai trường hợp này xem có hoàn toàn giống nhau không (đặc biệt là về nghĩa vụ hoàn trả, bồi thường thiệt hại và thời hiệu yêu cầu Tòa án tuyên bố vô hiệu).
+
+**Bạn có muốn tôi thực hiện nghiên cứu này trên web không?**",0.0,0.0,0.0,10.0,2.5,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (không có câu trả lời). Điều này vi phạm nghiêm trọng tiêu chí độ chính xác vì không cung cấp bất kỳ thông tin nào để so sánh với đáp án tham chiếu, dẫn đến sai lệch hoàn toàn về sự thật và không giải quyết được câu hỏi.
+**Completeness**: Câu trả lời trống rỗng, hoàn toàn thiếu mọi thông tin so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào về khái niệm, sự khác biệt hay hậu quả pháp lý, vi phạm nghiêm trọng tiêu chí độ đầy đủ.
+**Relevance**: Hệ thống không đưa ra bất kỳ câu trả lời nào (Empty Response). Việc thiếu hoàn toàn nội dung trả lời khiến hệ thống không thể đáp ứng được yêu cầu về độ liên quan hay trọng tâm của câu hỏi, do đó vi phạm hoàn toàn tiêu chí Relevance.
+**Faithfulness**: Hệ thống trả lời 'Không có câu trả lời' khi ngữ cảnh đầu vào (Retrieved Chunks) là mảng rỗng []. Hành động này hoàn toàn trung thực, phản ánh đúng thực tế là không có dữ liệu để trích xuất, do đó không có bất kỳ ảo giác (hallucination) nào xảy ra.",True,1/3,"semantic_search ×3  (tổng 3 lượt, 0 lỗi)"
+12,pldc,"(Luật Hình sự) Các yếu tố nào cấu thành tội phạm (cấu thành tội phạm), và thiếu một trong các yếu tố đó thì hành vi có bị coi là tội phạm không?","Theo Luật Hình sự Việt Nam, để một hành vi bị coi là tội phạm, nó phải đáp ứng đầy đủ các yếu tố cấu thành tội phạm. Dưới đây là phân tích chi tiết về các yếu tố này và hệ quả khi thiếu một trong số chúng:
+
+## 1. Khái niệm và Vai trò của Cấu thành Tội phạm
+
+**Cấu thành tội phạm** là tổng thể những dấu hiệu chung có tính đặc trưng cho một loại tội phạm cụ thể, được quy định trong luật hình sự. Nó là khái niệm pháp lý của một loại tội, mô tả khái quát một loại tội phạm.
+
+*   **Cơ sở pháp lý**: Cấu thành tội phạm là cơ sở pháp lý của trách nhiệm hình sự và là căn cứ pháp lý để định tội danh.
+*   **Bản chất của tội phạm**: Luật hình sự quy định **tội phạm** là hành vi nguy hiểm cho xã hội do người có năng lực trách nhiệm hình sự hoặc pháp nhân thương mại thực hiện một cách cố ý hoặc vô ý, được quy định trong Bộ luật hình sự. Bất cứ một hành vi phạm tội nào cũng đều là thể thống nhất giữa mặt khách quan và mặt chủ quan, đều là hoạt động của con người cụ thể xâm hại hoặc đe dọa xâm hại những quan hệ xã hội được luật hình sự bảo vệ.
+
+Để cấu thành tội phạm, hành vi đó **phải đáp ứng đầy đủ bốn yếu tố cấu thành**: khách thể, mặt khách quan, chủ thể và mặt chủ quan.
+
+## 2. Các Yếu tố Cấu thành Tội phạm
+
+Mỗi một trường hợp phạm tội cụ thể đều có những nội dung biểu hiện riêng biệt ở bốn yếu tố sau:
+
+### 2.1. Khách thể của tội phạm
+
+*   **Định nghĩa**: Là **quan hệ xã hội được luật hình sự bảo vệ** và bị tội phạm gây thiệt hại hoặc đe dọa gây thiệt hại ở mức độ đáng kể.
+*   **Ý nghĩa**: Không có sự xâm hại đến quan hệ xã hội được luật hình sự bảo vệ thì không có tội phạm.
+*   **Ví dụ**: Các quan hệ xã hội được pháp luật hình sự bảo vệ bao gồm **tính mạng, sức khỏe, tài sản, trật tự quản lý nhà nước**, v.v.
+
+### 2.2. Mặt khách quan của tội phạm
+
+*   **Định nghĩa**: Là những biểu hiện của tội phạm diễn ra hoặc tồn tại **bên ngoài thế giới khách quan**.
+*   **Các dấu hiệu thuộc mặt khách quan**:
+    *   **Hành vi nguy hiểm cho xã hội**: Đây là **dấu hiệu bắt buộc, không thể thiếu được của mọi loại tội phạm**. Hành vi có thể là **hành động** hoặc **không hành động**.
+    *   **Hậu quả nguy hiểm cho xã hội**: Là thiệt hại thực tế do hành vi gây ra.
+    *   **Mối quan hệ nhân quả** giữa hành vi và hậu quả.
+    *   **Các dấu hiệu khác**: **Phương tiện, công cụ phạm tội, phương pháp, thủ đoạn, thời gian, địa điểm** thực hiện tội phạm. Các dấu hiệu này là bắt buộc nếu điều luật về tội phạm cụ thể có quy định.
+
+### 2.3. Chủ thể của tội phạm
+
+*   **Định nghĩa**: Là **người hoặc pháp nhân thương mại** có năng lực trách nhiệm hình sự và đến tuổi chịu trách nhiệm hình sự theo quy định của pháp luật.
+*   **Điều kiện về tuổi chịu trách nhiệm hình sự đối với cá nhân**:
+    *   **Người từ đủ 16 tuổi trở lên**: Phải chịu trách nhiệm hình sự về **mọi tội phạm**, trừ những tội phạm mà Bộ luật này có quy định khác.
+    *   **Người từ đủ 14 tuổi trở lên, nhưng chưa đủ 16 tuổi**: Chỉ phải chịu trách nhiệm hình sự về các tội sau:
+        *   Tội giết người.
+        *   Tội cố ý gây thương tích hoặc gây tổn hại cho sức khỏe của người khác.
+        *   Tội hiếp dâm, tội hiếp dâm người dưới 16 tuổi, tội cưỡng dâm người từ đủ 13 tuổi đến dưới 16 tuổi.
+        *   Tội cướp tài sản.
+        *   Tội bắt cóc nhằm chiếm đoạt tài sản.
+        *   Về **tội phạm rất nghiêm trọng, tội phạm đặc biệt nghiêm trọng**.
+
+### 2.4. Mặt chủ quan của tội phạm
+
+*   **Định nghĩa**: Là những diễn biến **tâm lý bên trong** của tội phạm.
+*   **Các dấu hiệu thuộc mặt chủ quan**:
+    *   **Lỗi**: Bất cứ tội phạm cụ thể nào cũng phải là hành vi được thực hiện một cách **có lỗi** (lỗi cố ý hoặc vô ý).
+        *   **Bản chất của lỗi**: Một người sẽ bị coi là có lỗi khi thực hiện một hành vi gây thiệt hại cho xã hội nếu hành vi đó là kết quả của sự tự lựa chọn và quyết định trong khi người ấy hoàn toàn có đủ điều kiện khách quan và chủ quan để lựa chọn một cách xử sự khác phù hợp với xã hội.
+        *   **Các hình thức lỗi**:
+            *   **Lỗi cố ý**: Có thể là **cố ý trực tiếp** hoặc **cố ý gián tiếp**.
+            *   **Lỗi vô ý**: Có thể là **vô ý vì quá tự tin** (vượt quá giới hạn) hoặc **vô ý vì cẩu thả**.
+    *   **Mục đích và động cơ phạm tội**: Là nội dung thuộc mặt chủ quan của **một số loại tội nhất định**, không phải tất cả các tội phạm đều có mục đích và động cơ.
+
+## 3. Hệ quả khi Thiếu một trong các Yếu tố Cấu thành Tội phạm
+
+Như đã nêu rõ, ""Để cấu thành tội phạm, hành vi đó **phải đáp ứng đầy đủ bốn yếu tố cấu thành**: khách thể, mặt khách quan, chủ thể và mặt chủ quan.""
+
+Do đó:
+> Nếu một hành vi **thiếu bất kỳ một trong bốn yếu tố cấu thành tội phạm** (khách thể, mặt khách quan, chủ thể, mặt chủ quan) thì hành vi đó **sẽ không bị coi là tội phạm**.
+
+Sự thống nhất của bốn yếu tố này là hình thức cấu trúc, thể hiện đầy đủ nội dung chính trị - xã hội của tội phạm. Việc xác định chính xác các yếu tố cấu thành tội phạm là cơ sở pháp lý quan trọng để cơ quan điều tra, kiểm sát và tòa án ra quyết định khởi tố, truy tố và xét xử, đảm bảo nguyên tắc pháp chế xã hội chủ nghĩa, không để oan sai hoặc bỏ lọt tội phạm.
+
+Pháp luật cũng quy định về các trường hợp **không cấu thành tội phạm** như sự kiện bất khả kháng, phòng vệ chính đáng, hoặc hành vi được quy định là không phải là tội phạm do tính chất không nguy hiểm cho xã hội. Các trường hợp này về bản chất là thiếu một hoặc nhiều yếu tố cấu thành tội phạm (ví dụ: thiếu lỗi trong sự kiện bất khả kháng, thiếu tính trái pháp luật trong phòng vệ chính đáng).","Theo quy định của Luật Hình sự Việt Nam và nội dung tài liệu học tập của bạn, **cấu thành tội phạm** là tổng thể những dấu hiệu chung có tính đặc trưng cho một loại tội phạm cụ thể được quy định trong luật hình sự. Cấu thành tội phạm là khái niệm pháp lý khái quát hóa một loại tội, đóng vai trò là **cơ sở pháp lý của trách nhiệm hình sự và là căn cứ pháp lý duy nhất để định tội danh**.
+
+### 1. Bốn yếu tố cấu thành tội phạm
+
+Mỗi trường hợp phạm tội cụ thể trên thực tế đều phải có đầy đủ nội dung biểu hiện ở **bốn yếu tố** sau đây:
+
+*   **Khách thể của tội phạm:** Là quan hệ xã hội được luật hình sự bảo vệ và bị tội phạm gây thiệt hại hoặc đe doạ gây thiệt hại ở mức độ đáng kể. Tài liệu khẳng định nguyên tắc cốt lõi: **nếu không có sự xâm hại đến quan hệ xã hội được luật hình sự bảo vệ thì không có tội phạm**.
+
+*   **Mặt khách quan của tội phạm:** Là những biểu hiện của tội phạm diễn ra hoặc tồn tại bên ngoài thế giới khách quan. Các biểu hiện này bao gồm:
+
+    *   *Hành vi nguy hiểm cho xã hội:* Đây là dấu hiệu khách quan **bắt buộc phải có** của mọi loại tội phạm.
+
+    *   *Hậu quả nguy hiểm cho xã hội* cùng các dấu hiệu bổ trợ khác như phương tiện, công cụ phạm tội, phương pháp, thủ đoạn, thời gian, địa điểm thực hiện tội phạm (chỉ bắt buộc khi điều luật cụ thể có quy định trực tiếp).
+
+*   **Chủ thể của tội phạm:** Là cá nhân (hoặc pháp nhân thương mại trong một số tội danh nhất định) thực hiện hành vi phạm tội, phải gánh chịu năng lực trách nhiệm hình sự và đạt độ tuổi luật định. Cụ thể:
+
+    *   Người từ đủ 16 tuổi trở lên phải chịu trách nhiệm hình sự về mọi tội phạm (trừ trường hợp luật có quy định khác).
+
+    *   Người từ đủ 14 tuổi đến dưới 16 tuổi chỉ phải chịu trách nhiệm hình sự về một số tội phạm cụ thể có tính chất nguy hiểm rất lớn hoặc đặc biệt lớn (như giết người, hiếp dâm, cướp tài sản, bắt cóc...).
+
+*   **Mặt chủ quan của tội phạm:** Là những diễn biến tâm lý bên trong của tội phạm, bao gồm:
+
+    *   *Lỗi:* Là dấu hiệu **bắt buộc** đối với mọi tội phạm (dưới hình thức lỗi cố ý hoặc vô ý). Một người chỉ bị coi là có lỗi khi hành vi gây thiệt hại cho xã hội là kết quả của sự tự lựa chọn và quyết định của họ trong khi họ hoàn toàn có đủ điều kiện để chọn một cách ứng xử khác phù hợp hơn.
+
+    *   *Động cơ* và *mục đích phạm tội:* Chỉ là dấu hiệu bắt buộc đối với một số loại tội nhất định.
+
+---
+
+### 2. Thiếu một trong các yếu tố trên thì hành vi có bị coi là tội phạm không?
+
+Câu trả lời là **KHÔNG**. Nếu thiếu bất kỳ một trong bốn yếu tố nêu trên, hành vi của một chủ thể **hoàn toàn không bị coi là tội phạm**.
+
+Quy tắc này dựa trên các nền tảng lý luận pháp lý chặt chẽ sau:
+
+*   **Tính thống nhất biện chứng:** Bất kỳ hành vi phạm tội nào cũng phải là **thể thống nhất hoàn chỉnh** giữa mặt khách quan và mặt chủ quan, là hoạt động của một con người cụ thể xâm hại đến quan hệ xã hội được luật bảo vệ. Sự thống nhất của cả bốn yếu tố này là bắt buộc để thể hiện đầy đủ tính chất nguy hiểm cho xã hội của tội phạm.
+
+*   **Nguyên tắc lỗi (Không buộc tội khách quan):** Luật hình sự Việt Nam tuyệt đối không chấp nhận việc buộc tội một người mà không căn cứ vào lỗi của họ. Do đó, dù có hành vi gây thiệt hại trên thực tế (mặt khách quan) nhưng được thực hiện do sự kiện bất ngờ (không thể thấy trước hoặc không buộc phải thấy trước hậu quả) thì chủ thể không có lỗi và không phải chịu trách nhiệm hình sự.
+
+*   **Loại trừ trách nhiệm hình sự do thiếu điều kiện chủ thể:** Nếu một người thực hiện hành vi nguy hiểm khi đang mắc bệnh tâm thần hoặc một bệnh khác làm mất hoàn toàn khả năng nhận thức hoặc điều khiển hành vi thì họ thiếu yếu tố chủ thể hợp pháp của tội phạm, do đó được **loại trừ trách nhiệm hình sự**.
+
+*   **Cơ sở định tội duy nhất:** Khi một hành vi thiếu đi dù chỉ một yếu tố cấu thành tội phạm, hành vi đó không thỏa mãn mô tả pháp lý của tội danh trong Bộ luật Hình sự. Không có cấu thành tội phạm thì cơ quan tố tụng không có căn cứ pháp lý để truy cứu trách nhiệm hình sự.",10.0,10.0,9.0,10.0,9.75,76.6,76.1,2,"**Accuracy**: Câu trả lời chính xác tuyệt đối so với đáp án tham chiếu. Hệ thống đã liệt kê đầy đủ 4 yếu tố cấu thành tội phạm, giải thích rõ ràng từng yếu tố và khẳng định chính xác rằng thiếu bất kỳ yếu tố nào thì hành vi không bị coi là tội phạm. Nội dung hoàn toàn khớp với tài liệu ngữ cảnh và đáp án chuẩn.
+**Completeness**: Câu trả lời bao quát đầy đủ 100% các ý chính từ đáp án mẫu: định nghĩa cấu thành tội phạm, chi tiết 4 yếu tố (khách thể, mặt khách quan, chủ thể, mặt chủ quan) với các điều kiện tuổi và loại lỗi, cùng kết luận rõ ràng về việc thiếu một yếu tố thì không cấu thành tội phạm. Thông tin chính xác và đầy đủ.
+**Relevance**: Câu trả lời tập trung tốt vào 4 yếu tố cấu thành tội phạm và hệ quả khi thiếu chúng, đúng trọng tâm câu hỏi. Tuy nhiên, phần mở đầu định nghĩa 'bản chất của tội phạm' và phần cuối liệt kê các chế định không cấu thành tội phạm (phòng vệ chính đáng, bất khả kháng) là thông tin bổ trợ chưa được hỏi trực tiếp, làm giảm độ súc tích tối đa.
+**Faithfulness**: Câu trả lời hoàn toàn trung thực, 100% thông tin (định nghĩa, 4 yếu tố, độ tuổi, hình thức lỗi, hệ quả thiếu yếu tố) đều được trích xuất chính xác và đầy đủ từ các Retrieved Chunks và Reference Answer. Không có bất kỳ thông tin bịa đặt hay suy diễn ngoài ngữ cảnh nào.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+13,pldc,"(Luật Hành chính) Nguyên tắc ""pháp chế"" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?",,"Trong tài liệu bài giảng **""Pháp luật đại cương""** của bạn, **không có một phần riêng biệt quy định cụ thể và chi tiết danh sách các ""điều kiện có hiệu lực""** của một quyết định hành chính. Tuy nhiên, dựa trên nội dung lý luận về **nguyên tắc pháp chế xã hội chủ nghĩa** và **chế định cơ quan hành chính nhà nước**, hoạt động ban hành quyết định hành chính của các cơ quan này phải tuân thủ các đòi hỏi và điều kiện mang tính nguyên tắc pháp lý sau:
+
+#### 1. Tính ""dưới luật"" và phải dựa trên cơ sở pháp luật (Hợp pháp về căn cứ)
+
+*   **Hoạt động chấp hành và điều hành:** Cơ quan hành chính nhà nước là bộ phận hợp thành của bộ máy quản lý, chuyên thực hiện hoạt động chấp hành và điều hành (hoạt động hành pháp). Hoạt động này mang tính chất **dưới luật** - nghĩa là tiến hành **trên cơ sở và để thi hành luật**.
+
+*   **Căn cứ ban hành:** Khi giải quyết các vụ việc cụ thể, cơ quan hành chính ban hành các văn bản áp dụng pháp luật (văn bản cá biệt hay quyết định hành chính) nhằm làm xuất hiện ở công dân, tổ chức những quyền và nghĩa vụ pháp lý cụ thể. Việc ban hành này **phải dựa trên cơ sở các văn bản quy phạm pháp luật**. Quyết định hành chính không được trái hoặc mâu thuẫn với Hiến pháp, luật và các văn bản của cơ quan nhà nước cấp trên.
+
+#### 2. Đúng thẩm quyền pháp luật quy định (Hợp pháp về thẩm quyền)
+
+*   **Giới hạn thẩm quyền:** Thẩm quyền của cơ quan hành chính nhà nước chỉ giới hạn trong phạm vi hoạt động chấp hành và điều hành.
+
+*   **Pháp chế về thẩm quyền:** Pháp chế đòi hỏi toàn bộ công tác tổ chức và hoạt động của cơ quan nhà nước phải tiến hành theo đúng pháp luật. Do đó, cơ quan hành chính chỉ được phép ban hành quyết định hành chính trong phạm vi nhiệm vụ, quyền hạn được pháp luật phân định cụ thể cho từng cấp, từng ngành (thẩm quyền chung của Chính phủ, Ủy ban nhân dân hay thẩm quyền chuyên môn của Bộ, Sở, phòng, ban). Việc ban hành quyết định vượt quá thẩm quyền hoặc lạm quyền là vi phạm nghiêm trọng nguyên tắc pháp chế.
+
+#### 3. Đúng phương pháp và hình thức pháp lý quy định (Hợp pháp về hình thức và thủ tục)
+
+*   **Phương pháp mệnh lệnh phục tùng:** Hoạt động quản lý nhà nước mang bản chất quyền uy, nên khi ban hành quyết định hành chính, cơ quan hành chính chủ yếu sử dụng phương pháp mệnh lệnh phục tùng (một bên ra lệnh, bên kia phải phục tùng).
+
+*   **Trường hợp ngoại lệ:** Trong một số trường hợp đặc biệt, luật hành chính cũng sử dụng phương pháp thỏa thuận (như khi ban hành các quyết định liên tịch).
+
+*   **Hình thức văn bản cá biệt:** Quyết định hành chính phải được thể hiện dưới hình thức văn bản áp dụng pháp luật (văn bản cá biệt), áp dụng một lần đối với cá nhân, tổ chức cụ thể được ghi đích danh trong văn bản.
+
+#### 4. Phải bảo đảm quyền lợi hợp pháp của công dân và chịu trách nhiệm pháp lý
+
+*   **Bảo vệ quyền lợi công dân:** Việc ban hành quyết định hành chính phải tôn trọng, bảo đảm và bảo vệ các quyền tự do, dân chủ, các lợi ích chính đáng của con người.
+
+*   **Trách nhiệm công vụ:** Nếu cơ quan hành chính hoặc người có thẩm quyền ban hành quyết định hành chính trái pháp luật gây ra thiệt hại cho quyền, tự do, lợi ích hợp pháp của công dân, tổ chức thì sẽ phải gánh chịu hậu quả bất lợi và bị truy cứu **trách nhiệm công vụ**.
+
+*   **Quyền khiếu kiện hành chính:** Công dân, tổ chức có quyền khiếu nại hoặc khởi kiện vụ án hành chính tại Tòa án đối với các quyết định hành chính trái pháp luật của cơ quan quản lý nhà nước để bảo vệ quyền lợi hợp pháp của mình.
+
+---
+
+Nếu bạn muốn tìm hiểu sâu hơn về quy định chi tiết trong thực tế của Luật Khiếu nại, Luật Tố tụng hành chính hay Luật Ban hành văn bản quy phạm pháp luật hiện hành (những điều kiện chi tiết về thể thức, quy trình lấy ý kiến, hay thời hạn ban hành quyết định hành chính), tôi có thể **thực hiện tìm kiếm trên internet** để bổ sung cho bạn. Bạn có muốn thực hiện việc này không?",0.0,0.0,0.0,10.0,2.5,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời' trong khi câu hỏi yêu cầu thông tin cụ thể. Điều này thể hiện sự thất bại hoàn toàn trong việc cung cấp nội dung, dẫn đến sai lệch nghiêm trọng so với đáp án tham chiếu và không đáp ứng được yêu cầu của người dùng.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời', hoàn toàn thiếu mọi thông tin, ý chính và chi tiết so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào về các điều kiện của nguyên tắc pháp chế, dẫn đến độ đầy đủ bằng 0.
+**Relevance**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời trống rỗng). Do đó, không có nội dung nào để đánh giá mức độ liên quan, trọng tâm hay sự tập trung vào câu hỏi. Việc thiếu hoàn toàn phản hồi khiến tiêu chí Relevance đạt điểm tối thiểu.
+**Faithfulness**: Hệ thống trả lời 'Không có câu trả lời' do không có ngữ cảnh được cung cấp (Retrieved Chunks là mảng rỗng). Điều này thể hiện sự trung thực tuyệt đối, không bịa đặt thông tin (hallucination) khi thiếu dữ liệu đầu vào, hoàn toàn tuân thủ nguyên tắc Faithfulness.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+14,pldc,(Luật Lao động) Thế nào là hợp đồng lao động xác định thời hạn và không xác định thời hạn — trường hợp nào người lao động đương nhiên được chuyển sang hợp đồng không xác định thời hạn?,,"Dưới đây là lời giải đáp chi tiết cho cả hai câu hỏi của bạn dựa trên nội dung bài giảng Pháp luật đại cương hiện có.
+PHẦN 1: SO SÁNH TRÁCH NHIỆM PHÁP LÝ TRONG LUẬT DÂN SỰ, HÌNH SỰ VÀ HÀNH CHÍNH
+Theo lý luận chung, trách nhiệm pháp lý là sự phản ứng tiêu cực của nhà nước đối với các chủ thể thực hiện vi phạm pháp luật Sự phản ứng này thể hiện qua việc áp dụng các biện pháp mang tính chất trừng phạt hoặc khôi phục lại các quyền, lợi ích hợp pháp bị xâm phạm, gây ra thiệt hại nhất định về vật chất hoặc tinh thần cho chủ thể vi phạm Dù có chung bản chất là biện pháp cưỡng chế nhà nước
+1
+, trách nhiệm pháp lý trong ba lĩnh vực Dân sự, Hình sự và Hành chính có những điểm khác biệt rất lớn:
+1. Trách nhiệm hình sự (TNHS)
+Mục đích: Nhằm trừng trị người phạm tội và pháp nhân thương mại phạm tội, đồng thời giáo dục họ ý thức tuân theo pháp luật và các quy tắc cuộc sống để ngăn ngừa họ phạm tội mới; ngoài ra còn nhằm giáo dục các chủ thể khác tôn trọng pháp luật, phòng ngừa và đấu tranh chống tội phạm Chủ thể có thẩm quyền áp dụng: Thuộc thẩm quyền phán quyết duy nhất của Tòa án nhân dân thông qua việc xét xử công khai và ban hành bản án hình sự theo trình tự tố tụng hình sự nghiêm ngặt
+3 Đối tượng gánh chịu trách nhiệm: Cá nhân phạm tội (từ đủ 16 tuổi chịu trách nhiệm về mọi tội; từ đủ 14 tuổi chịu trách nhiệm về một số tội rất nghiêm trọng hoặc đặc biệt nghiêm trọng)
+5
+ và pháp nhân thương mại phạm tội
+4 Hậu quả pháp lý: Là hậu quả nghiêm khắc nhất
+3 Biện pháp áp dụng mang tính chất hình phạt (hình phạt chính gồm cảnh cáo, phạt tiền, cải tạo không giam giữ, trục xuất, tù có thời hạn, tù chung thân, tử hình; hình phạt bổ sung gồm cấm đảm nhiệm chức vụ, tịch thu tài sản...)
+7 Người chịu TNHS sẽ bị mang án tích 2. Trách nhiệm hành chính (TNHC)
+Mục đích: Xử phạt các hành vi vi phạm hành chính để bảo vệ trật tự quản lý nhà nước, quyền tự do và lợi ích hợp pháp của công dân, bảo đảm trật tự an toàn xã hội
+10 Đồng thời khôi phục lại những quyền và lợi ích bị xâm hại do hành vi vi phạm gây ra Chủ thể có thẩm quyền áp dụng: Chủ yếu do các cơ quan hành chính nhà nước hoặc người có thẩm quyền trong bộ máy hành chính áp dụng (như Ủy ban nhân dân các cấp, Công an, Thanh tra...), hoàn toàn nằm ngoài trình tự tố tụng tư pháp của Tòa án
+3 Đối tượng gánh chịu trách nhiệm: Cá nhân vi phạm (từ đủ 14 đến dưới 16 tuổi đối với vi phạm cố ý; từ đủ 16 tuổi trở lên đối với mọi vi phạm hành chính)
+12
+ và tất cả các tổ chức (cơ quan nhà nước, tổ chức xã hội, đơn vị kinh tế...) thực hiện vi phạm hành chính
+9 Hậu quả pháp lý: Ít nghiêm khắc hơn hình sự Chế tài áp dụng bao gồm cảnh cáo, phạt tiền (với cá nhân từ 50.000đ đến 1.000.000.000đ, với tổ chức tối đa 2.000.000.000đ), tước quyền sử dụng giấy phép/chứng chỉ hành nghề, tịch thu tang vật/phương tiện hoặc trục xuất
+14 Có thể áp dụng kèm theo các biện pháp khắc phục hậu quả (như buộc khôi phục tình trạng ban đầu, buộc tháo dỡ công trình trái phép...) Người chịu TNHC không bị coi là mang án tích 3. Trách nhiệm dân sự (TNDS)
+Mục đích: Chủ yếu mang tính chất bồi hoàn và khắc phục thiệt hại Trọng tâm là khôi phục lại tình trạng tài sản hoặc lợi ích nhân thân bị xâm phạm về trạng thái ban đầu
+1",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời' trong khi câu hỏi yêu cầu giải thích về hợp đồng lao động. Nội dung hoàn toàn thiếu, không cung cấp bất kỳ thông tin nào để so sánh với đáp án tham chiếu, vi phạm nghiêm trọng tiêu chí độ chính xác.
+**Completeness**: Câu trả lời của hệ thống là '(Không có câu trả lời)', hoàn toàn thiếu thông tin. Hệ thống không đề cập đến bất kỳ nội dung nào về hợp đồng lao động, phân biệt các loại hợp đồng hay trường hợp chuyển đổi sang hợp đồng không xác định thời hạn như yêu cầu của câu hỏi và đáp án tham chiếu.
+**Relevance**: Câu trả lời trống rỗng ('Không có câu trả lời'), hoàn toàn không giải quyết được câu hỏi về hợp đồng lao động. Hệ thống không cung cấp bất kỳ thông tin nào liên quan đến định nghĩa hay các trường hợp chuyển đổi hợp đồng, do đó vi phạm hoàn toàn tiêu chí liên quan và trọng tâm.
+**Faithfulness**: Hệ thống trả lời rỗng ('Không có câu trả lời') trong khi ngữ cảnh tài liệu (Retrieved Chunks) trống rỗng. Tuy nhiên, đáp án tham chiếu chuẩn (Reference Answer) lại cung cấp nội dung chi tiết về trách nhiệm pháp lý (dân sự, hình sự, hành chính) chứ không phải về hợp đồng lao động như câu hỏi yêu cầu. Do đó, hệ thống không thể trả lời đúng câu hỏi dựa trên ngữ cảnh hiện có, và việc trả lời rỗng là phản ứng đúng đắn về mặt trung thực khi không có dữ liệu phù hợp, nhưng điểm 0.0 được gán vì không có thông tin nào được cung cấp để đánh giá tính trung thực của nội dung trả lời.",True,1/3,"semantic_search ×3  (tổng 3 lượt, 0 lỗi)"
+15,pldc,"(Luật Hôn nhân & Gia đình) Điều kiện kết hôn theo pháp luật Việt Nam gồm những gì, và vi phạm điều kiện nào sẽ dẫn đến hôn nhân bị hủy (khác với ly hôn)?","Dựa trên các đoạn ngữ cảnh được cung cấp, câu trả lời chi tiết về điều kiện kết hôn và sự khác biệt giữa hủy hôn nhân và ly hôn như sau:
+
+---
+
+## 1. Điều kiện kết hôn theo pháp luật Việt Nam (Thông tin từ ngữ cảnh)
+
+Ngữ cảnh được cung cấp **không trực tiếp liệt kê các điều kiện cụ thể để kết hôn** theo pháp luật Việt Nam (như tuổi, tình trạng hôn nhân, năng lực hành vi, v.v.).
+
+Tuy nhiên, ngữ cảnh có đề cập đến các khái niệm pháp lý nền tảng có liên quan đến khả năng tham gia vào các quan hệ pháp luật nói chung, bao gồm cả quan hệ hôn nhân:
+
+### 1.1. Quyền kết hôn là một quyền nhân thân
+
+*   Trong phần ""Quyền nhân thân trong hôn nhân và gia đình"", ngữ cảnh nêu rõ: ""Cá nhân có **quyền kết hôn**, ly hôn, quyền bình đẳng của vợ chồng, quyền xác định cha, mẹ, con, quyền được nhận làm con nuôi, quyền nuôi con nuôi và các quyền nhân thân khác trong quan hệ hôn nhân, quan hệ cha mẹ và con và quan hệ giữa các thành viên gia đình.""
+*   Điều này khẳng định kết hôn là một quyền dân sự gắn liền với mỗi cá nhân, được pháp luật bảo vệ.
+
+### 1.2. Năng lực chủ thể trong quan hệ pháp luật (áp dụng chung)
+
+Mặc dù không trực tiếp nêu là điều kiện kết hôn, nhưng ngữ cảnh giải thích rằng **quan hệ pháp luật** (mà hôn nhân là một dạng) chỉ xuất hiện khi đồng thời đủ ba điều kiện, trong đó có điều kiện ""**tồn tại chủ thể xác định có năng lực chủ thể**"".
+Để trở thành chủ thể trong bất kỳ quan hệ pháp luật nào, các bên phải có **năng lực chủ thể**, bao gồm:
+
+*   **Năng lực pháp luật (khả năng được nhà nước thừa nhận có quyền và nghĩa vụ)**:
+    *   ""Năng lực pháp luật dân sự của cá nhân là khả năng của cá nhân có quyền dân sự và nghĩa vụ dân sự.""
+    *   ""Mọi cá nhân đều có năng lực pháp luật dân sự như nhau.""
+    *   ""Năng lực pháp luật dân sự của cá nhân có từ khi người đó sinh ra và chấm dứt khi người đó chết.""
+    *   Năng lực pháp luật dân sự của cá nhân không bị hạn chế, trừ trường hợp do pháp luật quy định.
+    *   Cá nhân có các quyền, nghĩa vụ dân sự bao gồm:
+        *   Quyền nhân thân không gắn với tài sản và quyền nhân thân gắn với tài sản.
+        *   Quyền sở hữu, quyền thừa kế và các quyền khác đối với tài sản.
+        *   **Quyền tham gia quan hệ dân sự** và có nghĩa vụ phát sinh từ quan hệ đó.
+
+*   **Năng lực hành vi (khả năng thực tế thực hiện các quyền và nghĩa vụ đó thông qua hành vi của mình)**:
+    Ngữ cảnh phân loại năng lực hành vi dân sự của cá nhân như sau:
+    *   **Người thành niên**: Có năng lực hành vi dân sự đầy đủ, trừ các trường hợp mất, khó khăn hoặc hạn chế năng lực hành vi dân sự.
+    *   **Người chưa đủ sáu tuổi**: Không có năng lực hành vi dân sự. Giao dịch dân sự phải do người đại diện theo pháp luật xác lập, thực hiện.
+    *   **Người từ đủ sáu tuổi đến chưa đủ mười tám tuổi**:
+        *   Khi xác lập, thực hiện giao dịch dân sự phải được người đại diện theo pháp luật đồng ý, trừ giao dịch nhằm phục vụ nhu cầu sinh hoạt hàng ngày phù hợp với lứa tuổi hoặc pháp luật có quy định khác.
+        *   Người từ đủ mười lăm tuổi đến chưa đủ mười tám tuổi có tài sản riêng bảo đảm thực hiện nghĩa vụ thì có thể tự mình xác lập, thực hiện giao dịch dân sự mà không cần sự đồng ý của người đại diện theo pháp luật, trừ trường hợp pháp luật có quy định khác.
+    *   **Mất năng lực hành vi dân sự**:
+        *   Do bị bệnh tâm thần hoặc bệnh khác mà không thể nhận thức, làm chủ hành vi.
+        *   Được Tòa án tuyên bố trên cơ sở kết luận giám định.
+        *   Giao dịch dân sự phải do người đại diện theo pháp luật xác lập, thực hiện.
+    *   **Người có khó khăn trong nhận thức, làm chủ hành vi**:
+        *   Người thành niên do tình trạng thể chất hoặc tinh thần mà không đủ khả năng nhận thức, làm chủ hành vi nhưng chưa đến mức mất năng lực hành vi dân sự.
+        *   Được Tòa án tuyên bố và chỉ định người giám hộ trên cơ sở kết luận giám định pháp y tâm thần.
+    *   **Hạn chế năng lực hành vi dân sự**:
+        *   Người nghiện ma tuý, nghiện các chất kích thích khác dẫn đến phát tán tài sản của gia đình.
+        *   Được Tòa án tuyên bố.
+        *   Giao dịch dân sự liên quan đến tài sản phải có sự đồng ý của người đại diện theo pháp luật, trừ giao dịch nhằm phục vụ nhu cầu sinh hoạt hàng ngày.
+
+**Lưu ý quan trọng**: Mặc dù ngữ cảnh không trực tiếp nói ""điều kiện kết hôn là phải có năng lực hành vi dân sự đầy đủ..."", nhưng việc có năng lực hành vi dân sự là một yêu cầu cơ bản để một cá nhân có thể tham gia và thực hiện quyền, nghĩa vụ trong bất kỳ quan hệ pháp luật nào, bao gồm cả quan hệ hôn nhân.
+
+---
+
+## 2. Vi phạm điều kiện dẫn đến Hủy việc kết hôn trái pháp luật (khác với Ly hôn)
+
+Ngữ cảnh không nêu rõ các điều kiện cụ thể mà khi vi phạm sẽ dẫn đến hủy việc kết hôn. Tuy nhiên, ngữ cảnh có đề cập đến **""Huỷ việc kết hôn trái pháp luật""** như một thủ tục đặc biệt trong tố tụng dân sự, có sự khác biệt rõ rệt so với ly hôn:
+
+### 2.1. Hủy việc kết hôn trái pháp luật
+
+*   **Bản chất**: Đây là một trong những trường hợp mà trong quá trình giải quyết vụ án, tòa án **không tiến hành hòa giải** để giúp các đương sự thỏa thuận.
+*   **Quy định cụ thể**: Mục ""Hòa giải vụ án"" liệt kê: ""Trong quá trình giải quyết vụ án tòa án tiến hành hòa giải để giúp các đương sự thỏa thuận với nhau về giải quyết vụ án, trừ những việc sau: + **Huỷ việc kết hôn trái pháp luật**;...""
+*   **Ý nghĩa**: Việc không tiến hành hòa giải cho thấy tính chất nghiêm trọng của việc kết hôn trái pháp luật. Khi một cuộc hôn nhân bị xác định là ""trái pháp luật"" (dù ngữ cảnh không định nghĩa rõ thế nào là ""trái pháp luật""), tòa án sẽ trực tiếp xem xét và ra quyết định hủy bỏ, thay vì cố gắng dàn xếp cho các bên tiếp tục duy trì quan hệ hoặc thỏa thuận về việc chấm dứt. Điều này ngụ ý rằng cuộc hôn nhân đó bị coi là không hợp lệ ngay từ đầu do vi phạm các quy định pháp luật cơ bản về kết hôn.
+
+### 2.2. Ly hôn
+
+*   **Bản chất**: Ngữ cảnh chỉ đề cập ""ly hôn"" là một ""**quyền nhân thân**"" của cá nhân.
+*   **Sự khác biệt cơ bản với Hủy việc kết hôn trái pháp luật**:
+    *   **Căn cứ**: Ngữ cảnh không nêu căn cứ của ly hôn, nhưng việc nó được gọi là ""quyền nhân thân"" cho thấy đây là quyền của cá nhân khi không muốn tiếp tục quan hệ hôn nhân hợp pháp.
+    *   **Thủ tục hòa giải**: Mặc dù ngữ cảnh không trực tiếp nói về hòa giải trong các vụ án ly hôn, nhưng việc ""Huỷ việc kết hôn trái pháp luật"" được liệt kê là ngoại lệ không hòa giải, có thể suy luận rằng các vụ án hôn nhân gia đình khác (bao gồm ly hôn) thường sẽ được tòa án tiến hành hòa giải theo thủ tục tố tụng dân sự thông thường để các đương sự thỏa thuận giải quyết.
+    *   **Hiệu lực pháp lý của hôn nhân**: Ly hôn chấm dứt một cuộc hôn nhân đã được xác lập hợp pháp. Ngược lại, hủy việc kết hôn trái pháp luật tuyên bố cuộc hôn nhân đó không có giá trị pháp lý ngay từ đầu.
+
+**Tóm lại**: Ngữ cảnh không cung cấp danh sách cụ thể các điều kiện kết hôn hay các vi phạm dẫn đến hủy hôn. Tuy nhiên, nó nhấn mạnh rằng ""Huỷ việc kết hôn trái pháp luật"" là một thủ tục đặc biệt trong tố tụng dân sự, nơi tòa án không thực hiện hòa giải, cho thấy tính chất không hợp lệ ngay từ đầu của cuộc hôn nhân đó, khác với việc ly hôn một cuộc hôn nhân hợp pháp.","Tài liệu học tập trong notebook của bạn **không có nội dung chi tiết về Luật Hôn nhân và Gia đình**, do đó các điều kiện kết hôn cụ thể, căn cứ hủy kết hôn trái pháp luật cũng như sự so sánh chi tiết giữa hủy kết hôn và ly hôn **không được đề cập** trong nguồn này.
+
+Những gì nguồn tài liệu của bạn có ghi nhận về chủ đề này chỉ bao gồm:
+
+*   **Nguyên tắc hiến định (Luật Hiến pháp):** Khẳng định nam, nữ có quyền kết hôn, ly hôn; hôn nhân tuân theo nguyên tắc tự nguyện, tiến bộ, một vợ một chồng, vợ chồng bình đẳng và tôn trọng lẫn nhau.
+
+*   **Thủ tục tố tụng (Luật Tố tụng dân sự):** Quy định vụ việc **""Hủy việc kết hôn trái pháp luật""** là một trong những trường hợp đặc biệt mà Tòa án **không được tiến hành hòa giải** (khác với các vụ án ly hôn thông thường phải trải qua thủ tục hòa giải bắt buộc).
+
+Để giúp bạn có câu trả lời đầy đủ và chính xác nhất theo quy định của **Luật Hôn nhân và Gia đình Việt Nam hiện hành (năm 2014)**, tôi có thể **thực hiện nghiên cứu trên internet** về các điều kiện kết hôn, các trường hợp bị hủy hôn và sự khác biệt bản chất giữa hủy hôn và ly hôn.
+
+**Bạn có muốn tôi thực hiện nghiên cứu này trên web không?**",4.0,2.0,6.5,9.5,5.5,86.8,83.2,10,"**Accuracy**: Câu trả lời sai lệch nghiêm trọng về mặt logic so với Reference Answer. Reference Answer khẳng định rõ ràng tài liệu nguồn KHÔNG có nội dung chi tiết về điều kiện kết hôn, trong khi Generated Answer lại cố gắng suy diễn và liệt kê các điều kiện (năng lực pháp luật, hành vi) từ các đoạn ngữ cảnh về 'Quan hệ pháp luật' chung chung. Việc áp dụng quy định chung về năng lực chủ thể cho điều kiện kết hôn cụ thể là một sự suy diễn sai lầm, không có trong nguồn và đi ngược lại chỉ dẫn của Reference Answer.
+**Completeness**: Câu trả lời thiếu hoàn toàn các ý chính bắt buộc trong Reference Answer: không đề cập đến nguyên tắc hiến định về quyền kết hôn và không có lời đề nghị thực hiện nghiên cứu web để bổ sung thông tin. Thay vào đó, hệ thống cố gắng suy diễn các điều kiện kết hôn từ ngữ cảnh về 'năng lực chủ thể' chung chung, dẫn đến việc bỏ sót nội dung cốt lõi mà Reference Answer yêu cầu phải thừa nhận là thiếu trong nguồn.
+**Relevance**: Câu trả lời tập trung vào câu hỏi nhưng bị lan man do trích dẫn quá chi tiết các khái niệm năng lực pháp luật và hành vi dân sự (phần 1.2). Mặc dù có liên quan đến chủ thể, nhưng nội dung này quá rộng so với yêu cầu cụ thể về 'điều kiện kết hôn' và 'hủy hôn', làm giảm tính súc tích và trọng tâm của câu trả lời.
+**Faithfulness**: Câu trả lời trung thực, phân biệt rõ ràng giữa thông tin có trong ngữ cảnh và thông tin không có. Hệ thống không bịa đặt điều kiện kết hôn cụ thể mà chỉ suy luận logic từ khái niệm 'năng lực chủ thể' trong tài liệu. Phần về thủ tục hủy kết hôn cũng bám sát ngữ cảnh.",True,3/3,"semantic_search ×3, keyword_search ×5  (tổng 8 lượt, 0 lỗi)"
+16,pldc,"Khái niệm ""trách nhiệm pháp lý"" xuất hiện ở cả luật dân sự, hình sự và hành chính — hãy so sánh mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong cả ba lĩnh vực này.",,"Trách nhiệm pháp lý là sự phản ứng tiêu cực của nhà nước đối với các chủ thể thực hiện hành vi vi phạm pháp luật Sự phản ứng này thể hiện qua việc áp dụng các biện pháp cưỡng chế nhà nước đặc thù mang tính chất trừng phạt hoặc khôi phục lại những quyền, lợi ích hợp pháp bị xâm hại, gây ra những thiệt hại nhất định về vật chất hoặc tinh thần cho chủ thể vi phạm Tùy vào tính chất của hành vi vi phạm, trách nhiệm pháp lý được chia thành các loại khác nhau, trong đó có trách nhiệm hình sự, trách nhiệm hành chính và trách nhiệm dân sự Dưới đây là sự so sánh chi tiết giữa ba loại trách nhiệm này về mục đích, chủ thể (gồm chủ thể có thẩm quyền áp dụng và chủ thể gánh chịu trách nhiệm), và hậu quả pháp lý dựa trên tài liệu bài giảng:
+1. Mục đích của trách nhiệm pháp lý
+Trách nhiệm hình sự: Không chỉ nhằm mục đích trừng trị người hoặc pháp nhân thương mại phạm tội, mà còn hướng tới việc giáo dục họ ý thức tuân thủ pháp luật và các quy tắc cuộc sống để ngăn ngừa họ phạm tội mới Đồng thời, nó còn có mục đích giáo dục các cá nhân, tổ chức khác tôn trọng pháp luật, nâng cao hiệu quả phòng ngừa và đấu tranh chống tội phạm chung trong xã hội Trách nhiệm hành chính: Nhằm xử phạt các hành vi vi phạm quy định về quản lý nhà nước (nhưng chưa đến mức là tội phạm) hoặc khôi phục lại những quyền và lợi ích hợp pháp bị xâm hại do hành vi vi phạm hành chính gây ra Việc xử lý này nhằm đảm bảo tính nghiêm minh của pháp luật quản lý hành chính và khắc phục các hậu quả thực tế phát sinh Trách nhiệm dân sự: Trọng tâm hướng tới việc bồi hoàn và khắc phục các thiệt hại về tài sản hoặc quan hệ nhân thân phi tài sản
+2 Mục đích của loại trách nhiệm này là khôi phục lại trạng thái ban đầu của các quyền và lợi ích hợp pháp bị xâm phạm trên cơ sở bảo đảm sự bình đẳng và tự chịu trách nhiệm
+1
+more_horiz
+.
+2. Chủ thể áp dụng và Chủ thể chịu trách nhiệm
+Trách nhiệm hình sự:
+Chủ thể có thẩm quyền áp dụng: Duy nhất do Tòa án nhân dân áp dụng thông qua trình tự tố tụng hình sự nghiêm ngặt và phán quyết bằng bản án hình sự có hiệu lực pháp luật
+2 Chủ thể chịu trách nhiệm: Áp dụng đối với cá nhân phạm tội (đạt độ tuổi luật định và có năng lực trách nhiệm hình sự) và pháp nhân thương mại phạm tội
+9 Trách nhiệm hành chính:
+Chủ thể có thẩm quyền áp dụng: Do các cơ quan hành chính nhà nước hoặc người có thẩm quyền trong bộ máy quản lý áp dụng, quy trình này hoàn toàn nằm ngoài trình tự tố tụng tư pháp của Tòa án
+4 Chủ thể chịu trách nhiệm: Áp dụng rộng rãi đối với cá nhân (từ đủ 14 tuổi trở lên đối với lỗi cố ý, từ đủ 16 tuổi trở lên đối với mọi vi phạm) và các tổ chức (bao gồm cơ quan nhà nước, tổ chức xã hội, đơn vị kinh tế...) thực hiện vi phạm hành chính
+11 Ngoài ra còn áp dụng đối với cả cá nhân, tổ chức nước ngoài vi phạm trên lãnh thổ Việt Nam (trừ trường hợp được hưởng quyền ưu đãi, miễn trừ ngoại giao)
+5 Trách nhiệm dân sự:
+Chủ thể có thẩm quyền áp dụng: Thẩm quyền áp dụng thuộc về Tòa án nhân dân khi tiến hành giải quyết các vụ án dân sự
+2 Chủ thể chịu trách nhiệm: Các chủ thể vi phạm dân sự, có thể là cá nhân hoặc pháp nhân 3. Hậu quả pháp lý
+Trách nhiệm hình sự:
+Là loại trách nhiệm pháp lý nghiêm khắc nhất
+2 Biện pháp cưỡng chế áp dụng là hình phạt
+8 Đối với cá nhân, hình phạt chính bao gồm: cảnh cáo, phạt tiền, cải tạo không giam giữ, trục xuất, tù có thời hạn, tù chung thân và tử hình
+10
+; đi kèm các hình phạt bổ sung như cấm đảm nhiệm chức vụ, tịch thu tài sản, tước một số quyền công dân... Đối với pháp nhân thương mại, hình phạt chính gồm phạt tiền, tước quyền sử dụng giấy phép hoặc đình chỉ hoạt động (có thời hạn hoặc vĩnh viễn) Người bị kết án chịu trách nhiệm hình sự sẽ bị mang án tích (đây là điểm khác biệt cốt lõi vì tài liệu khẳng định người chịu trách nhiệm hành chính không bị coi là mang án tích
+11
+).
+Trách nhiệm hành chính:
+Có tính chất ít nghiêm khắc hơn trách nhiệm hình sự Người chịu trách nhiệm hành chính không bị mang án tích Chế tài áp dụng gồm các hình thức xử phạt chính như cảnh cáo, phạt tiền (mức phạt tiền từ 50.000đ đến 1.000.000.000đ đối với cá nhân và từ 100.000",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không cung cấp bất kỳ nội dung nào để so sánh với đáp án tham chiếu, hệ thống hoàn toàn không đáp ứng được yêu cầu so sánh các khái niệm pháp lý. Đây là lỗi nghiêm trọng về sự sẵn sàng trả lời, dẫn đến điểm tối đa là 0.0.
+**Completeness**: Câu trả lời của hệ thống là '(Không có câu trả lời)', hoàn toàn thiếu mọi thông tin so với yêu cầu của câu hỏi và đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào về mục đích, chủ thể hay hậu quả pháp lý, dẫn đến việc thiếu nghiêm trọng toàn bộ nội dung bắt buộc.
+**Relevance**: Câu trả lời là '(Không có câu trả lời)', hoàn toàn không cung cấp bất kỳ nội dung nào để so sánh trách nhiệm pháp lý. Hệ thống đã không trả lời câu hỏi, do đó độ liên quan và trọng tâm bằng 0.
+**Faithfulness**: Câu trả lời là '(Không có câu trả lời)', nghĩa là hệ thống không cung cấp bất kỳ thông tin nào. Do không có nội dung để đối chiếu, không thể xác định tính trung thực hay ảo giác. Tuy nhiên, trong bối cảnh đánh giá RAG, việc không trả lời khi có ngữ cảnh (dù ngữ cảnh ở đây là rỗng) được coi là thất bại hoàn toàn trong việc tuân thủ nhiệm vụ, tương đương với mức điểm thấp nhất cho tiêu chí Faithfulness.",True,1/3,"semantic_search ×10  (tổng 10 lượt, 0 lỗi)"
+17,pldc,Hệ thống pháp luật được xây dựng từ các quy phạm pháp luật — hãy giải thích cấu trúc của một quy phạm pháp luật (giả định – quy định – chế tài) và phân tích xem ba bộ phận này liên kết với nhau như thế nào qua một ví dụ từ luật hình sự.,,"Trong khoa học pháp lý, hệ thống pháp luật được cấu thành từ các **quy phạm pháp luật** – tức là những quy tắc xử sự có tính chất khuôn mẫu, bắt buộc chung, do nhà nước ban hành hoặc thừa nhận và bảo đảm thực hiện để điều chỉnh các quan hệ xã hội.
+
+Một quy phạm pháp luật hoàn chỉnh thường được xây dựng dựa trên cấu trúc gồm ba bộ phận cốt lõi: **Giả định**, **Quy định**, và **Chế tài**.
+
+---
+
+### I. Cấu trúc ba bộ phận của Quy phạm pháp luật
+
+#### 1. Bộ phận Giả định (Hypothesis)
+
+*   **Khái niệm:** Là bộ phận xác định địa điểm, thời gian, chủ thể, hoặc các hoàn cảnh, tình huống thực tế của đời sống mà trong đó quy phạm pháp luật sẽ phát sinh tác động. Nói cách khác, giả định thiết lập môi trường và phạm vi áp dụng của luật.
+
+*   **Câu hỏi trả lời:** Bộ phận này thường trả lời cho các câu hỏi: *Chủ thể nào? Khi nào? Trong hoàn cảnh, điều kiện nào?*.
+
+*   **Yêu cầu:** Phần giả định phải được mô tả rõ ràng, chính xác và sát hợp với thực tế đời sống xã hội để pháp luật được áp dụng nhất quán (tính xác định là tiêu chuẩn hàng đầu).
+
+#### 2. Bộ phận Quy định (Provision)
+
+*   **Khái niệm:** Là bộ phận trung tâm của quy phạm pháp luật, nêu lên quy tắc xử sự mà nhà nước buộc các chủ thể phải tuân theo khi rơi vào hoàn cảnh đã được vạch ra ở phần giả định. Bộ phận này trình bày trực tiếp ý chí, lợi ích của nhà nước và xã hội trong việc định hướng hành vi con người.
+
+*   **Câu hỏi trả lời:** Trả lời cho các câu hỏi: *Được làm gì? Không được làm gì? Phải làm gì và làm như thế nào?*.
+
+#### 3. Bộ phận Chế tài (Sanction)
+
+*   **Khái niệm:** Là bộ phận chỉ ra những biện pháp tác động mang tính chất gánh chịu hậu quả bất lợi (cưỡng chế) mà nhà nước dự kiến áp dụng đối với những chủ thể không thực hiện đúng mệnh lệnh đã nêu ở phần quy định.
+
+*   **Ý nghĩa:** Chế tài là công cụ pháp lý mạnh mẽ bảo đảm cho mệnh lệnh của nhà nước được thực thi nghiêm minh trên thực tế.
+
+---
+
+### II. Phân tích sự liên kết qua ví dụ cụ thể từ Luật Hình sự
+
+Để thấy rõ mối quan hệ biện chứng giữa ba bộ phận này, chúng ta cùng phân tích **Điều 128 Bộ luật Hình sự năm 2015** được ghi nhận trong tài liệu học tập:
+
+> *“Người nào vô ý làm chết người thì bị phạt cải tạo không giam giữ đến 03 năm hoặc phạt tù từ 01 năm đến 05 năm.”*
+
+#### 1. Bóc tách các bộ phận trong điều luật:
+
+*   **Phần Giả định:** *“Người nào vô ý làm chết người...”*.
+
+    *   *Phân tích:* Đoạn này xác định **chủ thể** (*""Người nào""* - bất kỳ cá nhân nào có năng lực hành vi và đạt độ tuổi chịu trách nhiệm hình sự) nằm trong một **hoàn cảnh/hành vi thực tế** (*""vô ý làm chết người""*, thực hiện hành vi thiếu cẩn trọng dẫn đến hậu quả nghiêm trọng là tước đoạt sinh mạng của người khác).
+
+*   **Phần Quy định:** *(Bộ phận này bị khuyết/ẩn đi về mặt câu chữ).*
+
+    *   *Phân tích pháp lý:* Trong kỹ thuật lập pháp hình sự, bộ phận **""Quy định"" thường ngầm ẩn**. Bản chất quy tắc xử sự mà nhà nước yêu cầu mọi chủ thể phải tuân theo ở đây là: **“Không được vô ý làm chết người”** hoặc **“Phải tuyệt đối bảo đảm an toàn và tôn trọng tính mạng của người khác”**. Nhà làm luật không ghi trực tiếp nghĩa vụ này vào điều khoản hình sự vì đây là chuẩn mực đạo đức và pháp lý cơ bản hiển nhiên của xã hội.
+
+*   **Phần Chế tài:** *“...thì bị phạt cải tạo không giam giữ đến 03 năm hoặc phạt tù từ 01 năm đến 05 năm.”*.
+
+    *   *Phân tích:* Đây là hậu quả pháp lý bất lợi (hình phạt) mà cơ quan tư pháp nhân danh nhà nước áp dụng đối với người vi phạm.
+
+#### 2. Mối liên kết logic biện chứng giữa ba bộ phận:
+
+Ba bộ phận này không tồn tại độc lập mà liên kết chặt chẽ theo một logic điều kiện nghiêm ngặt: **""Nếu [Giả định] xảy ra, chủ thể có nghĩa vụ tuân thủ [Quy định]. Nếu chủ thể vi phạm [Quy định] thì phải gánh chịu [Chế tài]""**.
+
+*   **Sự ràng buộc của Giả định đối với Chế tài:** Nhà nước chỉ có quyền áp dụng hình phạt cải tạo hoặc phạt tù (Chế tài) **khi và chỉ khi** trên thực tế xuất hiện đúng hành vi vô ý làm chết người (Giả định). Nếu hành vi chết người xảy ra hoàn toàn do sự kiện bất ngờ (chủ thể không thể thấy trước hoặc không buộc phải thấy trước hậu quả) thì giả định không thỏa mãn, lỗi không tồn tại, và nhà nước không thể áp dụng chế tài.
+
+*   **Mối quan hệ giữa Quy định và Chế tài:** Chế tài đóng vai trò là ""khiên bảo vệ"" cho phần quy định ngầm ẩn. Nếu không có hình phạt nghiêm khắc răn đe (Chế tài), quy định bảo vệ tính mạng con người sẽ trở thành một lời kêu gọi suông, mất đi tính bắt buộc chung của pháp luật. Ngược lại, chế tài chỉ có tính chính danh khi nó trừng phạt một hành vi vi phạm nghĩa vụ pháp lý đã được xác lập từ trước.
+
+Sự thống nhất của cả ba yếu tố này tạo nên một cấu trúc hoàn chỉnh giúp quy phạm pháp luật vừa mang tính định hướng hành vi (qua phần quy định ẩn), vừa mang tính dự báo thực tế (qua phần giả định) và vừa có sức mạnh cưỡng chế quyền lực (qua phần chế tài).
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời trống rỗng). Do đó, không có thông tin nào để so sánh với đáp án tham chiếu, dẫn đến việc hoàn toàn không đáp ứng được yêu cầu về độ chính xác thực tế.
+**Completeness**: Câu trả lời trống rỗng (Không có câu trả lời). Hệ thống không cung cấp bất kỳ nội dung nào về cấu trúc quy phạm pháp luật, phân tích ba bộ phận hay ví dụ từ Luật Hình sự. Do đó, độ đầy đủ thông tin là 0% so với đáp án tham chiếu.
+**Relevance**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời trống rỗng). Do đó, nội dung hoàn toàn không giải thích được cấu trúc quy phạm pháp luật hay phân tích ví dụ như yêu cầu. Câu trả lời này không có sự liên quan nào đến trọng tâm câu hỏi.
+**Faithfulness**: Hệ thống không cung cấp câu trả lời (Empty Response). Do không có nội dung để đánh giá tính trung thực hay mức độ bịa đặt, nên không thể áp dụng tiêu chí Faithfulness. Tuy nhiên, trong bối cảnh RAG, việc trả lời rỗng khi có ngữ cảnh (dù ngữ cảnh ở đây là rỗng) thường được coi là thất bại hoàn toàn trong việc tuân thủ nhiệm vụ.",True,1/3,"semantic_search ×6  (tổng 6 lượt, 0 lỗi)"
+18,pldc,"Nhà nước và pháp luật được trình bày ở các chương khác nhau nhưng có mối quan hệ hữu cơ — hãy phân tích: nhà nước tạo ra pháp luật, nhưng pháp luật lại ràng buộc ngược lại nhà nước như thế nào?",,"**Nhà nước và pháp luật là hai hiện tượng lịch sử cơ bản, có mối quan hệ biện chứng, tác động qua lại chặt chẽ và không thể tách rời**. Theo học thuyết Mác-Lênin, chúng là ""hai người bạn đồng hành"" xuất hiện từ cùng một nguyên nhân kinh tế – xã hội (chế độ tư hữu và sự phân hóa giai cấp), cùng tồn tại, phát triển và sẽ cùng tiêu vong khi nhân loại tiến tới chủ nghĩa cộng sản.
+
+Mối quan hệ hữu cơ này được thể hiện rõ nét qua hai chiều tác động biện chứng:
+
+### 1. Chiều thuận: Nhà nước tạo ra và bảo đảm thực hiện pháp luật
+
+Nhà nước là chủ thể duy nhất có quyền lực chính trị tối cao để khai sinh và mang lại sức mạnh bắt buộc chung cho pháp luật:
+
+*   **Nhà nước ban hành hoặc thừa nhận pháp luật:** Chỉ có nhà nước mới có quyền lực công cộng đặc biệt để soạn thảo, ban hành hoặc thừa nhận những quy tắc xử sự sẵn có trong đời sống xã hội (như tập quán) để nâng chúng lên thành luật. Các tổ chức xã hội khác hoàn toàn không có quyền này.
+
+*   **Thể chế hóa ý chí quyền lực:** Pháp luật là công cụ để thực hiện quyền lực nhà nước và là cơ sở pháp lý cho đời sống xã hội. Thông qua pháp luật, ý chí của giai cấp cầm quyền được biến thành ý chí của nhà nước, mang tính chất chủ quyền duy nhất trong một quốc gia.
+
+*   **Nhà nước bảo đảm hiệu lực thi hành:** Để pháp luật được tôn trọng và áp dụng nhất quán, nhà nước sử dụng bộ máy chuyên trách của mình và các biện pháp từ khuyến khích, giáo dục cho đến cưỡng chế bằng bạo lực để bảo đảm cho pháp luật có hiệu lực thực thi.
+
+### 2. Chiều ngược: Pháp luật ràng buộc và kiểm soát ngược lại Nhà nước
+
+Mặc dù do nhà nước tạo ra, nhưng pháp luật không phải là công cụ một chiều mà nó quay trở lại **ràng buộc, giới hạn và kiểm soát chính quyền lực của nhà nước** nhằm ngăn ngừa sự chuyên quyền, lạm dụng sức mạnh công:
+
+*   **Nhà nước không thể quản lý nếu thiếu pháp luật:** Quản lý bằng pháp luật là đặc trưng cơ bản nhất của việc quản lý nhà nước; không thể có một nhà nước tồn tại và vận hành một cách chính danh nếu thiếu đi hệ thống pháp luật làm cơ sở pháp lý.
+
+*   **Pháp luật xác lập cấu trúc và giới hạn bộ máy nhà nước:** Pháp luật (đặc biệt là Hiến pháp - đạo luật gốc) quy định hình thức, bản chất nhà nước, thiết lập các nguyên tắc tổ chức, hoạt động và giới hạn thẩm quyền của từng cơ quan nhà nước từ trung ương đến địa phương. Quyền lực nhà nước về lập pháp, hành pháp và tư pháp được phân định rõ ràng trong một cơ chế kiểm tra, giám sát và chế ước lẫn nhau để bảo đảm sự thống nhất nhưng không lạm quyền.
+
+*   **Tính tối thượng của pháp luật đối với Nhà nước (Nguyên tắc pháp chế):** Trong một ""Nhà nước pháp quyền"", pháp luật giữ vai trò chủ đạo. Nguyên tắc pháp chế đòi hỏi toàn bộ hoạt động của bộ máy nhà nước, từ các cơ quan tối cao đến từng viên chức, công chức nhà nước đều phải tuân thủ nghiêm chỉnh, triệt để và bình đẳng trước pháp luật. Cơ quan hành chính chỉ được phép tiến hành các hoạt động ""dưới luật"", tức là hoạt động trên cơ sở và để thi hành luật.
+
+*   **Trách nhiệm pháp lý song phương giữa Nhà nước và Công dân:** Quan hệ giữa công dân và nhà nước là quan hệ bình đẳng về quyền và nghĩa vụ. Nhà nước không chỉ bắt công dân tuân thủ luật pháp, mà ngược lại, nhà nước cũng có nghĩa vụ và trách nhiệm pháp lý đối với công dân trong việc công nhận, tôn trọng, bảo đảm và bảo vệ các quyền con người, quyền công dân.
+
+*   **Nhà nước tự đặt mình vào khuôn khổ trách nhiệm:** Nếu cơ quan nhà nước, người có chức quyền ban hành các quyết định hành chính trái luật hoặc có hành vi công vụ xâm phạm đến quyền và lợi ích hợp pháp của công dân, họ sẽ bị truy cứu **trách nhiệm công vụ**. Đồng thời, công dân có quyền khiếu nại hoặc khởi kiện hành chính ra trước Tòa án để phán quyết hành vi của cơ quan quản lý nhà nước.
+
+Sự ràng buộc biện chứng này bảo đảm cho nhà nước không rơi vào tình trạng chuyên quyền vô hạn định của các kiểu nhà nước cũ, mà từng bước hướng tới mô hình nhà nước pháp quyền thực sự vì lợi ích của nhân dân.
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời' trong khi câu hỏi yêu cầu phân tích mối quan hệ biện chứng giữa nhà nước và pháp luật. Việc không cung cấp bất kỳ nội dung nào khiến câu trả lời hoàn toàn sai lệch so với yêu cầu và đáp án tham chiếu, vi phạm nghiêm trọng tiêu chí độ chính xác.
+**Completeness**: Câu trả lời trống rỗng (Không có câu trả lời), hoàn toàn thiếu mọi thông tin, ý chính và chi tiết so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào để đánh giá độ đầy đủ.
+**Relevance**: Câu trả lời là 'Không có câu trả lời', hoàn toàn không giải quyết được câu hỏi về mối quan hệ giữa nhà nước và pháp luật. Nội dung trống rỗng, không có bất kỳ thông tin nào liên quan đến trọng tâm câu hỏi, vi phạm hoàn toàn tiêu chí độ liên quan.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không có nội dung để đối chiếu với ngữ cảnh, không thể xác định tính trung thực hay ảo giác. Tuy nhiên, việc không trả lời trong ngữ cảnh RAG được coi là thất bại hoàn toàn về mặt cung cấp thông tin dựa trên dữ liệu.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+19,pldc,"""Chủ thể pháp luật"" được định nghĩa ở phần lý luận chung, nhưng biểu hiện cụ thể khác nhau trong từng ngành luật — so sánh chủ thể trong quan hệ pháp luật dân sự, hành chính và hình sự.",,"Trong lý luận chung về nhà nước và pháp luật, **""chủ thể của quan hệ pháp luật""** được định nghĩa là các cá nhân hoặc tổ chức tham gia vào quan hệ pháp luật, có năng lực chủ thể phù hợp để hưởng các quyền và gánh vác các nghĩa vụ pháp lý do Nhà nước quy định. Năng lực chủ thể này được cấu thành từ hai yếu tố:
+
+*   **Năng lực pháp luật:** Khả năng của chủ thể có được các quyền và nghĩa vụ pháp lý do Nhà nước thừa nhận.
+
+*   **Năng lực hành vi:** Khả năng của chủ thể được Nhà nước thừa nhận rằng bằng hành vi của chính mình, họ có thể tự xác lập và thực hiện các quyền cũng như nghĩa vụ pháp lý trên thực tế.
+
+Mặc dù có chung nền tảng lý luận này, nhưng khi đi vào từng ngành luật cụ thể như **Luật Dân sự, Luật Hành chính và Luật Hình sự**, biểu hiện về mặt thành phần, địa vị pháp lý, cũng như điều kiện năng lực của chủ thể lại có những điểm khác biệt đặc thù sâu sắc.
+
+---
+
+### BẢNG SO SÁNH CHỦ THỂ TRONG BA LĨNH VỰC PHÁP LUẬT
+
+| Tiêu chí so sánh | Luật Dân sự | Luật Hành chính | Luật Hình sự |
+
+| :--- | :--- | :--- | :--- |
+
+| **Thành phần chủ thể** | Gồm **Cá nhân** và **Pháp nhân** (thương mại và phi thương mại). | Gồm **Cơ quan hành chính nhà nước**, **Cán bộ, công chức, viên chức**, và **Cá nhân/Tổ chức** (công dân, người nước ngoài, tổ chức kinh tế - xã hội...). | Một bên luôn là **Nhà nước**, bên còn lại là **Người phạm tội** (cá nhân) hoặc **Pháp nhân thương mại phạm tội**. |
+
+| **Địa vị pháp lý giữa các bên** | **Bình đẳng về mặt pháp lý**, có quyền tự định đoạt và tự chịu trách nhiệm bằng tài sản độc lập. | **Không bình đẳng về mặt ý chí**; vận hành theo nguyên tắc **mệnh lệnh - phục tùng** (một bên nhân danh quyền lực nhà nước ra lệnh, bên kia phục tùng). | **Quyền uy tuyệt đối của Nhà nước**; Nhà nước giữ quyền phán quyết tối cao buộc chủ thể phạm tội gánh chịu trách nhiệm hình sự. |
+
+| **Độ tuổi phát sinh năng lực hành vi/trách nhiệm của cá nhân** | Phát triển từng bước theo độ tuổi từ dưới 6 tuổi, từ đủ 6 tuổi đến dưới 15 tuổi, từ đủ 15 tuổi đến dưới 18 tuổi, và đầy đủ từ **đủ 18 tuổi trở lên**. | Cá nhân từ **đủ 14 tuổi đến dưới 16 tuổi** chịu trách nhiệm hành chính đối với vi phạm cố ý; từ **đủ 16 tuổi trở lên** chịu trách nhiệm về mọi vi phạm hành chính. | Cá nhân từ **đủ 14 tuổi đến dưới 16 tuổi** chỉ chịu trách nhiệm về một số tội rất/đặc biệt nghiêm trọng; từ **đủ 16 tuổi trở lên** chịu trách nhiệm về mọi tội phạm. |
+
+| **Áp dụng đối với Tổ chức** | Áp dụng rộng rãi cho mọi pháp nhân có đủ điều kiện thành lập hoặc thừa nhận. | Áp dụng cho mọi tổ chức (cơ quan nhà nước, tổ chức xã hội, đơn vị kinh tế) thực hiện hành vi vi phạm hành chính. | **Chỉ áp dụng đối với pháp nhân thương mại** phạm tội (đối với một số tội danh); các tổ chức phi thương mại không gánh chịu trách nhiệm hình sự. |
+
+---
+
+### PHÂN TÍCH CHI TIẾT THEO TỪNG NGÀNH LUẬT
+
+#### 1. Chủ thể trong quan hệ pháp luật Dân sự
+
+Quan hệ dân sự điều chỉnh các quan hệ tài sản và nhân thân. Do đó, cách xác lập tư cách chủ thể hướng mạnh tới sự tự do ý chí và bảo đảm an toàn giao dịch.
+
+*   **Về thành phần cá nhân:** Khả năng tham gia giao dịch của cá nhân được phân chia rất chi tiết theo độ tuổi để bảo vệ quyền lợi của họ:
+
+    *   *Dưới 6 tuổi:* Không có năng lực hành vi dân sự, mọi giao dịch phải do người đại diện xác lập.
+
+    *   *Từ đủ 6 tuổi đến dưới 15 tuổi:* Khi giao kết phải được người đại diện đồng ý, ngoại trừ các giao dịch nhỏ phục vụ nhu cầu sinh hoạt thiết yếu hàng ngày.
+
+    *   *Từ đủ 15 tuổi đến dưới 18 tuổi:* Được tự mình xác lập giao dịch nếu có tài sản riêng để bảo đảm thực hiện nghĩa vụ (trừ trường hợp luật quy định khác).
+
+    *   *Từ đủ 18 tuổi trở lên:* Có năng lực hành vi dân sự đầy đủ, trừ các trường hợp bị Tòa án tuyên bố mất, hạn chế năng lực hành vi hoặc người có khó khăn trong nhận thức, làm chủ hành vi.
+
+*   **Về thành phần pháp nhân:** Được phân làm **pháp nhân thương mại** (mục tiêu chính là tìm kiếm lợi nhuận) và **pháp nhân phi thương mại** (như cơ quan nhà nước, đơn vị vũ trang...). Điểm đặc biệt là năng lực pháp luật và năng lực hành vi của pháp nhân phát sinh đồng thời từ thời điểm được đăng ký thành lập và chấm dứt khi xóa tên trong sổ đăng ký.
+
+*   **Đặc điểm cốt lõi:** Các chủ thể hoàn toàn **bình đẳng trước pháp luật**; không một chủ thể nào có quyền áp đặt ý chí lên chủ thể khác khi giao kết hợp đồng hay xác lập nghĩa vụ.
+
+#### 2. Chủ thể trong quan hệ pháp luật Hành chính
+
+Trái ngược với luật dân sự, quan hệ hành chính phục vụ cho hoạt động quản lý nhà nước nên tính chất quyền lực được đặt lên hàng đầu.
+
+*   **Về phía chủ thể quản lý (bên ra lệnh):** Luôn là các cơ quan hành chính nhà nước (Chính phủ, Bộ, Ủy ban nhân dân các cấp...) hoặc cán bộ, công chức, viên chức được Nhà nước trao quyền công vụ cụ thể. Chủ thể này có thẩm quyền ban hành quyết định hành chính mang tính mệnh lệnh buộc bên kia phải tuân thủ.
+
+*   **Về phía chủ thể bị quản lý (bên phục tùng):** Là các cá nhân (công dân, người nước ngoài...) hoặc các tổ chức chịu sự tác động trực tiếp của hoạt động quản lý hành chính.
+
+*   **Độ tuổi chịu trách nhiệm hành chính:**
+
+    *   Người từ đủ 14 tuổi đến dưới 16 tuổi chỉ bị xử phạt đối với vi phạm cố ý.
+
+    *   Người từ đủ 16 tuổi trở lên phải chịu trách nhiệm về mọi vi phạm hành chính.
+
+*   **Tổ chức là chủ thể hành chính:** Mọi tổ chức (bao gồm cả cơ quan nhà nước, đơn vị kinh tế...) đều có thể trở thành chủ thể gánh chịu trách nhiệm hành chính đối với các vi phạm do mình gây ra.
+
+*   **Đặc điểm cốt lõi:** Có sự **bất bình đẳng về mặt ý chí**. Quan hệ hành chính chủ yếu sử dụng phương pháp **mệnh lệnh phục tùng**, trừ một số trường hợp rất đặc biệt như ban hành quyết định liên tịch mới sử dụng phương pháp thỏa thuận.
+
+#### 3. Chủ thể trong quan hệ pháp luật Hình sự
+
+Đây là quan hệ pháp luật phát sinh khi có hành vi nguy hiểm nhất cho xã hội (tội phạm) xảy ra. Thẩm quyền truy cứu và định tội danh thuộc về cơ quan tư pháp.
+
+*   **Về phía chủ thể buộc tội:** Luôn là **Nhà nước**, đại diện bởi các cơ quan tư pháp (như Tòa án thực hiện quyền xét xử, Viện kiểm sát thực hành quyền công tố...). Nhà nước nắm quyền lực tư pháp tối cao để định đoạt và áp dụng hình phạt đối với chủ thể phạm tội.
+
+*   **Về phía chủ thể phạm tội (bên gánh chịu TNHS):**
+
+    *   *Điều kiện bắt buộc về cá nhân:* Phải là người có **năng lực trách nhiệm hình sự** (không bị mắc bệnh tâm thần hay bệnh khác làm mất khả năng nhận thức/điều khiển hành vi) và đạt độ tuổi luật định.
+
+    *   *Về độ tuổi gánh chịu trách nhiệm hình sự:*
+
+        *   Người từ đủ 16 tuổi trở lên phải chịu trách nhiệm về mọi tội phạm.
+
+        *   Người từ đủ 14 tuổi đến dưới 16 tuổi chỉ phải chịu trách nhiệm về một số tội phạm cụ thể có tính chất nguy hiểm rất lớn hoặc đặc biệt lớn (như giết người, hiếp dâm, cướp tài sản...).
+
+    *   *Tổ chức là chủ thể phạm tội:* Luật Hình sự Việt Nam **chỉ truy cứu trách nhiệm hình sự đối với pháp nhân thương mại** phạm tội (áp dụng giới hạn đối với một số tội danh cụ thể). Các cơ quan nhà nước, tổ chức xã hội hay pháp nhân phi thương mại khác tuyệt đối không là chủ thể gánh chịu trách nhiệm hình sự.
+
+*   **Đặc điểm cốt lõi:** Mang tính **quyền uy tuyệt đối**. Nhà nước áp dụng những chế tài cưỡng chế nghiêm khắc nhất (hình phạt) hướng tới tước đoạt các quyền thiết thân (tự do, tài sản, quyền sống) của chủ thể phạm tội.
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời trống rỗng). Do đó, không có nội dung nào để so sánh với đáp án tham chiếu, dẫn đến độ chính xác thực tế bằng 0.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Do đó, hệ thống không cung cấp bất kỳ thông tin nào về chủ thể pháp luật trong ba ngành luật, hoàn toàn thiếu sót so với yêu cầu của câu hỏi và đáp án tham chiếu.
+**Relevance**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời là 'Không có câu trả lời'). Do đó, nội dung hoàn toàn không liên quan và không giải quyết được trọng tâm câu hỏi yêu cầu so sánh chủ thể pháp luật trong ba ngành luật.
+**Faithfulness**: Hệ thống không cung cấp câu trả lời (Generated Answer là 'Không có câu trả lời'). Do thiếu hoàn toàn nội dung, không thể đánh giá tính trung thực hay sự hiện diện của ảo giác. Tuy nhiên, theo quy tắc chấm điểm, việc không trả lời khi có ngữ cảnh và yêu cầu được xem là thất bại hoàn toàn trong việc tuân thủ nhiệm vụ, tương đương với mức điểm thấp nhất cho tiêu chí Faithfulness trong ngữ cảnh này.",True,1/3,"semantic_search ×4  (tổng 4 lượt, 0 lỗi)"
+20,pldc,"Pháp luật có nhiều hình thức thực hiện (tuân thủ, thi hành, sử dụng, áp dụng) — hãy phân tích tại sao ""áp dụng pháp luật"" là hình thức đặc biệt nhất và nó liên quan thế nào đến hoạt động của cơ quan tư pháp?",,"Trong tài liệu bài giảng ""Pháp luật đại cương"" của bạn, không có phần riêng biệt phân tích hay phân loại về ""các hình thức thực hiện pháp luật"" (bao gồm tuân thủ, thi hành, sử dụng, và áp dụng pháp luật) như câu hỏi của bạn.
+Những nội dung liên quan nhất mà tài liệu hiện tại của bạn đang đề cập bao gồm:
+Áp dụng văn bản quy phạm pháp luật (Mục 2.2.5): Chỉ tập trung hướng dẫn nguyên tắc lựa chọn và áp dụng văn bản khi có sự chồng chéo hoặc mâu thuẫn về hiệu lực (ví dụ: áp dụng văn bản có hiệu lực pháp lý cao hơn, văn bản ban hành sau, hoặc văn bản mới quy định trách nhiệm pháp lý nhẹ hơn) Tăng cường công tác tổ chức thực hiện pháp luật (Mục 2.4.3.3): Đề cập khái quát dưới góc độ là một biện pháp để tăng cường pháp chế xã hội chủ nghĩa (như giải thích pháp luật, tuyên truyền giáo dục pháp luật, đào tạo cán bộ...) Bộ máy cơ quan tư pháp (Mục 4.2.4.4): Khái quát về Tòa án nhân dân (thực hiện quyền tư pháp, xét xử) và Viện kiểm sát nhân dân (thực hành quyền công tố, kiểm sát hoạt động tư pháp) Để giúp bạn giải đáp đầy đủ và sâu sắc câu hỏi mang tính lý luận này (bao gồm việc định nghĩa cụ thể 4 hình thức thực hiện pháp luật, phân tích lý do tại sao ""áp dụng pháp luật"" là hình thức đặc biệt nhất, và hoạt động này liên quan mật thiết thế nào đến công tác xét xử của cơ quan tư pháp), tôi có thể thực hiện nghiên cứu trên internet được không?
+Bạn hãy xác nhận để tôi bắt đầu tiến hành nhé!Lưu vào ghi chúthumb_up",0.0,0.0,0.0,10.0,2.5,75.7,75.0,6,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời', trong khi Reference Answer cung cấp một phản hồi chi tiết giải thích rằng tài liệu hiện có không chứa nội dung cần thiết và đề xuất tìm kiếm thêm. Việc trả lời trống rỗng là sai lệch nghiêm trọng so với đáp án chuẩn.
+**Completeness**: Câu trả lời là '(Không có câu trả lời)', hoàn toàn thiếu thông tin. Hệ thống không cung cấp bất kỳ nội dung nào để so sánh với đáp án tham chiếu, do đó vi phạm nghiêm trọng yêu cầu về độ đầy đủ thông tin.
+**Relevance**: Hệ thống không đưa ra bất kỳ câu trả lời nào (trả về rỗng). Do đó, nó hoàn toàn không tập trung vào trọng tâm câu hỏi, không phân tích được các hình thức thực hiện pháp luật hay vai trò của cơ quan tư pháp. Việc thiếu câu trả lời đồng nghĩa với việc lạc đề hoàn toàn theo tiêu chí Relevance.
+**Faithfulness**: Câu trả lời là '(Không có câu trả lời)', do đó không chứa bất kỳ thông tin nào được bịa đặt hoặc suy diễn sai lệch so với ngữ cảnh. Hệ thống đã không tạo ra nội dung ảo giác (hallucination), hoàn toàn tuân thủ nguyên tắc không đưa ra thông tin ngoài ngữ cảnh.",True,3/3,"semantic_search ×3, expand_node ×2  (tổng 5 lượt, 0 lỗi)"
+21,pldc,"Hãy trình bày khái quát cấu trúc hệ thống pháp luật Việt Nam: từ Hiến pháp đến các ngành luật, và nguyên tắc nào đảm bảo sự thống nhất, không mâu thuẫn trong toàn bộ hệ thống đó?",,"**Hệ thống pháp luật Việt Nam** được xây dựng như một thể thống nhất, toàn vẹn và có thứ bậc hiệu lực pháp lý chặt chẽ. Cấu trúc của hệ thống này được tiếp cận dưới hai góc độ: **hình thức** (hệ thống các văn bản quy phạm pháp luật từ Hiến pháp đến các văn bản dưới luật) và **nội dung** (các ngành luật điều chỉnh các lĩnh vực đời sống khác nhau).
+
+---
+
+### 1. Khái quát cấu trúc hệ thống pháp luật Việt Nam
+
+#### A. Cấu trúc theo hiệu lực pháp lý (Hệ thống văn bản quy phạm pháp luật)
+
+Hệ thống văn bản quy phạm pháp luật Việt Nam được sắp xếp theo thứ bậc hiệu lực từ cao xuống thấp, bao gồm:
+
+1.  **Hiến pháp:** Là luật cơ bản, có hiệu lực pháp lý cao nhất trong hệ thống pháp luật. Hiến pháp quy định những vấn đề nền tảng nhất của quốc gia (như hình thức, bản chất nhà nước, chế độ chính trị, kinh tế, văn hóa, xã hội...) và làm cơ sở, nguyên tắc cho tất cả các ngành luật khác.
+
+2.  **Bộ luật, luật, nghị quyết của Quốc hội (Văn bản Luật):** Do Quốc hội – cơ quan đại biểu cao nhất của nhân dân ban hành để cụ thể hóa Hiến pháp. Các văn bản luật có giá trị pháp lý tối cao (chỉ sau Hiến pháp); tất cả các văn bản quy phạm pháp luật khác khi ban hành bắt buộc phải căn cứ vào văn bản luật và tuyệt đối không được trái hay mâu thuẫn với chúng.
+
+3.  **Các văn bản dưới luật:** Là văn bản do các cơ quan nhà nước có thẩm quyền khác ban hành theo trình tự, thủ tục luật định và có hiệu lực pháp lý thấp hơn văn bản luật. Chúng bao gồm:
+
+    *   *Pháp lệnh, nghị quyết* của Ủy ban thường vụ quốc hội.
+
+    *   *Lệnh, quyết định* của Chủ tịch nước.
+
+    *   *Nghị định* của Chính phủ.
+
+    *   *Quyết định* của Thủ tướng Chính phủ.
+
+    *   *Thông tư* của Bộ trưởng, Thủ trưởng cơ quan ngang bộ, Chánh án Tòa án nhân dân tối cao, Viện trưởng Viện kiểm sát nhân dân tối cao.
+
+    *   *Nghị quyết* của Hội đồng nhân dân và *Quyết định* của Ủy ban nhân dân các cấp địa phương (tỉnh, huyện, xã).
+
+#### B. Cấu trúc theo nội dung điều chỉnh (Các ngành luật)
+
+Hệ thống pháp luật Việt Nam bao gồm nhiều ngành luật độc lập, mỗi ngành luật có đối tượng và phương pháp điều chỉnh riêng để điều chỉnh các quan hệ xã hội tương ứng:
+
+*   **Luật Hiến pháp (Luật Nhà nước):** Điều chỉnh các quan hệ xã hội cơ bản, nền tảng nhất về chế độ chính trị, kinh tế, quyền con người, quyền công dân và tổ chức bộ máy nhà nước.
+
+*   **Luật Hành chính:** Điều chỉnh các quan hệ xã hội phát sinh trong hoạt động chấp hành - điều hành của các cơ quan quản lý hành chính nhà nước.
+
+*   **Luật Dân sự:** Điều chỉnh các quan hệ tài sản và quan hệ nhân thân phi tài sản hoặc có liên quan đến tài sản của các chủ thể trên cơ sở bình đẳng và tự nguyện.
+
+*   **Luật Hình sự:** Xác định những hành vi nguy hiểm cho xã hội bị coi là tội phạm và quy định hình phạt áp dụng đối với tội phạm đó.
+
+*   **Luật Lao động:** Điều chỉnh quan hệ lao động giữa người lao động và người sử dụng lao động.
+
+*   **Luật Kinh doanh:** Điều chỉnh các quan hệ xã hội phát sinh trong quá trình thành lập, hoạt động, giải thể, phá sản doanh nghiệp.
+
+*   *(Ngoài ra còn có các ngành luật tố tụng như Tố tụng dân sự, Tố tụng hình sự, Tố tụng hành chính nhằm bảo đảm việc thực thi luật nội dung).*
+
+---
+
+### 2. Các nguyên tắc bảo đảm sự thống nhất, không mâu thuẫn của hệ thống
+
+Để toàn bộ hệ thống đồ sộ này vận hành nhất quán và không xảy ra xung đột hay chồng chéo, hệ thống pháp luật Việt Nam áp dụng các nguyên tắc cốt lõi sau:
+
+*   **Nguyên tắc Pháp chế xã hội chủ nghĩa:** Đây là tiền đề và yêu cầu bắt buộc khi lập pháp. Pháp chế đòi hỏi khi ban hành pháp luật phải triệt để tuân thủ các nguyên tắc đồng bộ, vì nếu pháp luật mâu thuẫn và chồng chéo thì việc thi hành sẽ làm đảo lộn trật tự kỷ cương xã hội. Tất cả các cơ quan, tổ chức, công chức và công dân đều có nghĩa vụ tuân thủ nghiêm chỉnh, thống nhất một hệ thống luật chung.
+
+*   **Nguyên tắc hiệu lực tối thượng của Hiến pháp và Luật:** Tất cả các văn bản quy phạm pháp luật dưới luật khi ban hành đều phải dựa trên cơ sở của Hiến pháp và các văn bản luật, tuyệt đối **không được trái và không được mâu thuẫn** với Hiến pháp và văn bản luật. Hiến pháp giữ vai trò tối thượng làm thước đo tính hợp hiến cho toàn bộ hệ thống.
+
+*   **Nguyên tắc áp dụng và giải quyết xung đột văn bản (Quy tắc ưu tiên):** Khi xảy ra tình trạng các văn bản quy định khác nhau về cùng một vấn đề, việc áp dụng pháp luật tuân thủ chặt chẽ ba quy tắc sau:
+
+    1.  *Ưu tiên hiệu lực pháp lý cao hơn:* Áp dụng văn bản có hiệu lực pháp lý cao hơn.
+
+    2.  *Ưu tiên văn bản ban hành sau (nếu cùng cấp thẩm quyền):* Nếu các văn bản do cùng một cơ quan ban hành có quy định khác nhau về cùng một vấn đề thì áp dụng văn bản được ban hành sau.
+
+    3.  *Ưu tiên quy định có lợi hơn cho chủ thể (Trường hợp hồi tố):* Nếu văn bản mới không quy định trách nhiệm pháp lý hoặc quy định trách nhiệm nhẹ hơn đối với hành vi đã xảy ra trước ngày văn bản mới có hiệu lực thì áp dụng văn bản mới.
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống không cung cấp câu trả lời (trả lời trống rỗng). Do đó, không có thông tin nào để so sánh với đáp án tham chiếu, dẫn đến độ chính xác thực tế bằng 0.
+**Completeness**: Câu trả lời trống rỗng (Không có câu trả lời), hoàn toàn thiếu mọi thông tin về cấu trúc hệ thống pháp luật và các nguyên tắc thống nhất. Không đáp ứng được bất kỳ yêu cầu nào của câu hỏi hoặc đáp án tham chiếu.
+**Relevance**: Hệ thống không cung cấp bất kỳ câu trả lời nào (trả lời là 'Không có câu trả lời'). Do đó, nội dung hoàn toàn không liên quan và không giải quyết được trọng tâm câu hỏi về cấu trúc hệ thống pháp luật và nguyên tắc thống nhất. Đây là trường hợp lạc đề hoàn toàn.
+**Faithfulness**: Hệ thống không cung cấp câu trả lời (Generated Answer là 'Không có câu trả lời'). Do không có nội dung để đánh giá tính trung thực hay mức độ ảo giác, tiêu chí Faithfulness không thể áp dụng được. Tuy nhiên, theo quy tắc chấm điểm, việc thiếu hoàn toàn câu trả lời được xem là không đáp ứng yêu cầu cơ bản của tiêu chí này.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+22,pldc,"Toàn bộ môn Pháp luật đại cương xây dựng trên hai trụ cột lớn là ""lý luận về nhà nước"" và ""lý luận về pháp luật"" — hai trụ cột này liên hệ với nhau như thế nào và tại sao cần học cả hai?",,"**Mối liên hệ hữu cơ (biện chứng) giữa ""Nhà nước"" và ""Pháp luật""** cùng lý do cần phải nghiên cứu đồng thời cả hai trụ cột này được thể hiện rõ nét qua các khía cạnh dưới đây:
+
+### 1. Mối quan hệ biện chứng giữa Nhà nước và Pháp luật
+
+Nhà nước và pháp luật là hai hiện tượng xã hội đa dạng, phức tạp và có mối liên hệ phụ thuộc chặt chẽ, không thể tách rời.
+
+*   **Cùng nguồn gốc phát sinh và số phận lịch sử:** Theo học thuyết Mác-Lênin, nhà nước và pháp luật là hai hiện tượng lịch sử cơ bản nhất của đời sống chính trị xã hội, là ""hai người bạn đồng hành"" cùng xuất hiện, cùng tồn tại, phát triển và sẽ cùng tiêu vong khi nhân loại tiến tới chủ nghĩa cộng sản. Sự ra đời của cả hai đều bắt nguồn từ cùng những tiền đề kinh tế (sự xuất hiện của chế độ tư hữu tài sản) và tiền đề xã hội (sự phân hóa giai cấp đối kháng và mâu thuẫn giai cấp gay gắt đến mức không thể điều hòa).
+
+*   **Không thể có nhà nước mà thiếu pháp luật và ngược lại:**
+
+    *   **Nhà nước tạo ra và bảo đảm thực hiện pháp luật:** Chỉ có nhà nước mới có quyền lực chính trị công cộng đặc biệt để ban hành pháp luật hoặc thừa nhận các quy tắc xử sự sẵn có để nâng chúng lên thành luật. Nhà nước trao cho pháp luật tính quyền lực bắt buộc chung và sử dụng bộ máy chuyên trách cùng các biện pháp cưỡng chế cần thiết để bảo đảm cho pháp luật có hiệu lực thực thi trong cuộc sống.
+
+    *   **Pháp luật là công cụ quản lý tối ưu của Nhà nước:** Nhà nước sử dụng pháp luật như là công cụ chủ yếu, đặc trưng nhất để thực hiện vai trò chấp hành, điều hành và quản lý mọi mặt của đời sống từ kinh tế, văn hóa đến an ninh quốc phòng. Nếu thiếu pháp luật, nhà nước không thể tổ chức quản lý xã hội một cách thống nhất và nhất quán.
+
+    *   **Pháp luật ràng buộc và kiểm soát quyền lực Nhà nước:** Mặc dù do nhà nước tạo ra, nhưng pháp luật là hành lang pháp lý bắt buộc chính nhà nước phải tuân thủ. Pháp luật (đặc biệt là Hiến pháp) quy định cấu trúc bộ máy, giới hạn thẩm quyền của các cơ quan nhà nước nhằm ngăn ngừa sự chuyên quyền, lạm dụng quyền lực. Trong mô hình Nhà nước pháp quyền, pháp luật giữ vai trò tối thượng; mọi cơ quan nhà nước, tổ chức và viên chức đều phải tuân thủ nghiêm chỉnh, triệt để và bình đẳng trước pháp luật.
+
+---
+
+### 2. Tại sao cần học cả hai trụ cột này trong môn Pháp luật đại cương?
+
+Việc học tập đồng thời cả ""lý luận về nhà nước"" và ""lý luận về pháp luật"" là bắt buộc vì những lý do cốt lõi sau:
+
+*   **Để có tư duy hệ thống toàn diện:** Do mối quan hệ biện chứng nêu trên, bạn không thể hiểu được cách thức vận hành của nhà nước nếu thiếu đi công cụ quản lý cốt lõi của nó là pháp luật. Ngược lại, nếu chỉ học các quy định pháp luật mà không hiểu về bản chất giai cấp, vai trò xã hội và cơ chế cưỡng chế của bộ máy nhà nước đứng đằng sau, các điều luật sẽ chỉ là những quy tắc lý thuyết vô hồn, thiếu đi sức mạnh bắt buộc thực tế.
+
+*   **Đáp ứng mục tiêu nâng cao văn hóa pháp lý cho người học:** Việc nghiên cứu cả hai trụ cột giúp người học (đặc biệt là học sinh, sinh viên) hình thành nhận thức đúng đắn về quyền con người, quyền công dân, cũng như trách nhiệm và nghĩa vụ song phương giữa bản thân với nhà nước. Đây là nền tảng quan trọng giúp xây dựng Nhà nước pháp quyền xã hội chủ nghĩa, nâng cao ý thức sống và làm việc theo pháp luật.
+
+*   **Tạo tiền đề vững chắc cho các ngành luật chuyên ngành:** Hiểu rõ phần lý luận chung về nhà nước và pháp luật (ở các chương đầu) là chìa khóa mở đường để người học dễ dàng tiếp cận, phân tích và áp dụng các ngành luật cụ thể ở các chương sau như Luật Hiến pháp, Luật Hành chính, Luật Dân sự, Luật Hình sự, Luật Lao động hay Luật Kinh doanh vào hoạt động nghề nghiệp tương lai.
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Hệ thống đã hoàn toàn thất bại trong việc cung cấp thông tin, không giải quyết được câu hỏi và không có bất kỳ nội dung nào để so sánh với đáp án tham chiếu. Đây là lỗi nghiêm trọng nhất về độ chính xác.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Do đó, hệ thống không cung cấp bất kỳ thông tin nào về mối liên hệ biện chứng giữa nhà nước và pháp luật cũng như lý do cần học cả hai trụ cột. Mức độ bao quát thông tin là 0% so với đáp án tham chiếu.
+**Relevance**: Câu trả lời là 'Không có câu trả lời', hoàn toàn không giải quyết được câu hỏi về mối liên hệ giữa hai trụ cột và lý do cần học. Hệ thống không cung cấp bất kỳ nội dung nào liên quan đến chủ đề, dẫn đến việc lạc đề hoàn toàn.
+**Faithfulness**: Hệ thống không đưa ra câu trả lời (Empty Response). Do không có nội dung nào được sinh ra, không thể đánh giá tính trung thực hay mức độ ảo giác dựa trên ngữ cảnh. Tuy nhiên, việc trả lời rỗng trong ngữ cảnh RAG thường được coi là thất bại hoàn toàn về khả năng trích xuất thông tin.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+23,pldc,"Pháp luật được phân chia thành luật công và luật tư — sự phân chia này phản ánh triết lý gì về quan hệ giữa nhà nước và cá nhân, và các ngành luật trong giáo trình được phân bổ vào hai nhóm này như thế nào?",,"Khái niệm **""luật công"" (công pháp)**, **""luật tư"" (tư pháp)** cũng như việc phân chia hệ thống pháp luật theo mô hình này **không được đề cập hay phân tích** trong tài liệu bài giảng của bạn.
+
+Hiện tại, tài liệu của bạn chỉ tiếp cận cấu trúc hệ thống pháp luật thông qua:
+
+*   **Hệ thống văn bản quy phạm pháp luật** được sắp xếp theo thứ bậc hiệu lực pháp lý từ cao xuống thấp (Hiến pháp, văn bản Luật, và các văn bản dưới luật).
+
+*   **Các ngành luật độc lập** được phân chia dựa trên đối tượng điều chỉnh và phương pháp điều chỉnh đặc thù (bao gồm các ngành luật cụ thể từ Chương 4 đến Chương 9 là Luật Hiến pháp, Luật Hành chính, Luật Dân sự, Luật Hình sự, Luật Lao động, và Luật Kinh doanh).
+
+Sự phân chia giữa luật công và luật tư là một chủ đề lý luận rất quan trọng và có tính lịch sử lâu đời trong khoa học pháp lý. Nếu bạn muốn làm rõ triết lý về mối quan hệ giữa nhà nước và cá nhân phản ánh qua sự phân chia này, cũng như cách xếp nhóm các ngành luật trong chương trình học của bạn vào hai nhóm này, **tôi có thể thực hiện nghiên cứu trên internet để cung cấp câu trả lời chi tiết cho bạn không?**
+
+Bạn hãy cho tôi biết nếu muốn tiến hành nghiên cứu này nhé!",0.0,0.0,0.0,10.0,2.5,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng ('Không có câu trả lời'), trong khi đáp án chuẩn cung cấp thông tin xác thực rằng tài liệu không đề cập chủ đề này và đề xuất hướng giải quyết. Việc không trả lời là sai lệch nghiêm trọng so với thực tế và yêu cầu.
+**Completeness**: Câu trả lời trống rỗng, hoàn toàn thiếu mọi thông tin. Hệ thống không trả lời được câu hỏi, không đề cập đến khái niệm luật công/tư, triết lý quan hệ nhà nước-cá nhân, hay cách phân bổ các ngành luật như yêu cầu của Reference Answer. Mức độ bao quát là 0%.
+**Relevance**: Hệ thống không đưa ra bất kỳ câu trả lời nào (trả lời trống rỗng). Do đó, nó hoàn toàn không tập trung vào trọng tâm câu hỏi, không cung cấp thông tin liên quan và không đáp ứng được yêu cầu cơ bản của nhiệm vụ.
+**Faithfulness**: Hệ thống trả lời 'Không có câu trả lời' khi không có ngữ cảnh (Retrieved Chunks) và không đưa ra bất kỳ thông tin bịa đặt nào. Điều này thể hiện sự tuân thủ tuyệt đối nguyên tắc không hallucinate khi thiếu dữ liệu, hoàn toàn trung thực với ngữ cảnh rỗng.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+24,pldc,"Nhìn toàn bộ các ngành luật được giới thiệu trong giáo trình (dân sự, hình sự, hành chính, lao động, hôn nhân–gia đình...), nguyên tắc chung nào xuyên suốt tất cả các ngành về việc bảo vệ quyền và lợi ích hợp pháp của công dân?",,"Xuyên suốt toàn bộ giáo trình, nguyên tắc chung nhất, đóng vai trò là ""sợi chỉ đỏ"" dẫn đường cho tất cả các ngành luật (từ Hiến pháp, Hành chính, Dân sự, Hình sự, Lao động đến Hôn nhân và Gia đình) là nguyên tắc hiến định: **""Nhà nước công nhận, tôn trọng, bảo vệ và bảo đảm quyền con người, quyền công dân""** và nguyên tắc **""Mọi người đều bình đẳng trước pháp luật""**.
+
+Nguyên tắc này không chỉ là tuyên ngôn lý thuyết mà được cụ thể hóa thành các chế định, quy phạm thực tế trong từng ngành luật cụ thể để bảo vệ quyền lợi hợp pháp của công dân một cách toàn diện:
+
+### 1. Luật Hiến pháp: Đặt nền móng pháp lý tối cao
+
+Là đạo luật gốc của quốc gia, Hiến pháp năm 2013 dành hẳn một chương riêng biệt (Chương 2) để khẳng định các quyền con người và quyền công dân về chính trị, dân sự, kinh tế, văn hóa, xã hội. Hiến pháp thiết lập một nguyên tắc bảo vệ tuyệt đối: **các quyền này chỉ có thể bị hạn chế tối thiểu bằng văn bản luật và chỉ trong trường hợp thật sự cần thiết** vì lý do quốc phòng, an ninh quốc gia, trật tự an toàn xã hội, đạo đức hay sức khỏe cộng đồng.
+
+### 2. Luật Dân sự: Bảo vệ quyền nhân thân và quyền tài sản cá nhân
+
+Luật Dân sự cụ thể hóa nguyên tắc bảo vệ quyền công dân thông qua hai trụ cột:
+
+*   **Bảo vệ quyền nhân thân gắn liền với mỗi cá nhân:** Quyền sống, quyền bất khả xâm phạm về thân thể, danh dự, nhân phẩm, uy tín; quyền bí mật đời sống riêng tư; quyền đối với họ tên, hình ảnh. Khi các quyền này bị xâm phạm, công dân có quyền yêu cầu người vi phạm chấm dứt hành vi, xin lỗi, cải chính công khai hoặc yêu cầu Tòa án buộc bồi thường thiệt hại.
+
+*   **Bảo vệ quyền sở hữu và thừa kế:** Đảm bảo cho công dân có quyền sở hữu hợp pháp đối với thu nhập, của cải để dành, tư liệu sinh hoạt, sản xuất; đồng thời bảo đảm quyền dịch chuyển tài sản của người chết cho người còn sống theo ý chí (di chúc) hoặc theo pháp luật.
+
+### 3. Luật Hình sự và Tố tụng Hình sự: Bảo vệ công lý và quyền tố tụng của người yếu thế
+
+Luật Hình sự xác định rõ mục tiêu tối thượng là bảo vệ quyền con người, quyền và lợi ích hợp pháp của công dân trước những hành vi nguy hiểm nhất cho xã hội (tội phạm). Song song đó, Luật Tố tụng Hình sự bảo vệ công dân thông qua các nguyên tắc tố tụng tiến bộ:
+
+*   **Nguyên tắc suy đoán vô tội:** Người bị buộc tội được coi là không có tội cho đến khi được chứng minh theo trình tự luật định và có bản án kết tội của Tòa án đã có hiệu lực pháp luật.
+
+*   **Bảo đảm quyền tự bào chữa hoặc nhờ luật sư bào chữa.**
+
+*   **Quyền bồi thường thiệt hại:** Công dân bị bắt, tạm giữ, tạm giam hay xét xử trái pháp luật có quyền được Nhà nước bồi thường thiệt hại về vật chất, tinh thần và phục hồi danh dự.
+
+### 4. Luật Hành chính và Tố tụng Hành chính: Kiểm soát quyền lực nhà nước, bảo vệ người dân
+
+Luật Hành chính bảo đảm trách nhiệm công vụ của các cơ quan quản lý và cán bộ, công chức đối với người dân. Điểm đặc biệt nhất là luật thiết lập **quyền khiếu nại, tố cáo và khởi kiện vụ án hành chính**. Khi công dân nhận thấy quyết định hành chính hoặc hành vi hành chính của cơ quan quản lý nhà nước trái pháp luật, xâm phạm đến quyền và lợi ích hợp pháp của mình, họ hoàn toàn có quyền khởi kiện ra trước Tòa án nhân dân để yêu cầu hủy bỏ quyết định đó và đòi bồi thường thiệt hại.
+
+### 5. Luật Lao động: Bảo vệ quyền lợi của người lao động trong quan hệ việc làm
+
+Luật Lao động bảo đảm quyền tự do lựa chọn việc làm, nghề nghiệp và nghiêm cấm việc cưỡng bức lao động hay phân biệt đối xử. Các quy phạm của ngành luật này tập trung bảo vệ người lao động (bên thường yếu thế hơn trong quan hệ lao động) thông qua:
+
+*   Quy định mức lương tối thiểu bảo đảm nhu cầu sống.
+
+*   Giới hạn thời giờ làm việc, bảo đảm thời giờ nghỉ ngơi.
+
+*   Thiết lập hệ thống an toàn, vệ sinh lao động và chế độ bồi thường khi xảy ra tai nạn lao động.
+
+*   Bảo đảm an sinh xã hội thông qua các chế độ bảo hiểm bắt buộc và tự nguyện (ốm đau, thai sản, hưu trí, thất nghiệp...).
+
+### 6. Luật Hôn nhân và Gia đình: Bảo hộ quan hệ hôn nhân tiến bộ
+
+Nguyên tắc hiến định xuyên suốt là bảo hộ hôn nhân và gia đình, bảo vệ quyền lợi của người mẹ và trẻ em. Hôn nhân phải dựa trên sự tự nguyện, tiến bộ, một vợ một chồng, và sự bình đẳng tuyệt đối giữa vợ và chồng trong gia đình.
+
+---
+
+**Tóm lại:** Toàn bộ hệ thống pháp luật Việt Nam được xây dựng trên triết lý **""Nhà nước pháp quyền xã hội chủ nghĩa của nhân dân, do nhân dân, vì nhân dân""**. Trong mối quan hệ này, pháp luật đóng vai trò là công cụ để nhân dân thực hiện quyền làm chủ và là rào chắn vững chắc bảo vệ từng cá nhân trước mọi hành vi xâm phạm từ phía các chủ thể khác hay từ sự lạm quyền của các cơ quan công quyền.",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Câu trả lời là 'Không có câu trả lời', hoàn toàn thiếu thông tin so với câu hỏi và đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào để đánh giá độ chính xác, dẫn đến sai lệch nghiêm trọng về sự thật và không giải quyết được yêu cầu của người dùng.
+**Completeness**: Câu trả lời trống rỗng (Không có câu trả lời), hoàn toàn thiếu mọi thông tin, ý chính và chi tiết so với đáp án tham chiếu. Mức độ bao quát là 0%.
+**Relevance**: Câu trả lời trống rỗng ('Không có câu trả lời'), hoàn toàn không cung cấp bất kỳ thông tin nào để giải quyết câu hỏi. Hệ thống đã thất bại trong việc đưa ra nội dung liên quan, do đó vi phạm hoàn toàn tiêu chí về độ liên quan và trọng tâm.
+**Faithfulness**: Hệ thống trả lời rỗng ('Không có câu trả lời') trong khi ngữ cảnh đầu vào (Retrieved Chunks) trống rỗng. Tuy nhiên, việc không cung cấp câu trả lời khi có yêu cầu rõ ràng và không có dữ liệu đầu vào để trích xuất được coi là một thất bại hoàn toàn trong việc tuân thủ ngữ cảnh, tương đương với việc không thể xác minh tính trung thực hay sự hiện diện của thông tin. Trong bối cảnh RAG, không trả lời khi không có dữ liệu thường được coi là lỗi hệ thống nghiêm trọng hơn là hallucination, nhưng theo thang điểm Faithfulness, việc không có thông tin nào để đối chiếu với Reference Answer khiến điểm số tối thiểu là 0.0 do thiếu hoàn toàn sự liên kết với ngữ cảnh.",True,1/3,"semantic_search ×1  (tổng 1 lượt, 0 lỗi)"
+25,pldc,Giáo trình Pháp luật đại cương trang bị cho sinh viên không chuyên luật những gì — hãy tổng hợp các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền?,,"**Giáo trình Pháp luật đại cương** được biên soạn dành cho sinh viên không chuyên luật tại Học viện Công nghệ Bưu chính Viễn thông với định hướng trang bị những hiểu biết nền tảng, thực tế và cần thiết nhất. Từ nền tảng này, chúng ta có thể tổng hợp thành các **năng lực pháp lý cốt lõi** mà một công dân hiện đại cần có để sống, làm việc và chủ động bảo vệ quyền lợi của mình trong xã hội pháp quyền.
+
+---
+
+### PHẦN 1: GIÁO TRÌNH PHÁP LUẬT ĐẠI CƯƠNG TRANG BỊ NHỮNG GÌ?
+
+Đối với sinh viên không chuyên, giáo trình không đi sâu vào các tranh luận học thuật phức tạp mà tập trung bồi dưỡng kiến thức ở hai mảng lớn:
+
+1.  **Hệ thống lý luận cơ bản về Nhà nước và Pháp luật (Chương 1, 2, 3):**
+
+    *   Giúp sinh viên nắm rõ nguồn gốc phát sinh, bản chất giai cấp, vai trò xã hội và chức năng quản lý của Nhà nước và Pháp luật.
+
+    *   Trang bị các kỹ thuật pháp lý căn bản: nhận diện cấu trúc của một quy phạm pháp luật (giả định – quy định – chế tài), hiểu về hệ thống văn bản quy phạm pháp luật cùng nguyên tắc xác định hiệu lực của văn bản để áp dụng chính xác trong thực tế.
+
+    *   Làm rõ bản chất pháp lý của các hành vi vi phạm pháp luật và các loại trách nhiệm pháp lý tương ứng.
+
+2.  **Kiến thức nền tảng của các ngành luật thực tế (Chương 4 đến Chương 9):**
+
+    *   Giới thiệu chi tiết các ngành luật điều chỉnh những quan hệ xã hội phổ biến và cơ bản nhất trong đời sống: **Luật Hiến pháp, Luật Hành chính, Luật Dân sự & Tố tụng dân sự, Luật Hình sự & Tố tụng hình sự, Luật Lao động, và Luật Kinh doanh**.
+
+**Mục tiêu tối thượng** của việc trang bị này là nâng cao **ý thức pháp luật** và **văn hóa pháp lý** cho sinh viên. Từ đó, định hình thái độ tôn trọng pháp luật, tạo dựng ý thức sống và làm việc theo pháp luật để các bạn tự tin vững bước trở thành những chủ nhân tương lai của đất nước.
+
+---
+
+### PHẦN 2: TỔNG HỢP CÁC NĂNG LỰC PHÁP LÝ CƠ BẢN CỦA MỘT CÔNG DÂN
+
+Để sống và làm việc một cách chính danh, an toàn và hiệu quả trong xã hội pháp quyền, mỗi công dân cần tự tích lũy và phát triển các nhóm năng lực pháp lý cơ bản sau:
+
+#### 1. Năng lực nhận thức và bình đẳng pháp lý
+
+*   **Hiểu biết và tôn trọng Hiến pháp và pháp luật:** Nhận thức rõ pháp luật là công cụ quản lý tối ưu của Nhà nước và là hành lang bảo vệ quyền lợi của nhân dân.
+
+*   **Ý thức về sự bình đẳng pháp lý:** Thấu hiểu nguyên tắc hiến định *""Mọi người đều bình đẳng trước pháp luật""*, không bị phân biệt đối xử, đồng thời nắm rõ mối quan hệ bình đẳng song phương (về quyền và nghĩa vụ) giữa Nhà nước và công dân.
+
+*   **Tinh thần pháp chế:** Có ý thức tự giác tuân thủ pháp luật, đồng thời thực hiện trách nhiệm kiểm tra, giám sát hoạt động của các cơ quan nhà nước và cán bộ, công chức.
+
+#### 2. Năng lực tự chủ dân sự (Năng lực hành vi)
+
+*   **Năng lực chủ thể trong giao dịch:** Hiểu rõ giới hạn năng lực hành vi dân sự của bản thân theo độ tuổi và tình trạng nhận thức để xác lập các giao dịch một cách hợp pháp.
+
+*   **Năng lực định đoạt tài sản và nhân thân:** Biết cách xác lập, bảo vệ quyền sở hữu tài sản, thực hiện quyền thừa kế (theo di chúc hoặc pháp luật) và thực thi các quyền nhân thân phi tài sản gắn liền với cá nhân (như quyền đối với họ tên, hình ảnh, đời sống riêng tư, bí mật cá nhân...).
+
+*   **Năng lực giao kết hợp đồng:** Khả năng tự do thỏa thuận, giao kết các loại hợp đồng dân sự trên nguyên tắc bình đẳng, tự nguyện, thiện chí và tự chịu trách nhiệm bằng tài sản.
+
+#### 3. Năng lực tự bảo vệ quyền và lợi ích hợp pháp (Năng lực tố tụng)
+
+*   **Năng lực khởi kiện dân sự:** Chủ động khởi kiện ra trước Tòa án nhân dân để yêu cầu bảo vệ quyền lợi hợp pháp khi bị xâm phạm trong các quan hệ dân sự, hôn nhân gia đình, lao động hay kinh doanh.
+
+*   **Năng lực kiểm soát công quyền (Khiếu nại, tố cáo, khởi kiện hành chính):** Khả năng thực hiện quyền khiếu nại, tố cáo hoặc khởi kiện vụ án hành chính đối với các quyết định hành chính, hành vi hành chính trái pháp luật của cơ quan quản lý nhà nước để bảo vệ quyền lợi của mình.
+
+*   **Năng lực bảo vệ quyền tố tụng hình sự:** Nhận thức rõ quyền tự bào chữa, nhờ luật sư bào chữa khi đối diện với các hoạt động tố tụng hình sự (bắt, tạm giữ, tạm giam, khởi tố...), cũng như quyền yêu cầu Nhà nước bồi thường thiệt hại và phục hồi danh dự nếu bị xử lý oan sai.
+
+#### 4. Năng lực tự kiểm soát hành vi và ranh giới trách nhiệm pháp lý
+
+*   **Nhận thức ranh giới vi phạm pháp luật:** Phân biệt rõ các loại vi phạm (hình sự, hành chính, dân sự, kỷ luật) để tránh các hành vi lệch chuẩn. Nhận thức rõ dấu hiệu ""lỗi"" của bản thân trong mọi hành vi để tự chịu trách nhiệm.
+
+*   **Hiểu biết ranh giới nguy hiểm (Tội phạm):** Nhận diện hành vi bị coi là tội phạm và các loại hình phạt gánh chịu để tự răn đe bản thân.
+
+*   **Năng lực xử lý tình huống khẩn cấp (Loại trừ trách nhiệm hình sự):** Hiểu rõ các tình tiết được loại trừ trách nhiệm hình sự như **phòng vệ chính đáng** hoặc **tình thế cấp thiết** để chủ động bảo vệ tính mạng, tài sản của bản thân và xã hội một cách hợp pháp khi xảy ra biến cố.
+
+#### 5. Năng lực tham gia thị trường lao động và khởi nghiệp kinh doanh
+
+*   **Năng lực thiết lập quan hệ lao động:** Giao kết hợp đồng lao động đúng hình thức và thời hạn; hiểu rõ quyền và nghĩa vụ của mình về tiền lương, an toàn vệ sinh lao động, thời giờ nghỉ ngơi để tránh bị bóc lột.
+
+*   **Năng lực kinh doanh và giải quyết tranh chấp:** Nắm rõ các quy định pháp luật về thành lập doanh nghiệp, thủ tục phá sản; chủ động lựa chọn các hình thức giải quyết tranh chấp thương mại phù hợp (thương lượng, hòa giải, trọng tài, tòa án).
+
+#### 6. Năng lực trách nhiệm và nghĩa vụ đối với Nhà nước và Xã hội
+
+*   **Làm tròn các nghĩa vụ hiến định:** Tự giác chấp hành nghĩa vụ quân sự bảo vệ Tổ quốc, nghĩa vụ nộp thuế theo luật định và tuân thủ các quy tắc sinh hoạt công cộng.
+
+*   **Nâng cao trách nhiệm xã hội:** Chủ động lên án, phát hiện, tố cáo các hành vi vi phạm pháp luật và đặc biệt là nâng cao ý thức trách nhiệm cá nhân trong cuộc đấu tranh phòng, chống tham nhũng.
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời' trong khi câu hỏi yêu cầu tổng hợp kiến thức cụ thể. Việc không cung cấp bất kỳ nội dung nào so với đáp án tham chiếu là sai lệch nghiêm trọng, hoàn toàn không đáp ứng yêu cầu của câu hỏi.
+**Completeness**: Câu trả lời của hệ thống là 'Không có câu trả lời'. Do đó, hệ thống hoàn toàn không bao quát được bất kỳ ý chính, căn cứ pháp lý hay chi tiết nào từ đáp án tham chiếu. Mức độ đầy đủ thông tin là 0%.
+**Relevance**: Hệ thống trả lời rỗng (không có nội dung). Do đó, câu trả lời hoàn toàn không liên quan và không giải quyết được trọng tâm câu hỏi, vi phạm hoàn toàn tiêu chí Relevance.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời) trong khi ngữ cảnh đầu vào (Retrieved Chunks) cũng trống rỗng. Tuy nhiên, việc không cung cấp câu trả lời khi có Reference Answer và yêu cầu tổng hợp năng lực pháp lý cụ thể được coi là thất bại hoàn toàn trong việc tuân thủ ngữ cảnh và nhiệm vụ, dẫn đến điểm 0.0 cho tiêu chí Faithfulness.",True,1/3,"semantic_search ×2  (tổng 2 lượt, 0 lỗi)"
+26,pldc,"Hãy xây dựng nội dung thuyết trình 10 phút giải thích cho sinh viên năm nhất hiểu quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực — bao gồm các giai đoạn, cơ quan có thẩm quyền và quyền của các bên.",,"Tôi đã khởi tạo một slide trình chiếu giới thiệu quy trình giải quyết vụ án dân sự trong bảng **Studio** của bạn, được thiết kế với phong cách trực quan và dễ tiếp thu nhất dành riêng cho sinh viên năm nhất.
+
+Để giúp bạn tự tin làm chủ bài thuyết trình này, dưới đây là **nội dung kịch bản thuyết trình chi tiết trong 10 phút** được biên soạn và chuẩn hóa dựa trên các chế định của **Luật Tố tụng dân sự** ghi nhận trong tài liệu học tập của bạn:
+
+---
+
+# KỊCH BẢN THUYẾT TRÌNH 10 PHÚT: HÀNH TRÌNH GIẢI QUYẾT VỤ ÁN DÂN SỰ
+
+*(Dành cho sinh viên năm nhất - Thời gian: 10 phút)*
+
+---
+
+### MỞ ĐẦU (Thời lượng: 1 phút)
+
+*   **Người thuyết trình:** *""Chào các bạn sinh viên năm nhất! Hãy tưởng tượng bạn cho một người bạn vay tiền để mua laptop phục vụ việc học, nhưng đến hạn họ cố tình không trả và cắt đứt liên lạc. Hoặc sau này khi đi làm, công ty bạn ký hợp đồng mua bán linh kiện điện tử nhưng đối tác giao hàng kém chất lượng và từ chối bồi thường. Những mâu thuẫn này được gọi là **tranh chấp dân sự**. Khi các bên không thể tự thương lượng, làm thế nào để bảo vệ quyền lợi của mình? Hôm nay, chúng ta sẽ cùng đi qua 'Hành trình đi tìm công lý' – Quy trình giải quyết một vụ án dân sự tại Tòa án.""*
+
+*   **Giới thiệu các nhân vật chính (Đương sự):**
+
+    *   **Nguyên đơn:** Người khởi kiện (người cho rằng quyền lợi của mình bị xâm phạm).
+
+    *   **Bị đơn:** Người bị kiện (người bị yêu cầu tham gia tố tụng để trả lời về việc kiện).
+
+    *   **Người có quyền lợi, nghĩa vụ liên quan:** Người tham gia vào vụ án sau đó để bảo vệ quyền lợi của chính họ.
+
+---
+
+### GIAI ĐOẠN 1: KHỞI KIỆN VÀ THỤ LÝ – ""GÕ CỬA TÒA ÁN"" (Thời lượng: 2 phút)
+
+*   **Người thuyết trình:** *""Bước đầu tiên của hành trình là khởi kiện.""*
+
+    *   **Viết Đơn khởi kiện:** Nguyên đơn phải làm đơn ghi rõ thông tin các bên, nội dung vụ việc, yêu cầu cụ thể và gửi kèm các tài liệu, chứng cứ chứng minh (như giấy viết tay vay tiền, hợp đồng...) gửi đến Tòa án có thẩm quyền.
+
+    *   **Thủ tục Thụ lý vụ án:** Tòa án nhận đơn và kiểm tra thẩm quyền. Nếu vụ việc thuộc thẩm quyền của mình, Tòa án sẽ thông báo cho nguyên đơn đóng một khoản **tạm ứng án phí**. Vụ án sẽ chính thức được Tòa án **thụ lý** ngay sau khi nguyên đơn nộp lại biên lai đóng tiền tạm ứng án phí này.
+
+---
+
+### GIAI ĐOẠN 2: LẬP HỒ SƠ & HÒA GIẢI – ""BƯỚC ĐỆM HÒA BÌNH"" (Thời lượng: 3 phút)
+
+*   **Người thuyết trình:** *""Sau khi thụ lý, Tòa án sẽ phân công một Thẩm phán để lập hồ sơ vụ án. Đây là giai đoạn chuẩn bị xét xử cực kỳ quan trọng.""*
+
+    *   **Thẩm phán thu thập bằng chứng:** Thẩm phán có quyền lấy lời khai của đương sự, người làm chứng; yêu cầu cơ quan hữu quan cung cấp bằng chứng; tiến hành xem xét tại chỗ; hoặc trưng cầu giám định, định giá tài sản có tranh chấp.
+
+    *   **Thủ tục Hòa giải bắt buộc:** Điểm nhân văn nhất của Luật Tố tụng dân sự là Tòa án phải tiến hành hòa giải để giúp các đương sự tự thỏa thuận với nhau về việc giải quyết vụ án.
+
+    *   **Nếu Hòa giải THÀNH:** Tòa án lập biên bản hòa giải thành. Trong vòng **15 ngày**, nếu không đương sự nào đổi ý và Viện kiểm sát không phản đối, Tòa án sẽ ra **Quyết định công nhận sự thỏa thuận của các đương sự**. Quyết định này có hiệu lực pháp luật ngay lập tức và không bị kháng cáo.
+
+    *   **⚠️ Các trường hợp CẤM hòa giải:** Có những tranh chấp vì tính chất pháp lý đặc biệt nên Tòa án tuyệt đối không được hòa giải, bao gồm:
+
+        1.  Hủy việc kết hôn trái pháp luật.
+
+        2.  Đòi bồi thường thiệt hại tài sản của Nhà nước.
+
+        3.  Những việc phát sinh từ giao dịch trái pháp luật.
+
+        4.  Yêu cầu xác định công dân mất tích hoặc đã chết...
+
+    *   **Nếu Hòa giải KHÔNG THÀNH:** Tòa án sẽ lập biên bản hòa giải không thành và quyết định đưa vụ án ra xét xử sơ thẩm.
+
+---
+
+### GIAI ĐOẠN 3: PHIÊN TÒA SƠ THẨM – ""CÔNG LÝ LÊN TIẾNG"" (Thời lượng: 2 phút)
+
+*   **Người thuyết trình:** *""Nếu hòa giải thất bại, các bên sẽ gặp nhau tại phiên tòa xét xử sơ thẩm.""*
+
+    *   **Hội đồng xét xử sơ thẩm** gồm Thẩm phán và các Hội thẩm nhân dân sẽ tiến hành phiên tòa.
+
+    *   **Quy trình 4 bước tại Phiên tòa sơ thẩm:**
+
+        1.  *Thủ tục bắt đầu phiên tòa:* Kiểm tra căn cước các bên, giải thích quyền và nghĩa vụ.
+
+        2.  *Thủ tục xét hỏi:* Hội đồng xét xử và Kiểm sát viên nghe lời trình bày của các bên, xem xét các vật chứng để làm sáng tỏ sự thật khách quan.
+
+        3.  *Tranh luận:* Nguyên đơn, Bị đơn và Người bảo vệ quyền lợi của đương sự (Luật sư) tự do trình bày lý lẽ, tranh luận trực tiếp để bảo vệ quan điểm của mình.
+
+        4.  *Nghị án và Tuyên án:* Hội đồng xét xử thảo luận tại phòng riêng và quyết định theo đa số, sau đó tuyên đọc bản án công khai.
+
+---
+
+### GIAI ĐOẠN 4: KHÁNG CÁO PHÚC THẨM & THI HÀNH ÁN (Thời lượng: 2 phút)
+
+*   **Người thuyết trình:** *""Bản án sơ thẩm vừa tuyên chưa có hiệu lực pháp luật ngay. Luật cho phép các bên có cơ hội sửa sai.""*
+
+    *   **Xét xử Phúc thẩm (nếu có kháng cáo):** Trong thời hạn luật định, các đương sự có quyền **kháng cáo** hoặc Viện kiểm sát có quyền **kháng nghị** lên Tòa án cấp trên trực tiếp để xét xử lại. Bản án phúc thẩm được coi là **chung thẩm và có hiệu lực thi hành ngay**.
+
+    *   **Thi hành án dân sự – Chặng đường cuối:** Khi bản án/quyết định đã có hiệu lực pháp luật, các bên phải nghiêm chỉnh chấp hành. Nếu bên thua kiện không tự nguyện thi hành, người được thi hành án (trong thời hạn **3 năm** đối với cá nhân, **1 năm** đối với tổ chức) có quyền gửi đơn yêu cầu **Cơ quan thi hành án** ra quyết định cưỡng chế thi hành.
+
+---
+
+### KẾT LUẬN (Thời lượng: 30 giây)
+
+*   **Người thuyết trình:** *""Như vậy, quy trình giải quyết vụ án dân sự là một chuỗi các giai đoạn chặt chẽ, luôn ưu tiên sự tự nguyện thỏa thuận của các bên trước khi dùng đến sự phán quyết của Tòa án. Hy vọng bài thuyết trình này giúp các bạn sinh viên năm nhất hiểu rõ hơn về cách bảo vệ quyền lợi hợp pháp của mình và hiểu sâu sắc hơn về Luật Tố tụng dân sự. Cảm ơn các bạn!""*
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (Không có câu trả lời), hoàn toàn không cung cấp nội dung giải thích quy trình vụ án dân sự như yêu cầu. Do đó, độ chính xác thực tế bằng 0.
+**Completeness**: Câu trả lời trống rỗng (không có nội dung), hoàn toàn thiếu mọi thông tin, ý chính và chi tiết so với đáp án tham chiếu. Hệ thống không cung cấp bất kỳ nội dung nào để đánh giá độ đầy đủ.
+**Relevance**: Hệ thống trả lời rỗng (Không có câu trả lời), hoàn toàn không cung cấp nội dung giải thích quy trình vụ án dân sự như yêu cầu. Do đó, mức độ liên quan và trọng tâm bằng 0.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không có nội dung nào được sinh ra, không thể đánh giá tính trung thực hay ảo giác dựa trên ngữ cảnh. Tuy nhiên, việc không trả lời trong ngữ cảnh RAG thường được coi là lỗi nghiêm trọng về khả năng xử lý, tương đương với việc không tuân thủ yêu cầu nguồn dữ liệu.",True,1/3,"semantic_search ×4  (tổng 4 lượt, 0 lỗi)"
+27,pldc,Hãy soạn nội dung một buổi tư vấn pháp lý ngắn (5 phút) giải thích cho người lao động phổ thông hiểu những quyền cơ bản của họ trong quan hệ lao động mà họ cần biết để tự bảo vệ mình.,,"# KỊCH BẢN TƯ VẤN PHÁP LÝ 5 PHÚT: ""QUYỀN LỢI VÀNG CỦA NGƯỜI LAO ĐỘNG""
+
+* **Đối tượng lắng nghe:** Người lao động phổ thông.
+
+* **Mục tiêu:** Giúp người lao động nắm vững các quyền lợi cốt lõi, dễ nhớ nhất để không bị người sử dụng lao động chèn ép, bóc lột.
+
+* **Tông giọng:** Gần gũi, dễ hiểu, ấm áp và mạnh mẽ bảo vệ người lao động.
+
+---
+
+### PHẦN 1: MỞ ĐẦU – HÃY ĐI LÀM BẰNG SỰ CHÍNH DANH (Thời lượng: 1 phút)
+
+**Người tư vấn:** *""Chào anh chị! Hôm nay chúng ta gặp nhau ở đây, đều là những người lao động chân chính dùng mồ hôi, sức lao động của mình để lo cho gia đình. Nhưng đi làm thế nào để không bị bắt nạt, đi làm thế nào để chắc chắn nhận được đồng tiền xứng đáng? Đó là lúc anh chị cần biết luật để tự bảo vệ mình. Đầu tiên, hãy nhớ kỹ **3 nguyên tắc sống còn khi bắt đầu nhận việc**:*
+
+* **Phải có Hợp đồng lao động bằng văn bản:** Trừ những công việc tạm thời dưới 3 tháng có thể thỏa thuận bằng lời nói, còn lại mọi công việc lâu dài, anh chị bắt buộc phải yêu cầu ký hợp đồng bằng văn bản, giữ riêng cho mình 1 bản có chữ ký, con dấu đầy đủ ``.
+
+* **Cấm giữ giấy tờ gốc và thu tiền cọc:** Người sử dụng lao động **tuyệt đối không được giữ bản chính** Chứng minh nhân dân/Căn cước công dân, bằng cấp gốc của anh chị, và **tuyệt đối không được bắt anh chị nộp tiền đặt cọc** hay thế chấp tài sản để được nhận vào làm việc ``. Nơi nào bắt nộp tiền, giữ giấy tờ gốc, nơi đó đang vi phạm pháp luật!
+
+* **Ranh giới thử việc:** Với công việc lao động phổ thông thông thường, thời gian thử việc tối đa **không được quá 6 ngày làm việc** ``. Đặc biệt, tiền lương trong những ngày làm thử này ít nhất phải bằng **85%** mức lương chính thức của công việc đó ``.""*
+
+---
+
+### PHẦN 2: THỜI GIỜ VÀ TIỀN LƯƠNG – SỨC LAO ĐỘNG PHẢI ĐƯỢC TRẢ ĐÚNG (Thời lượng: 2 phút)
+
+**Người tư vấn:** *""Đồng tiền đi liền khúc ruột. Về thời gian làm việc và lương bổng, anh chị có những quyền lợi vàng sau đây:*
+
+* **Giờ làm việc tiêu chuẩn:** Anh chị làm việc bình thường không quá **8 giờ trong 1 ngày** và **48 giờ trong 1 tuần** ``.
+
+* **Lương tối thiểu:** Mức lương mà công ty trả cho anh chị cho một công việc giản đơn nhất trong điều kiện bình thường **không được phép thấp hơn mức lương tối thiểu vùng** do Chính phủ công bố ``.
+
+* **Tiền lương làm thêm giờ (Tăng ca):** Khi công ty yêu cầu làm thêm giờ và được anh chị đồng ý ``, tiền lương tăng ca được tính như sau ``:
+
+  * *Ngày thường:* Nhận ít nhất **150%** lương.
+
+  * *Ngày nghỉ hằng tuần (Chủ nhật):* Nhận ít nhất **200%** lương.
+
+  * *Ngày lễ, Tết:* Nhận ít nhất **300%** lương (chưa kể tiền lương ngày lễ đó nếu anh chị ăn lương ngày).
+
+* **Làm việc ban đêm:** Nếu làm việc vào ban đêm (từ 22 giờ đêm đến 6 giờ sáng hôm sau) ``, anh chị phải được trả thêm ít nhất **30%** tiền lương của ngày làm việc bình thường ``.""*
+
+---
+
+### PHẦN 3: THỜI GIỜ NGHỈ NGƠI VÀ BẢO HIỂM – ĐIỂM TỰA AN TÂM (Thời lượng: 1 phút)
+
+**Người tư vấn:** *""Sức khỏe là vốn quý nhất, luật pháp bảo vệ quyền được nghỉ ngơi của anh chị:*
+
+* **Nghỉ phép năm có lương:** Khi anh chị làm việc đủ 12 tháng cho một nơi, anh chị đương nhiên có **12 ngày nghỉ hằng năm hưởng nguyên 100% lương** ``.
+
+* **Nghỉ lễ, Tết hưởng nguyên lương:** Các ngày lễ lớn như Tết Dương lịch (1 ngày), Tết Âm lịch (5 ngày), ngày 30/4, ngày 1/5, Quốc khánh (2 ngày) và Giỗ tổ Hùng Vương (1 ngày), anh chị được nghỉ làm việc mà **vẫn được nhận đủ 100% lương** ``.
+
+* **Nghỉ việc riêng vẫn có lương:** Bản thân anh chị kết hôn được nghỉ **3 ngày**; con kết hôn nghỉ **1 ngày**; bố mẹ đẻ, bố mẹ vợ/chồng chết, vợ/chồng chết, con chết được nghỉ **3 ngày** vẫn hưởng nguyên lương ``.
+
+* **Quyền lợi Bảo hiểm xã hội (BHXH):** Nếu anh chị làm việc theo hợp đồng lao động từ đủ 3 tháng trở lên, công ty **bắt buộc phải đóng BHXH bắt buộc** cho anh chị ``. Đây là quỹ chi trả lương cho anh chị khi bị ốm đau, thai sản, tai nạn lao động hay lúc hết tuổi lao động về già ``.""*
+
+---
+
+### PHẦN 4: KỶ LUẬT LAO ĐỘNG – ĐỪNG ĐỂ BỊ PHẠT TIỀN VÔ LÝ (Thời lượng: 30 giây)
+
+**Người tư vấn:** *""Nhiều chủ doanh nghiệp hay tự đặt ra luật lệ phạt tiền nhân viên, anh chị phải nhớ:*
+
+* **Tuyệt đối cấm phạt tiền, cắt lương:** Người sử dụng lao động **nghiêm cấm** dùng hình thức phạt tiền, cắt lương thay cho việc xử lý kỷ luật lao động ``.
+
+* **Giới hạn bồi thường thiệt hại:** Nếu anh chị vô ý làm hư hỏng dụng cụ, thiết bị có giá trị nhỏ (dưới 10 tháng lương tối thiểu vùng), mức bồi thường nhiều nhất chỉ là **3 tháng tiền lương** và chỉ được khấu trừ hằng tháng không quá **30%** tiền lương thực nhận sau khi đóng bảo hiểm, thuế ``.""*
+
+---
+
+### PHẦN 5: CHẤT VẤN & TỰ BẢO VỆ – NƠI CẬY NHỜ KHI GẶP KHÓ (Thời lượng: 30 giây)
+
+**Người tư vấn:** *""Nếu phát hiện quyền lợi của mình bị vi phạm (bị bùng lương, bị đuổi việc vô cớ, không đóng bảo hiểm...), anh chị có những kênh bảo vệ sau:*
+
+1. Gõ cửa ban chấp hành **Công đoàn cơ sở** tại doanh nghiệp để yêu cầu đại diện, bảo vệ quyền lợi ``.
+
+2. Gửi đơn yêu cầu giải quyết đến **Hòa giải viên lao động** cấp huyện hoặc **Tòa án nhân dân** huyện nơi doanh nghiệp đóng trụ sở ``. Thời hiệu yêu cầu giải quyết tranh chấp là **06 tháng** đối với hòa giải viên và **01 năm** đối với Tòa án kể từ ngày bị vi phạm ``.
+
+*Chúc các anh chị luôn vững vàng, mạnh khỏe và làm việc an toàn!""*
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời' trong khi câu hỏi yêu cầu soạn kịch bản tư vấn. Việc không cung cấp bất kỳ nội dung nào khiến độ chính xác thực tế bằng 0, hoàn toàn không đáp ứng yêu cầu của đề bài.
+**Completeness**: Câu trả lời của hệ thống là '(Không có câu trả lời)', hoàn toàn thiếu nội dung. Do đó, không bao quát được bất kỳ ý chính, chi tiết hay căn cứ pháp lý nào từ đáp án tham chiếu, vi phạm nghiêm trọng tiêu chí độ đầy đủ.
+**Relevance**: Hệ thống trả lời bằng văn bản '(Không có câu trả lời)' thay vì soạn nội dung tư vấn như yêu cầu. Điều này hoàn toàn không đáp ứng được trọng tâm câu hỏi, thể hiện sự thất bại trong việc cung cấp thông tin liên quan.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không có nội dung nào được sinh ra, không thể đánh giá tính trung thực hay sự bịa đặt thông tin dựa trên ngữ cảnh. Tuy nhiên, về mặt kỹ thuật, việc không cung cấp thông tin không thể coi là 'trung thực' theo định nghĩa của tiêu chí Faithfulness khi nhiệm vụ là tạo nội dung.",True,1/3,"semantic_search ×1  (tổng 1 lượt, 0 lỗi)"
+28,pldc,Hãy xây dựng nội dung thuyết trình so sánh hệ thống pháp luật Việt Nam với một đặc điểm nổi bật của hệ thống Civil Law (hệ thống luật thành văn lục địa châu Âu) mà Việt Nam chịu ảnh hưởng — dành cho đối tượng là sinh viên kinh tế.,,"Tôi đã xây dựng hoàn chỉnh kịch bản và dàn ý slide thuyết trình **""Civil Law và Pháp luật Việt Nam: Sức mạnh của Luật thành văn trong Kinh doanh""** trong bảng **Studio** của bạn.
+
+Nội dung thuyết trình được thiết kế nhằm giúp sinh viên kinh tế hiểu rõ sức mạnh của nguyên tắc tối thượng của luật thành văn (VBQPPL) vốn là đặc trưng cốt lõi của Civil Law ảnh hưởng sâu sắc đến Việt Nam. Kịch bản làm rõ cấu trúc phân cấp hiệu lực pháp lý từ Hiến pháp đến các văn bản dưới luật, đồng thời đúc kết các bài học quản trị doanh nghiệp thực tế như quy tắc ""tự do hợp đồng"" hay sự khác biệt thú vị giữa hợp đồng ký kết trong hệ thống Civil Law so với Common Law (Anh - Mỹ).
+
+---",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Câu trả lời là '(Không có câu trả lời)', hoàn toàn không giải quyết được yêu cầu của câu hỏi. Hệ thống không cung cấp bất kỳ nội dung so sánh nào, dẫn đến sai lệch nghiêm trọng và không có độ chính xác thực tế so với đáp án tham chiếu.
+**Completeness**: Câu trả lời trống rỗng ('Không có câu trả lời'), hoàn toàn thiếu mọi nội dung so sánh, dàn ý slide hay thông tin về hệ thống Civil Law và pháp luật Việt Nam. Không đáp ứng được bất kỳ yêu cầu nào của câu hỏi hoặc đáp án tham chiếu.
+**Relevance**: Hệ thống trả lời bằng '(Không có câu trả lời)', hoàn toàn không cung cấp nội dung so sánh hay dàn ý thuyết trình như yêu cầu. Câu trả lời không có bất kỳ sự liên quan nào đến trọng tâm câu hỏi, vi phạm hoàn toàn tiêu chí Relevance.
+**Faithfulness**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không có nội dung nào được sinh ra, không thể xác định được thông tin nào xuất phát từ ngữ cảnh hay có ảo giác. Tuy nhiên, trong bối cảnh đánh giá Faithfulness, việc không trả lời khi có yêu cầu và ngữ cảnh (dù ngữ cảnh rỗng) được coi là thất bại hoàn toàn trong việc tuân thủ nhiệm vụ, tương đương với mức điểm thấp nhất cho tiêu chí này.",True,1/3,"semantic_search ×4  (tổng 4 lượt, 0 lỗi)"
+29,pldc,"Hãy soạn nội dung giải thích tại sao vi phạm hợp đồng không phải lúc nào cũng là vi phạm pháp luật, kèm 3 ví dụ tình huống thực tế phân biệt rõ hai trường hợp — dành cho buổi seminar môn học.",,"Chào bạn! Dưới đây là nội dung chi tiết được thiết kế dưới dạng kịch bản và tài liệu hướng dẫn cho buổi seminar môn học. Nội dung này sử dụng ngôn từ trẻ trung, thực tế, dễ hiểu nhưng vẫn đảm bảo tính chặt chẽ về mặt khoa học pháp lý dựa trên các chương lý luận về **Vi phạm pháp luật** và **Hợp đồng dân sự** trong giáo trình của bạn.
+
+---
+
+# NỘI DUNG SEMINAR: VI PHẠM HỢP ĐỒNG LIỆU CÓ LUÔN LÀ VI PHẠM PHÁP LUẬT?
+
+### 1. Đặt vấn đề (Cách mở đầu gây ấn tượng)
+
+*   **Người trình bày:** *""Chào các bạn! Trong kinh doanh, chúng ta thường nghe câu: 'Hợp đồng đã ký thì bắt buộc phải làm, không làm là vi phạm pháp luật!' Nhưng đứng dưới góc độ khoa học pháp lý, điều này có hoàn toàn chính xác? Câu trả lời là: **Vi phạm hợp đồng chưa chắc đã là vi phạm pháp luật**. Tại sao lại có nghịch lý thú vị này? Hôm nay chúng ta sẽ cùng giải mã nó qua lăng kính của môn Pháp luật đại cương.""*
+
+---
+
+### 2. Bản chất pháp lý: Sự khác biệt giữa ""Bất chấp cam kết"" và ""Vi phạm pháp luật""
+
+Để hiểu tại sao hai khái niệm này không luôn trùng khớp, chúng ta cần bóc tách cấu trúc pháp lý của chúng:
+
+*   **Hợp đồng dân sự là gì?** Đó là sự thỏa thuận giữa các bên nhằm xác lập, thay đổi hoặc chấm dứt quyền và nghĩa vụ dân sự ****. Về nguyên tắc, các bên phải thực hiện đúng hợp đồng đã cam kết ****. Khi một bên không thực hiện hoặc thực hiện không đúng nghĩa vụ, đó là **vi phạm hợp đồng**.
+
+*   **Vi phạm pháp luật là gì?** Đây là một khái niệm pháp lý có điều kiện nghiêm ngặt hơn rất nhiều. Đó phải là hành vi trái pháp luật, xâm hại quan hệ xã hội được bảo vệ, do chủ thể có năng lực thực hiện và **bắt buộc phải có LỖI (cố ý hoặc vô ý)**.
+
+*   **Mấu chốt nằm ở đâu?** Một hành vi không thực hiện đúng hợp đồng (vi phạm hợp đồng về mặt khách quan) chỉ bị coi là vi phạm pháp luật (vi phạm dân sự) khi **thỏa mãn đầy đủ các yếu tố cấu thành vi phạm, đặc biệt là yếu tố lỗi**. Nếu pháp luật quy định một trường hợp được **loại trừ trách nhiệm** (ví dụ do hoàn cảnh khách quan, do lỗi bên kia hoặc do hợp đồng vô hiệu), thì hành vi không thực hiện hợp đồng đó **hoàn toàn không phải là vi phạm pháp luật**.
+
+---
+
+### 3. Ba ví dụ tình huống thực tế phân biệt rõ hai trường hợp
+Để giúp các bạn dễ hình dung, hãy cùng phân tích 3 tình huống kinh điển dưới đây:
+#### 📌 TÌNH HUỐNG 1: Sự kiện bất khả kháng (Thiên tai, dịch bệnh)
+*   **Kịch bản:** Công ty A ký hợp đồng cung cấp 10 tấn thanh long xuất khẩu cho Công ty B, thời hạn giao hàng là ngày 18/08/2026. Tuy nhiên, ngày 15/08/2026, một cơn bão lớn đổ bộ làm ngập lụt toàn bộ kho chứa, phá hủy toàn bộ số thanh long chuẩn bị giao. Công ty A không thể giao hàng đúng hạn.
+*   **Phân tích pháp lý:**
+    *   *Có vi phạm hợp đồng không?* **Có**. Công ty A đã không thực hiện đúng nghĩa vụ giao hàng đúng thời hạn cam kết ****.
+    *   *Có vi phạm pháp luật không?* **Không**. Sự việc xảy ra hoàn toàn do **sự kiện bất khả kháng** (thiên tai). Công ty A đã áp dụng mọi biện pháp khắc phục nhưng không thể lường trước hoặc ngăn chặn. Do đó, Công ty A **không có lỗi (vô ý hay cố ý)**. Vì thiếu yếu tố ""Lỗi"" trong cấu thành vi phạm, hành vi chậm giao hàng này được pháp luật miễn trừ trách nhiệm và **không bị coi là vi phạm pháp luật**.
+#### 📌 TÌNH HUỐNG 2: Hợp đồng vô hiệu (Giao dịch trái pháp luật)
+*   **Kịch bản:** Bạn Nam (sinh viên) ký một ""hợp đồng hợp tác"" với anh Khánh để cho anh Khánh thuê lại tài khoản ngân hàng và Căn cước công dân của mình với giá 5 triệu đồng/tháng để chạy hệ thống game bài lậu. Sau 1 tháng, Nam nhận ra hành vi này là tiếp tay cho tội phạm nên chủ động khóa tài khoản, chấm dứt không thực hiện hợp đồng nữa. Anh Khánh đe dọa sẽ kiện Nam ra tòa vì ""vi phạm hợp đồng, tự ý chấm dứt thỏa thuận"".
+*   **Phân tích pháp lý:**
+    *   *Có vi phạm thỏa thuận đã ký không?* **Có**. Nam đã chủ động ngừng cung cấp tài khoản như hai bên đã hứa hẹn.
+    *   *Có vi phạm pháp luật không?* **Không**. Ngược lại, việc Nam dừng lại là tuân thủ pháp luật. Hợp đồng giữa Nam và Khánh ngay từ đầu đã **vô hiệu** vì có đối tượng và mục đích vi phạm điều cấm của pháp luật, trái đạo đức xã hội ****. Một hợp đồng vô hiệu thì không có giá trị pháp lý và không làm phát sinh quyền, nghĩa vụ của các bên từ thời điểm giao kết. Do đó, việc Nam không thực hiện một hợp đồng vô hiệu **không bao giờ bị coi là vi phạm pháp luật**.
+#### 📌 TÌNH HUỐNG 3: Lỗi hoàn toàn thuộc về bên có quyền (Bên kiêu binh)
+*   **Kịch bản:** Nhà thầu xây dựng C ký hợp đồng xây nhà cho ông D. Hợp đồng cam kết hoàn thành phần móng vào ngày 01/09/2026. Tuy nhiên, ông D chậm trễ trong việc bàn giao mặt bằng sạch và không cung cấp bản vẽ thiết kế kỹ thuật cho nhà thầu cho đến ngày 28/08/2026. Do không có mặt bằng và thiết kế, nhà thầu C không thể xong móng đúng ngày 01/09. Ông D yêu cầu phạt nhà thầu vì vi phạm tiến độ hợp đồng.
+*   **Phân tích pháp lý:**
+    *   *Có vi phạm thời hạn hợp đồng không?* **Có**. Về mặt khách quan, móng nhà không xong đúng hạn ****.
+    *   *Có vi phạm pháp luật không?* **Không**. Việc chậm trễ này xảy ra hoàn toàn do **lỗi của chính ông D (bên có quyền)** khi không thực hiện nghĩa vụ hợp tác trước đó để bên có nghĩa vụ thực hiện công việc ****. Nhà thầu C không hề có lỗi trong việc này ****. Do đó, hành vi chậm trễ của nhà thầu không cấu thành vi phạm pháp luật và họ không phải gánh chịu bất kỳ trách nhiệm pháp lý nào ****.
+
+---
+
+### 4. Thông điệp đúc kết cho sinh viên Kinh tế (Kết luận)
+
+*   **Người trình bày:** *""Qua 3 tình huống trên, bài học đúc kết cho chúng ta – những nhà quản trị tương lai là: **Đừng chỉ nhìn vào câu chữ trên giấy, hãy nhìn vào bản chất pháp lý của hành vi**. Khi soạn thảo hợp đồng, việc thiết lập chặt chẽ các điều khoản về: (1) Trường hợp bất khả kháng, (2) Nghĩa vụ hợp tác giữa các bên, và (3) Đảm bảo tính hợp pháp của đối tượng giao dịch là chìa khóa vàng để quản trị rủi ro, tránh việc cam kết của mình biến thành một hành vi vi phạm pháp luật thực sự trên thực tế.""*
+
+---",0.0,0.0,0.0,0.0,0.0,36.7,32.0,4,"**Accuracy**: Hệ thống trả lời 'Không có câu trả lời', hoàn toàn không đáp ứng yêu cầu của câu hỏi. Do đó, độ chính xác thực tế là 0.0.
+**Completeness**: Câu trả lời là 'Không có câu trả lời', do đó hoàn toàn thiếu mọi nội dung yêu cầu của đề bài như giải thích lý thuyết, 3 ví dụ thực tế và thông điệp kết luận. Mức độ bao quát thông tin là 0%.
+**Relevance**: Hệ thống trả lời 'Không có câu trả lời', hoàn toàn không giải quyết được yêu cầu của câu hỏi. Nội dung không có sự liên quan nào đến việc giải thích hay đưa ra ví dụ như yêu cầu, vi phạm hoàn toàn tiêu chí về độ liên quan và trọng tâm.
+**Faithfulness**: Câu trả lời là '(Không có câu trả lời)', do đó không có nội dung nào để đánh giá tính trung thực hay sự phù hợp với ngữ cảnh. Hệ thống đã thất bại hoàn toàn trong việc tạo ra câu trả lời, dẫn đến việc không thể xác định được bất kỳ thông tin nào có căn cứ hay bị bịa đặt.",True,3/3,"semantic_search ×7  (tổng 7 lượt, 0 lỗi)"
+30,pldc,"Hãy xây dựng nội dung thuyết trình tổng kết toàn bộ môn Pháp luật đại cương theo cấu trúc: lý luận nền tảng → các ngành luật chính → kỹ năng áp dụng pháp luật trong đời sống — sao cho sinh viên hiểu được ""bản đồ tư duy"" của toàn môn học.",,"Chào các bạn! Để giúp các bạn sinh viên dễ dàng làm chủ môn **Pháp luật đại cương** mà không bị ngợp bởi lượng kiến thức đồ sộ, dưới đây là nội dung thuyết trình tổng kết được thiết kế như một **""Bản đồ tư duy 3D""** trực quan. 
+
+Hành trình của chúng ta sẽ đi qua đúng 3 trạm dừng chân: **Lý luận nền tảng** (luật chơi chung) \\(\rightarrow\\) **Các ngành luật chính** (áp dụng vào từng bàn chơi) \\(\rightarrow\\) **Kỹ năng sống** (cách chúng ta tự bảo vệ mình trong thực tế).
+
+---
+
+## TRẠM 1: LÝ LUẬN NỀN TẢNG – ""HIỂU LUẬT CHƠI CHUNG"" (Thời lượng: 3 phút)
+
+Đây là nền móng của toàn bộ môn học, giúp chúng ta trả lời câu hỏi: *Pháp luật từ đâu ra, cấu trúc thế nào và vận hành ra sao?*
+
+*   **Nguồn gốc & Bản chất:** Nhà nước và pháp luật không tự nhiên sinh ra. Chúng xuất hiện cùng nhau do **tiền đề kinh tế** (tư hữu xuất hiện) và **tiền đề xã hội** (xã hội phân chia giai cấp mâu thuẫn đến mức không thể điều hòa). Do đó, pháp luật luôn mang hai bản chất song song: **bản chất giai cấp** (thể hiện ý chí của giai cấp cầm quyền) và **bản chất xã hội** (phục vụ lợi ích chung của cộng đồng).
+*   **Cấu trúc một tế bào luật (Quy phạm pháp luật):** Mọi điều luật trong đời sống đều được xây dựng từ 3 mảnh ghép:
+    1.  **Giả định:** Xác định *Ai? Trong hoàn cảnh nào?* (Ví dụ: *""Người nào vô ý làm chết người...""*).
+    2.  **Quy định:** Nêu lên mệnh lệnh *Được làm gì? Phải làm gì? Không được làm gì?* (thường được ngầm ẩn trong luật hình sự nhưng thể hiện rất rõ trong luật dân sự).
+    3.  **Chế tài:** Hậu quả pháp lý bất lợi nếu vi phạm quy định (Ví dụ: *""...thì bị phạt tù từ 01 năm đến 05 năm""*).
+*   **Hệ thống văn bản quy phạm pháp luật (VBQPPL):** Được sắp xếp theo một hình tháp hiệu lực nghiêm ngặt. Đỉnh tháp là **Hiến pháp** (đạo luật gốc, tối cao). Tiếp theo là các văn bản **Luật/Bộ luật** do Quốc hội ban hành. Dưới cùng là các **Văn bản dưới luật** (Nghị định của Chính phủ, Thông tư của Bộ...) để hướng dẫn chi tiết thi hành.
+*   **Vi phạm pháp luật & Trách nhiệm pháp lý:** Một hành vi bị coi là vi phạm pháp luật khi có đủ 4 yếu tố: trái pháp luật, do chủ thể có năng lực thực hiện, gây thiệt hại và **bắt buộc phải có lỗi** (cố ý hoặc vô ý). Tương ứng có 4 loại trách nhiệm pháp lý: **Hình sự** (nghiêm khắc nhất, bị mang án tích), **Hành chính** (xử phạt quản lý nhà nước, không mang án tích), **Dân sự** (bồi thường thiệt hại tài sản), và **Kỷ luật** (xử lý trong nội bộ cơ quan, trường học).
+
+---
+
+## TRẠM 2: CÁC NGÀNH LUẬT CHÍNH – ""ĐI VÀO TỪNG BÀN CHƠI THỰC TẾ"" (Thời lượng: 4 phút)
+
+Từ nền móng lý luận, chúng ta bước vào các ngành luật cụ thể điều chỉnh trực tiếp cuộc sống và công việc sau này của sinh viên:
+
+*   **Luật Hiến pháp (Đạo luật gốc):** Thiết lập nền tảng chính trị, kinh tế, văn hóa và bộ máy nhà nước (Quốc hội thực hiện quyền lập pháp, Chính phủ thực hiện quyền hành pháp, Tòa án thực hiện quyền tư pháp). Đặc biệt, Hiến pháp là lá chắn tối cao bảo vệ **quyền con người, quyền công dân**.
+*   **Luật Hành chính:** Quản lý trật tự xã hội theo nguyên tắc **mệnh lệnh – phục tùng** (bất bình đẳng về ý chí). Cơ quan nhà nước có quyền ra quyết định hành chính buộc người dân tuân thủ, nhưng người dân cũng có quyền khiếu nại hoặc khởi kiện hành chính nếu quyết định đó trái luật.
+*   **Luật Dân sự:** Sân chơi của sự **bình đẳng, tự nguyện và tự định đoạt**. Luật điều chỉnh các quan hệ tài sản (sở hữu, thừa kế) và quan hệ nhân thân (họ tên, hình ảnh, danh dự). Mọi giao dịch, hợp đồng dân sự phải dựa trên sự đồng thuận của các bên.
+*   **Luật Hình sự:** Ranh giới đỏ của xã hội. Luật xác định hành vi nguy hiểm nào bị coi là **tội phạm** và quy định các **hình phạt** cưỡng chế nghiêm khắc nhằm trừng trị và cải tạo người phạm tội.
+*   **Luật Lao động:** Bảo vệ bên yếu thế (người lao động) trước bên mạnh thế (người sử dụng lao động). Luật quy định chặt chẽ về hình thức hợp đồng lao động, tiền lương tối thiểu, thời giờ làm việc/nghỉ ngơi, kỷ luật lao động và quyền lợi bảo hiểm xã hội (BHXH).
+*   **Luật Kinh doanh:** Cẩm nang cho các nhà khởi nghiệp. Luật giới thiệu các loại hình doanh nghiệp (công ty cổ phần, TNHH, tư nhân...), thủ tục phá sản và các phương thức giải quyết tranh chấp thương mại (thương lượng, hòa giải, trọng tài, tòa án).
+
+---
+
+## TRẠM 3: KỸ NĂNG ÁP DỤNG – ""BIẾN KIẾN THỨC THÀNH VŨ KHÍ TỰ VỆ"" (Thời lượng: 3 phút)
+
+Mục tiêu lớn nhất của môn học không phải là học thuộc lòng, mà là hình thành **năng lực pháp lý thực tế** cho sinh viên khi ra trường:
+
+*   **Kỹ năng tra cứu & Giải quyết mâu thuẫn văn bản:** Khi gặp hai quy định đá nhau, áp dụng ngay 3 quy tắc vàng:
+    1.  Ưu tiên áp dụng văn bản có **hiệu lực pháp lý cao hơn**.
+    2.  Nếu cùng một cơ quan ban hành, ưu tiên áp dụng văn bản **ban hành sau**.
+    3.  Ưu tiên áp dụng quy định mới có lợi hơn cho chủ thể (nguyên tắc **hồi tố nhân đạo**).
+*   **Kỹ năng giao kết hợp đồng an toàn:**
+    *   *Trong lao động:* Đi làm bắt buộc phải ký hợp đồng bằng văn bản; tuyệt đối không nộp tiền cọc hay để công ty giữ giấy tờ tùy thân gốc của mình.
+    *   *Trong dân sự & kinh doanh:* Đảm bảo hợp đồng không bị vô hiệu (không trái đạo đức, không bị lừa dối). Luôn soạn thảo kỹ điều khoản về **sự kiện bất khả kháng** (như thiên tai, dịch bệnh) để được loại trừ trách nhiệm pháp lý một cách hợp pháp khi có sự cố xảy ra.
+*   **Kỹ năng bảo vệ quyền lợi khi xảy ra tranh chấp:**
+    *   *Tranh chấp dân sự/kinh doanh:* Ưu tiên thương lượng và hòa giải trước khi khởi kiện ra Tòa án để tiết kiệm thời gian, tiền bạc.
+    *   *Bị cơ quan công quyền xử phạt oan:* Sử dụng quyền **khiếu nại** (gửi lên chính cơ quan phạt) hoặc **khởi kiện hành chính** ra Tòa án để yêu cầu hủy quyết định sai và đòi bồi thường thiệt hại.
+    *   *Đối diện với tố tụng hình sự:* Hiểu rõ quyền **suy đoán vô tội** (bạn vô tội cho đến khi có bản án kết tội có hiệu lực) và quyền **tự bào chữa hoặc nhờ luật sư bào chữa** ngay từ đầu.
+
+---
+
+### KẾT LUẬN
+
+Môn Pháp luật đại cương không chỉ cung cấp các điều luật khô khan, mà thực chất đang trao cho các bạn một chiếc **""bản đồ định vị""** để các bạn tự tin sống, làm việc một cách an toàn, chính danh và chủ động bảo vệ quyền lợi của mình trong xã hội pháp quyền.",0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,"**Accuracy**: Hệ thống trả lời rỗng (Không có câu trả lời). Do không cung cấp bất kỳ nội dung nào để so sánh với đáp án tham chiếu, độ chính xác thực tế bằng 0. Đây là lỗi nghiêm trọng nhất trong hệ thống RAG.
+**Completeness**: Câu trả lời của hệ thống là '(Không có câu trả lời)', hoàn toàn thiếu nội dung. Do đó, không bao quát được bất kỳ ý chính, căn cứ pháp lý hay chi tiết nào từ đáp án tham chiếu, vi phạm nghiêm trọng tiêu chí độ đầy đủ.
+**Relevance**: Hệ thống trả lời rỗng ('Không có câu trả lời'). Do không cung cấp bất kỳ nội dung nào, câu trả lời hoàn toàn không đáp ứng được yêu cầu về cấu trúc và nội dung của câu hỏi, dẫn đến độ liên quan bằng 0.
+**Faithfulness**: Câu trả lời là '(Không có câu trả lời)', nghĩa là hệ thống không cung cấp bất kỳ nội dung nào. Do không có thông tin để đối chiếu với ngữ cảnh, không thể xác định tính trung thực hay mức độ ảo giác. Tuy nhiên, về mặt kỹ thuật, việc không trả lời không đồng nghĩa với việc bịa đặt thông tin sai lệch (hallucination), nhưng cũng không đáp ứng được yêu cầu Faithfulness vì không có dữ liệu đầu ra để đánh giá.",True,1/3,"semantic_search ×3  (tổng 3 lượt, 0 lỗi)"

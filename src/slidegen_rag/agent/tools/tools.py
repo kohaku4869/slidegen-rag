@@ -8,7 +8,12 @@ from rank_bm25 import BM25Okapi
 from tavily import TavilyClient
 
 from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation
-from slidegen_rag.tree.utils import dedup_parent_child
+from slidegen_rag.tree.structure.tree_structure import Tree
+from slidegen_rag.tree.utils import (
+    dedup_parent_child,
+    distances_from_embeddings,
+    get_embeddings,
+)
 
 dotenv.load_dotenv()
 
@@ -51,6 +56,10 @@ SOFT_FAILURE_PREFIXES = (
     "No tree available",
     "Tavily API key is not configured",
     "Node not found",
+    "Node has no parent",
+    "Node has no siblings",
+    "No matches found in subtree",
+    "No children to search",
 )
 
 # Marker gắn trước mỗi node trong context trả về, để tool_node tách được
@@ -66,11 +75,6 @@ def _node_marker(index: int, layer: int) -> str:
 # Module-level RA instance — must be set before using semantic_search / keyword_search
 _ra: Optional[RetrievalAugmentation] = None
 
-# Cache BM25Okapi theo id(tree) — tránh dựng lại index trên TOÀN BỘ node mỗi
-# lần gọi keyword_search (tree pldc_raptor có hàng trăm node, số lần gọi
-# keyword_search/câu hỏi sẽ tăng lên khi retrieve_node phân rã nhiều facet).
-_bm25_cache: dict[int, tuple[BM25Okapi, list]] = {}
-
 
 def set_retrieval_augmentation(ra: RetrievalAugmentation):
     """
@@ -82,7 +86,13 @@ def set_retrieval_augmentation(ra: RetrievalAugmentation):
     """
     global _ra
     _ra = ra
-    _bm25_cache.clear()
+
+
+def clear_bm25_cache(tree: Optional[Tree] = None) -> None:
+    """Xóa cache BM25. Nếu tree=None, xóa cache của tree hiện tại trong _ra."""
+    target_tree = tree if tree is not None else (_ra.tree if _ra is not None else None)
+    if target_tree is not None and hasattr(target_tree, "_bm25_cache"):
+        delattr(target_tree, "_bm25_cache")
 
 
 def _get_ra() -> RetrievalAugmentation:
@@ -102,19 +112,76 @@ def _flatten(text: str) -> str:
     return " ".join(str(text or "").splitlines())
 
 
-def _get_bm25(ra: RetrievalAugmentation):
+def _get_bm25(ra: RetrievalAugmentation) -> tuple[Optional[BM25Okapi], Optional[list]]:
+    """
+    Lấy hoặc khởi tạo BM25 index và danh sách node từ Tree.
+    Cache được lưu trực tiếp trên instance của Tree (tree._bm25_cache) thay vì
+    dict toàn cục theo id(tree) để tránh va chạm địa chỉ ô nhớ khi CPython
+    tái sử dụng id cho tree mới, đồng thời tự động giải phóng khi tree bị GC (tránh memory leak).
+    """
     tree = ra.tree
     if tree is None:
         return None, None
-    key = id(tree)
-    cached = _bm25_cache.get(key)
+    cached = getattr(tree, "_bm25_cache", None)
     if cached is not None:
         return cached
     all_nodes = [n for n in tree.all_nodes.values() if n.text and n.text.strip()]
     tokenized_corpus = [node.text.lower().split() for node in all_nodes]
-    bm25 = BM25Okapi(tokenized_corpus)
-    _bm25_cache[key] = (bm25, all_nodes)
-    return bm25, all_nodes
+    bm25 = BM25Okapi(tokenized_corpus) if tokenized_corpus else None
+    cached = (bm25, all_nodes)
+    tree._bm25_cache = cached
+    return cached
+
+
+def describe_node(node_id: int) -> Optional[dict]:
+    """
+    Metadata gọn của 1 node trong cây hiện tại (không đọc text) — dùng bởi
+    grade_documents_node để quyết định hint đào sâu (need_detail/need_context)
+    cho drill_candidates, và bởi ConversationManager để seed drill_candidates
+    từ node đã trích dẫn ở lượt hỏi trước.
+
+    Returns:
+        dict | None: {"has_children", "has_parent", "heading_path", "layer"},
+            None nếu chưa có tree hoặc node_id không tồn tại.
+    """
+    if _ra is None or _ra.tree is None:
+        return None
+    tree = _ra.tree
+    node = tree.all_nodes.get(node_id)
+    if node is None:
+        return None
+    parent_of_map = getattr(tree, "parent_of", None) or {}
+    parent_id = node.parent if getattr(node, "parent", None) is not None else parent_of_map.get(node_id)
+    node_to_layer = _ra.retriever.tree_node_index_to_layer
+    return {
+        "has_children": bool(getattr(node, "children", None)),
+        "has_parent": parent_id is not None,
+        "heading_path": getattr(node, "heading_path", ()) or (),
+        "layer": node_to_layer.get(node_id, getattr(node, "layer", -1)),
+    }
+
+
+def _collect_subtree(tree: Tree, root_node_id: int, limit: int = 500) -> list:
+    """BFS các node con/cháu của root_node_id (không gồm chính root), cap số
+    node quét để tránh subtree khổng lồ làm find_in_subtree quá chậm."""
+    root = tree.all_nodes.get(root_node_id)
+    if root is None:
+        return []
+
+    collected = []
+    seen = {root_node_id}
+    queue = list(getattr(root, "children", None) or [])
+    while queue and len(collected) < limit:
+        idx = queue.pop(0)
+        if idx in seen:
+            continue
+        seen.add(idx)
+        node = tree.all_nodes.get(idx)
+        if node is None:
+            continue
+        collected.append(node)
+        queue.extend(getattr(node, "children", None) or [])
+    return collected
 
 
 @tool
@@ -190,7 +257,7 @@ def keyword_search(query: str, top_k: int = 3) -> str:
             return "No tree available. Call add_documents first."
 
         bm25, all_nodes = _get_bm25(ra)
-        if bm25 is None:
+        if bm25 is None or not all_nodes:
             return "No tree available. Call add_documents first."
 
         tokenized_query = query.lower().split()
@@ -221,22 +288,27 @@ def keyword_search(query: str, top_k: int = 3) -> str:
 
 
 @tool
-def expand_node(node_id: int) -> str:
+def expand_node(node_id: int, direction: Literal["children", "parent", "siblings"] = "children") -> str:
     """
-    Expands a node returned by a previous semantic_search / keyword_search call
-    (identified by the `§N<id>|L<layer>§` marker prefix of a chunk) into its
-    child nodes, to drill down for more detail.
+    Expands a node returned by a previous search call (identified by the
+    `§N<id>|L<layer>§` marker prefix of a chunk) to drill down for more
+    detail or zoom out for broader context, WITHOUT re-searching.
 
-    Use this when a search result is a high-level summary that looks relevant
-    but does not contain the specific detail needed — expand it to read the
-    underlying, more detailed content instead of re-searching with a new query.
+    Use `direction="children"` (default) when a result is a high-level
+    summary that looks relevant but lacks the specific detail needed — reads
+    the node's more detailed child content instead of guessing a new query.
+    Use `direction="parent"` when a result is too narrow/specific and you
+    need the broader context it sits under. Use `direction="siblings"` to
+    see neighboring sections at the same level (e.g. other conditions/cases
+    listed alongside this one).
 
     Args:
         node_id (int): The node index from a `§N<id>|...§` marker.
+        direction (str): "children" (default), "parent", or "siblings".
 
     Returns:
-        str: Concatenated text of the node's child nodes (or the node's own
-            text if it is a leaf with no children).
+        str: Concatenated text of the target nodes (or the node's own text
+            if `direction="children"` and it is a leaf with no children).
     """
     ra = _get_ra()
 
@@ -249,27 +321,159 @@ def expand_node(node_id: int) -> str:
         if node is None:
             return f"Node not found: {node_id}"
 
-        children_indices = sorted(getattr(node, "children", None) or [])
-        if not children_indices:
-            return f"Node has no children (leaf node): {_flatten(node.text)}"
+        if direction == "children":
+            target_indices = sorted(getattr(node, "children", None) or [])
+            if not target_indices:
+                return f"Node has no children (leaf node): {_flatten(node.text)}"
+        else:
+            parent_of_map = getattr(tree, "parent_of", None) or {}
+            parent_id = node.parent if getattr(node, "parent", None) is not None else parent_of_map.get(node_id)
+            if direction == "parent":
+                if parent_id is None:
+                    return f"Node has no parent (root node): {node_id}"
+                target_indices = [parent_id]
+            else:  # siblings
+                if parent_id is None:
+                    return f"Node has no siblings (root node): {node_id}"
+                parent = tree.all_nodes.get(parent_id)
+                target_indices = sorted((getattr(parent, "children", None) or set()) - {node_id})
+                if not target_indices:
+                    return f"Node has no siblings: {node_id}"
 
         node_to_layer = ra.retriever.tree_node_index_to_layer
         marked = []
-        for idx in children_indices:
-            child = tree.all_nodes.get(idx)
-            if child is None or not child.text or not child.text.strip():
+        for idx in target_indices:
+            target = tree.all_nodes.get(idx)
+            if target is None or not target.text or not target.text.strip():
                 continue
-            marked.append(_node_marker(idx, node_to_layer.get(idx, -1)) + _flatten(child.text))
+            marked.append(_node_marker(idx, node_to_layer.get(idx, -1)) + _flatten(target.text))
 
         if not marked:
-            return f"Node has no children (leaf node): {_flatten(node.text)}"
+            if direction == "children":
+                return f"Node has no children (leaf node): {_flatten(node.text)}"
+            return f"No {direction} content found for node {node_id}."
 
-        logging.info(f"[expand_node] node_id={node_id} | children={len(marked)}")
+        logging.info(f"[expand_node] node_id={node_id} | direction={direction} | results={len(marked)}")
         return "\n\n".join(marked)
 
     except Exception as e:
         logging.error(f"[expand_node] Error: {e}")
         return f"Error expanding node: {e}"
+
+
+@tool
+def find_in_subtree(
+    root_node_id: int,
+    patterns: list[str],
+    mode: Literal["keyword", "semantic"] = "keyword",
+    max_matches_per_pattern: int = 2,
+) -> str:
+    """
+    Searches ONLY inside the subtree rooted at `root_node_id` (a node from a
+    previous search or `expand_node` result) for specific keywords/phrases,
+    to pinpoint exact details without reading the entire branch.
+
+    Use this after `expand_node` still returns a broad section and you are
+    looking for one or two specific terms/facts within it — cheaper and more
+    precise than expanding the whole branch and reading everything.
+
+    Args:
+        root_node_id (int): Node index whose descendants define the search
+            scope (from a `§N<id>|...§` marker).
+        patterns (list[str]): Keywords/phrases to look for, one search per
+            pattern.
+        mode (str): "keyword" (BM25, default) or "semantic" (embedding
+            similarity) — use "semantic" when the exact wording is unknown.
+        max_matches_per_pattern (int): Max nodes returned per pattern.
+            Defaults to 2.
+
+    Returns:
+        str: Concatenated text of the matched nodes, deduplicated.
+    """
+    ra = _get_ra()
+
+    try:
+        tree = ra.tree
+        if tree is None:
+            return "No tree available. Call add_documents first."
+
+        if tree.all_nodes.get(root_node_id) is None:
+            return f"Node not found: {root_node_id}"
+
+        subtree_nodes = _collect_subtree(tree, root_node_id)
+        subtree_nodes = [n for n in subtree_nodes if n.text and n.text.strip()]
+        if not subtree_nodes:
+            return f"No children to search (leaf node): {root_node_id}"
+
+        if not patterns:
+            return "No matches found in subtree: no patterns provided."
+
+        node_to_layer = ra.retriever.tree_node_index_to_layer
+        seen_ids: set = set()
+        ordered_matches = []
+
+        if mode == "semantic":
+            embeddings = get_embeddings(subtree_nodes, ra.retriever.context_embedding_model)
+            for pattern in patterns:
+                query_embedding = ra.retriever.create_embedding(pattern)
+                distances = distances_from_embeddings(query_embedding, embeddings)
+                ranked = sorted(range(len(distances)), key=lambda i: distances[i])
+                count = 0
+                for i in ranked:
+                    node = subtree_nodes[i]
+                    if node.index in seen_ids:
+                        continue
+                    seen_ids.add(node.index)
+                    ordered_matches.append(node)
+                    count += 1
+                    if count >= max_matches_per_pattern:
+                        break
+        else:  # keyword
+            tokenized = [n.text.lower().split() for n in subtree_nodes]
+            token_sets = [set(t) for t in tokenized]
+            bm25 = BM25Okapi(tokenized) if tokenized else None
+            for pattern in patterns:
+                if bm25 is None:
+                    continue
+                query_tokens = set(pattern.lower().split())
+                scores = bm25.get_scores(list(query_tokens))
+                ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
+                count = 0
+                for i in ranked:
+                    # rank_bm25's classic IDF goes to 0 (or negative) once a
+                    # term appears in >=50% of the corpus — trivial on the
+                    # small corpora find_in_subtree scopes to, which would
+                    # silently zero out every score. Fall back to plain token
+                    # overlap so "the term is actually in this node" still
+                    # counts as a match even when BM25's score can't
+                    # discriminate; ranking (order) still comes from BM25.
+                    if scores[i] <= 0 and not (query_tokens & token_sets[i]):
+                        continue
+                    node = subtree_nodes[i]
+                    if node.index in seen_ids:
+                        continue
+                    seen_ids.add(node.index)
+                    ordered_matches.append(node)
+                    count += 1
+                    if count >= max_matches_per_pattern:
+                        break
+
+        if not ordered_matches:
+            return f"No matches found in subtree of node {root_node_id}."
+
+        marked = [
+            _node_marker(n.index, node_to_layer.get(n.index, -1)) + _flatten(n.text)
+            for n in ordered_matches
+        ]
+        logging.info(
+            f"[find_in_subtree] root={root_node_id} | patterns={patterns} | "
+            f"mode={mode} | matches={len(marked)}"
+        )
+        return "\n\n".join(marked)
+
+    except Exception as e:
+        logging.error(f"[find_in_subtree] Error: {e}")
+        return f"Error searching subtree: {e}"
 
 
 @tool
@@ -331,5 +535,5 @@ def web_search(
         return f"Error searching the web: {e}"
 
 
-tools = [semantic_search, keyword_search, web_search, expand_node]
+tools = [semantic_search, keyword_search, web_search, expand_node, find_in_subtree]
 TOOL_MAP = {tool.name: tool for tool in tools}

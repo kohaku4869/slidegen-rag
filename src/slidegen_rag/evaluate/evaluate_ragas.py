@@ -20,6 +20,7 @@ import os
 import re
 import socket
 import sys
+import threading
 import types
 from contextlib import suppress
 from pathlib import Path
@@ -348,6 +349,16 @@ def create_ragas_llm_and_embeddings():
 # 4. CHẠY AGENT HOẶC ĐỌC TỪ CACHE
 # =============================================================================
 
+# main.py/tools.py giữ RA hiện hành trong 1 biến global (_ra ở agent/tools/tools.py),
+# vốn chỉ được thiết kế cho CLI 1 người dùng/1 luồng. Dashboard Gradio (app.launch()
+# không gọi .queue()) xử lý mỗi request trong 1 thread riêng của threadpool, nên 2
+# lượt đánh giá chạy đồng thời (vd. 2 tab trình duyệt, hoặc bấm "đánh giá 1 chủ đề"
+# và "đánh giá tất cả" cùng lúc) có thể ghi đè _ra giữa chừng lẫn nhau — một request
+# sẽ vô tình chạy Agent trên tree của chủ đề khác. Khóa để serialize hoá đoạn
+# set_retrieval_augmentation() -> build_graph() -> graph.ainvoke() theo từng chủ đề.
+_AGENT_RUN_LOCK = threading.Lock()
+
+
 def get_answers_and_chunks_for_topic(
     topic: str,
     force_rerun: bool = False,
@@ -366,7 +377,8 @@ def get_answers_and_chunks_for_topic(
     reference_file = DATA_TEST_DIR / topic / "reference.txt"
     answer_file = DATA_TEST_DIR / topic / "answer.txt"
     chunks_file = DATA_TEST_DIR / topic / "chunks.txt"
-    index_path = DATA_INDEX_DIR / f"{topic}.pkl"
+    v2_path = DATA_INDEX_DIR / f"{topic}_v2.pkl"
+    index_path = v2_path if v2_path.exists() else DATA_INDEX_DIR / f"{topic}.pkl"
 
     questions = load_questions(question_file)
     references = load_references(reference_file)
@@ -405,51 +417,61 @@ def get_answers_and_chunks_for_topic(
     if progress_callback:
         progress_callback(f"[{topic}] Đang khởi tạo CRAG Agent...")
 
-    ra = load_ra(index_path)
-    set_retrieval_augmentation(ra)
-    set_web_search_enabled(False)  # benchmark closed-book, xem evaluate.py
-    graph = build_graph()
-
     results = []
-    new_answers = {}
-    new_chunks = {}
+    # Bắt đầu từ cache có sẵn (nếu có) rồi cập nhật/ghi đè dần từng câu — để
+    # nếu Agent bị dừng/crash giữa chừng (topic dài, nhiều câu), các câu đã
+    # trả lời xong KHÔNG bị mất, không phải chạy lại từ đầu.
+    new_answers = dict(cached_answers)
+    new_chunks = dict(cached_chunks)
     total = len(questions)
 
-    for idx, q in enumerate(questions):
-        num = q["num"]
-        q_text = q["text"]
-        ref = references.get(num, "")
+    # Toàn bộ đoạn này mutate global _ra (agent/tools/tools.py) rồi chạy Agent
+    # dựa trên global đó — không an toàn nếu 1 lượt đánh giá khác (chủ đề khác)
+    # chạy chen vào giữa chừng trên 1 thread khác. Khóa lại để mỗi chủ đề chạy
+    # trọn vẹn trước khi chủ đề/tab kế tiếp được phép set _ra.
+    with _AGENT_RUN_LOCK:
+        ra = load_ra(index_path)
+        set_retrieval_augmentation(ra)
+        set_web_search_enabled(False)  # benchmark closed-book, xem evaluate.py
+        graph = build_graph()
 
-        if progress_callback:
-            progress_callback(f"[{topic}] Đang chạy Agent sinh câu trả lời {num}/{total}...")
+        for idx, q in enumerate(questions):
+            num = q["num"]
+            q_text = q["text"]
+            ref = references.get(num, "")
 
-        logger.info(f"[{topic}] Agent đang trả lời câu {num}/{total}: {q_text[:70]}...")
+            if progress_callback:
+                progress_callback(f"[{topic}] Đang chạy Agent sinh câu trả lời {num}/{total}...")
 
-        initial_state = make_initial_state(q_text)
+            logger.info(f"[{topic}] Agent đang trả lời câu {num}/{total}: {q_text[:70]}...")
 
-        try:
-            state_res = asyncio.run(graph.ainvoke(initial_state))
-            answer = state_res.get("generation", "").strip()
-            used_docs = state_res.get("documents", [])
-        except Exception as e:
-            logger.error(f"[{topic}] Lỗi khi chạy Agent câu {num}: {e}")
-            answer = f"[LỖI AGENT] {e}"
-            used_docs = []
+            initial_state = make_initial_state(q_text)
 
-        new_answers[num] = answer
-        new_chunks[num] = used_docs
+            try:
+                state_res = asyncio.run(graph.ainvoke(initial_state))
+                answer = state_res.get("generation", "").strip()
+                used_docs = state_res.get("documents", [])
+            except Exception as e:
+                logger.error(f"[{topic}] Lỗi khi chạy Agent câu {num}: {e}")
+                answer = f"[LỖI AGENT] {e}"
+                used_docs = []
 
-        results.append({
-            "num": num,
-            "question": q_text,
-            "response": answer,
-            "reference": ref,
-            "used_chunks": used_docs,
-        })
+            new_answers[num] = answer
+            new_chunks[num] = used_docs
 
-    save_answers(answer_file, new_answers)
-    save_chunks(chunks_file, new_chunks)
-    logger.info(f"[{topic}] Đã lưu câu trả lời vào {answer_file} và chunks vào {chunks_file}")
+            results.append({
+                "num": num,
+                "question": q_text,
+                "response": answer,
+                "reference": ref,
+                "used_chunks": used_docs,
+            })
+
+            # Ghi ngay xuống đĩa sau MỖI câu thay vì đợi hết cả topic — trả
+            # lời xong câu nào lưu câu đó.
+            save_answers(answer_file, new_answers)
+            save_chunks(chunks_file, new_chunks)
+            logger.info(f"[{topic}] Đã lưu câu {num}/{total} vào answer.txt & chunks.txt")
 
     return results, False
 
@@ -649,13 +671,25 @@ def run_evaluation_for_topic(
     topic: str,
     force_rerun: bool = False,
     progress_callback=None,
+    ragas_judge: Optional[tuple] = None,
 ) -> tuple[pd.DataFrame, dict, bool]:
-    """Thực hiện đánh giá toàn diện một chủ đề theo thang 10 bằng RAGAS."""
+    """Thực hiện đánh giá toàn diện một chủ đề theo thang 10 bằng RAGAS.
+
+    `ragas_judge`: (primary_llm, fallback_llm, ragas_emb) đã khởi tạo sẵn — cho
+    phép caller (vd. evaluate_all_topics_handler) tạo LLM Judge & Embeddings
+    MỘT LẦN rồi tái sử dụng cho mọi chủ đề, thay vì mỗi chủ đề tự
+    create_ragas_llm_and_embeddings() lại từ đầu (tốn kém: mỗi lần gọi có thể
+    khởi tạo lại EmbeddingModel và tự load SentenceTransformer cục bộ nếu
+    remote embedding endpoint lỗi). Bỏ trống (None) để tự tạo — dùng khi chỉ
+    đánh giá 1 chủ đề riêng lẻ."""
     results, was_cached = get_answers_and_chunks_for_topic(
         topic, force_rerun=force_rerun, progress_callback=progress_callback
     )
 
-    primary_llm, fallback_llm, ragas_emb = create_ragas_llm_and_embeddings()
+    if ragas_judge is not None:
+        primary_llm, fallback_llm, ragas_emb = ragas_judge
+    else:
+        primary_llm, fallback_llm, ragas_emb = create_ragas_llm_and_embeddings()
     if not primary_llm and not fallback_llm:
         raise RuntimeError("Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env")
 
@@ -1073,6 +1107,14 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
     total_success = 0
     total_failed = 0
 
+    # Tạo LLM Judge & Embeddings MỘT LẦN cho cả lượt "đánh giá tất cả chủ đề",
+    # thay vì để mỗi chủ đề tự gọi create_ragas_llm_and_embeddings() (trước đây
+    # nằm trong run_evaluation_for_topic() nên lặp lại mỗi vòng for) — tránh
+    # khởi tạo lại EmbeddingModel N lần cho N chủ đề.
+    ragas_judge = create_ragas_llm_and_embeddings()
+    if not ragas_judge[0] and not ragas_judge[1]:
+        return None, None, None, "<p>⚠️ Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env</p>", "⚠️ Không có LLM Judge khả dụng."
+
     for t_idx, topic in enumerate(topics):
         try:
             base_prog = t_idx / len(topics)
@@ -1082,7 +1124,7 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
                 progress(base_prog + 0.5 / len(topics), desc=msg)
 
             detail_df, summary, was_cached = run_evaluation_for_topic(
-                topic, force_rerun=force_rerun, progress_callback=cb
+                topic, force_rerun=force_rerun, progress_callback=cb, ragas_judge=ragas_judge
             )
 
             all_summaries[topic] = summary

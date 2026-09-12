@@ -46,9 +46,19 @@ from slidegen_rag.config import LangSmithConfig
 logger = logging.getLogger(__name__)
 
 
-def make_initial_state(query: str) -> AgentState:
+def make_initial_state(query: str, drill_candidates: list[dict] | None = None) -> AgentState:
     """State khởi tạo chuẩn cho CRAG graph — thay dict lặp lại ở main.py và
-    evaluate/evaluate.py."""
+    evaluate/evaluate.py.
+
+    Args:
+        query: Câu hỏi (đã được ConversationManager.contextualize() viết lại
+            thành câu độc lập nếu là câu hỏi nối tiếp trong hội thoại).
+        drill_candidates: Seed ban đầu cho drill_candidates — dùng bởi
+            ConversationManager khi câu hỏi mới là follow-up của lượt trước
+            (xem agent/graph/conversation.py), để retrieve_node ưu tiên đào
+            sâu các node đã trích dẫn ở lượt trước thay vì Discovery lại từ
+            đầu. None/rỗng cho câu hỏi độc lập (hành vi mặc định trước đây).
+    """
     return {
         "query": query,
         "tool_calls": [],
@@ -58,10 +68,13 @@ def make_initial_state(query: str) -> AgentState:
         "search_history": [],
         "missing_aspects": [],
         "node_digest": [],
+        "pending_meta": [],
         "feedback": "",
         "context_sufficient": False,
         "generation": "",
         "retrieve_count": 0,
+        "document_node_ids": [],
+        "drill_candidates": list(drill_candidates) if drill_candidates else [],
     }
 
 

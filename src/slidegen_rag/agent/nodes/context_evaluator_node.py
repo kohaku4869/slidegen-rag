@@ -4,15 +4,17 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from slidegen_rag.agent.graph.state import AgentState
 from slidegen_rag.agent.models.llm import LLMModel
-from slidegen_rag.agent.utils.prompts import CONTEXT_EVAL_SYSTEM_PROMPT, CONTEXT_EVAL_USER_PROMPT
+from slidegen_rag.agent.utils.context_budget import CONTEXT_BUDGET_CHARS, build_context
+from slidegen_rag.agent.utils.prompts import (
+    CONTEXT_EVAL_SYSTEM_PROMPT,
+    CONTEXT_EVAL_USER_PROMPT,
+)
 from slidegen_rag.agent.utils.search_history import format_history
 
 logger = logging.getLogger(__name__)
 
 # temperature=0 cho output ổn định; max_tokens=1024 đủ chỗ cho thinking + feedback của Gemini
 _eval_llm = LLMModel(temperature=0.0, max_tokens=1024)
-
-_MAX_CONTEXT_CHARS = 8_000
 
 
 def _parse_eval_response(content: str) -> tuple[bool, str, list[str]]:
@@ -77,7 +79,9 @@ async def context_evaluator_node(state: AgentState) -> dict:
     tried = format_history(history) or "(chưa có)"
 
     if not documents:
-        logger.warning("[context_evaluator_node] No documents in state — marking insufficient")
+        logger.warning(
+            "[context_evaluator_node] No documents in state — marking insufficient"
+        )
         return {
             "context_sufficient": False,
             "missing_aspects": state.get("missing_aspects", []),
@@ -91,15 +95,15 @@ async def context_evaluator_node(state: AgentState) -> dict:
             ),
         }
 
-    context = "\n\n".join(documents)
-    if len(context) > _MAX_CONTEXT_CHARS:
-        context = context[:_MAX_CONTEXT_CHARS] + "\n\n[... context truncated ...]"
+    context = build_context(documents, CONTEXT_BUDGET_CHARS)
 
     messages = [
         SystemMessage(content=CONTEXT_EVAL_SYSTEM_PROMPT),
-        HumanMessage(content=CONTEXT_EVAL_USER_PROMPT.format(
-            query=query, context=context, tried=tried
-        )),
+        HumanMessage(
+            content=CONTEXT_EVAL_USER_PROMPT.format(
+                query=query, context=context, tried=tried
+            )
+        ),
     ]
 
     try:

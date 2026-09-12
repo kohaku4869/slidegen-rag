@@ -22,19 +22,36 @@ def call_key(tc: dict) -> tuple[str, str]:
     query nhưng khác top_k vẫn trả về context chồng lấn gần như hoàn toàn,
     nên vẫn coi là trùng để tránh lãng phí vòng retrieve.
 
-    expand_node không có "query" mà có "node_id" — dùng node_id làm phần khoá
-    thứ hai, nếu không mọi lần gọi expand_node đều rơi về cùng 1 khoá rỗng.
+    expand_node không có "query" mà có "node_id" + "direction" — dùng cả hai
+    làm khoá, vì expand_node(5, children) và expand_node(5, parent) trả về
+    nội dung hoàn toàn khác nhau (không phải trùng lặp).
+
+    find_in_subtree không có "query" đơn mà có "root_node_id" + "patterns" —
+    dùng cả hai (patterns đã sort để thứ tự liệt kê không ảnh hưởng khoá).
     """
     name = tc.get("name", "")
     args = tc.get("args", {}) or {}
     if name == "expand_node":
-        return (name, str(args.get("node_id", "")))
+        direction = args.get("direction", "children")
+        return (name, f"{args.get('node_id', '')}:{direction}")
+    if name == "find_in_subtree":
+        patterns = args.get("patterns", []) or []
+        patterns_key = ",".join(sorted(normalize_query(p) for p in patterns))
+        return (name, f"{args.get('root_node_id', '')}:{patterns_key}")
     return (name, normalize_query(args.get("query", "")))
 
 
 def tried_keys(history: list[dict]) -> set[tuple[str, str]]:
     """Tập hợp các (tool, query) đã từng phát ra, từ search_history trong state."""
     return {(h.get("tool", ""), normalize_query(h.get("query", ""))) for h in history}
+
+
+def new_chunks_in_round(history: list[dict], round_no: int) -> int:
+    """Tổng số chunk MỚI (đã lọc trùng) mà mọi tool call trong `round_no` này
+    mang về — dùng bởi router để phát hiện các vòng liên tiếp không tiến
+    triển. `round_no` khớp với field "round" mà tool_node ghi vào mỗi entry
+    (bằng `retrieve_count` SAU khi retrieve_node đã tăng nó lên)."""
+    return sum(h.get("new_chunks", 0) for h in history if h.get("round") == round_no)
 
 
 def format_history(history: list[dict], limit: int = 12) -> str:
@@ -52,7 +69,10 @@ def format_history(history: list[dict], limit: int = 12) -> str:
         n_new = h.get("new_chunks", 0)
         round_no = h.get("round", "?")
         note = " (0 chunk mới — coi như đã cạn)" if n_new == 0 else ""
-        call_repr = f"{tool}(node_id={query})" if tool == "expand_node" else f"{tool}('{query}')"
+        if tool in ("expand_node", "find_in_subtree"):
+            call_repr = f"{tool}({query})"
+        else:
+            call_repr = f"{tool}('{query}')"
         lines.append(f"- vòng {round_no} | {call_repr} → {n_new} chunk mới{note}")
     return "\n".join(lines)
 

@@ -13,8 +13,9 @@ Your job is to analyze a user query and issue search tool calls that together co
 
 Available tools:
 - `semantic_search`: Best for concept-based, natural language queries — definitions, explanations, comparisons, "what is / how does" questions.
-- `keyword_search`: Best for exact matches — technical or legal terminology, article numbers, proper nouns, codes, dates.
-- `expand_node`: Drills down into a node returned by a previous search (identified by its `§N<id>|...§` marker in the digest below). Use this when a result looks like a high-level summary that is on-topic but lacks the specific detail you need — expand it instead of guessing a new query.
+- `keyword_search`: Best for exact matches — technical/legal terminology, named exceptions or conditions, article numbers, proper nouns, codes, dates. Whenever a facet names a SPECIFIC term, exception, or condition (e.g. "bất khả kháng", "miễn trách nhiệm", a named legal institution) — issue a `keyword_search` for that exact term IN ADDITION to `semantic_search` for the same facet, in the same round. Do not wait for semantic_search to fail first: a specific named concept can appear verbatim in a chunk that ranks lower semantically than more generic definitional content, so relying on semantic_search alone risks missing it entirely.
+- `expand_node(node_id, direction)`: Drills into a node returned by a previous search (identified by its `§N<id>|...§` marker). `direction="children"` (default) reads more DETAIL under a high-level summary that is on-topic but too shallow. `direction="parent"` reads the BROADER context around a result that is too narrow/specific on its own. `direction="siblings"` reads neighboring sections at the same level (other conditions/cases listed alongside this one). Prefer this over a brand-new search whenever you already have the right node and just need more/broader/adjacent content from it.
+- `find_in_subtree(root_node_id, patterns, mode)`: Searches ONLY inside the branch rooted at `root_node_id` for specific keywords/phrases — cheaper and more precise than reading the whole branch. Use it as soon as you have ANY node (from a search result, `expand_node`, or the digest) whose general topic is right but whose own text doesn't show the exact detail you need — you do NOT need to `expand_node` first. Going straight to `find_in_subtree` on that node is often the fastest way to pinpoint one or two specific facts (a number, an exception, a named condition) buried inside a broad section. `mode="keyword"` (default) for exact terms, `mode="semantic"` when the exact wording is unknown.
 - `web_search`: Use only when the document tree clearly does not contain the answer — after semantic_search/keyword_search have failed, or the query needs external/current facts the documents never define. Keep `search_depth` at "basic" unless the topic is niche, then use "advanced".
 
 Decompose before you search:
@@ -22,12 +23,14 @@ Decompose before you search:
 - Emit ONE tool call per facet, each with a SHORT focused query (3-10 words) for that facet.
 - NEVER paste the full question verbatim into every tool call — a long sentence dilutes both embedding and BM25 scores, and wastes the tool's top_k on redundant results for the same facet.
 - A simple single-fact query needs one or two calls; a compound query ("what are the conditions for A, which violations lead to B, and how does that differ from C?") needs one call per facet.
-- Use the "Previously seen nodes" digest (if any) to decide whether to `expand_node` a promising summary instead of searching again.
+- If a facet names a specific term/exception/condition, pair a `keyword_search` for that exact term alongside the `semantic_search` call for the same facet, in the same round.
+- Check "Drill-down candidates" FIRST (if any) — these are nodes already confirmed on-topic but incomplete, each with a concrete suggested `expand_node` call. Act on a matching candidate before issuing a brand-new search for that facet.
+- Otherwise, use the "Previously seen nodes" digest (if any) to decide whether a promising node is worth a `find_in_subtree` (pinpoint one exact detail) or `expand_node` (read more broadly) instead of searching again.
 
 Rules for retry rounds:
-- NEVER re-issue a (tool, query) pair listed under "Already tried" — it will return exactly the same result.
+- NEVER re-issue a (tool, query) pair listed under "Already tried" — it will return exactly the same result. `expand_node` with a different `direction` on the same node_id is NOT a repeat — it returns different content.
 - A tried query marked "0 chunk mới" is exhausted; change the wording substantially, do not merely reorder words.
-- Change strategy, not just phrasing: switch to the domain/technical term (or to the plain wording), narrow to a sub-topic, target a facet you have not searched yet, or switch tools.
+- Change strategy, not just phrasing: switch to the domain/technical term (or to the plain wording), narrow to a sub-topic, target a facet you have not searched yet, or switch tools — if `semantic_search` kept missing a named exception/condition, try `keyword_search` for that exact term, or `find_in_subtree` on the most relevant node seen so far.
 - If two rounds over the document tree produced nothing relevant for a facet, use `web_search` for that facet.
 
 You MUST always call at least one tool. Reply with tool calls only, no prose.
@@ -49,7 +52,10 @@ What the previous round(s) failed to find:
 
 Facets still missing: {missing}
 
-Previously seen nodes (use `expand_node` on a promising one instead of re-searching):
+Drill-down candidates — on-topic but incomplete, act on these BEFORE searching again:
+{drill_candidates}
+
+Previously seen nodes (use `expand_node`/`find_in_subtree` on a promising one instead of re-searching):
 {digest}
 
 Already tried — do NOT repeat any of these (tool, query) pairs:
@@ -66,21 +72,66 @@ They are rejected. Re-plan with different wording, a different facet, or a diffe
 """
 
 # ---------------------------------------------------------------------------
+# Conversation — viết lại câu hỏi nối tiếp thành câu độc lập + nén lịch sử
+# (agent/graph/conversation.py::ConversationManager)
+# ---------------------------------------------------------------------------
+
+CONTEXTUALIZE_SYSTEM_PROMPT = """\
+You rewrite a follow-up question into a standalone question, using recent \
+conversation turns for context.
+
+Rules:
+- If the new question is already standalone (understandable without the \
+history), return it UNCHANGED.
+- If it refers back to the previous turns (pronouns like "it"/"that", \
+implicit subject, "what about X instead", "and the other case?"), rewrite \
+it into a fully self-contained question that carries over the missing \
+subject/entity from the history.
+- Preserve the original language and phrasing style — only add the missing \
+context, do not paraphrase unrelated parts.
+- Output ONLY the rewritten question, no prose, no quotes.
+"""
+
+CONTEXTUALIZE_USER_PROMPT = """\
+Recent conversation:
+{history}
+
+New question: {new_query}
+
+Standalone question:\
+"""
+
+HISTORY_COMPACT_SYSTEM_PROMPT = """\
+Summarize the key points of the following conversation turns concisely, so \
+they can be used as background context for later turns without needing the \
+full transcript. Preserve any specific facts, entities, or conclusions that \
+were established. Keep it short (a few sentences).
+"""
+
+HISTORY_COMPACT_USER_PROMPT = """\
+Conversation turns to summarize:
+{turns}
+
+Previous summary (if any, fold it in): {previous_summary}
+"""
+
+# ---------------------------------------------------------------------------
 # Grader — đánh giá độ liên quan của từng document chunk
 # ---------------------------------------------------------------------------
 
 GRADER_SYSTEM_PROMPT = """\
-You are a grader assessing the relevance of a retrieved document chunk to a user query.
+You are a grader assessing the relevance and completeness of a retrieved document chunk against a user query. The chunk comes from a hierarchical document tree — a chunk that reads like a high-level summary or a short fragment usually has more detailed child nodes, or a broader parent node, available to drill into.
 
 Classify the chunk into exactly ONE of three tiers:
-- 'direct': the chunk directly answers the query, or contains a specific fact/definition/condition the query is asking for.
-- 'related': the chunk does NOT directly answer the query, but is on the same topic or legal domain and could help explain what the source documents cover instead (e.g. a neighboring article, a related concept, an adjacent regulation).
-- 'no': the chunk is unrelated to the query's topic entirely.
+- 'relevant': the chunk directly answers the query, or is otherwise substantial/complete enough on its own to be useful as-is (a specific fact/definition/condition/full explanation the query is asking for).
+- 'relevant_incomplete': the chunk is clearly on-topic and useful, but reads like a partial fragment, a high-level summary, or an overview that likely omits detail the query needs — the kind of chunk where drilling into the underlying node (its children for more detail, or its parent for broader context) would help.
+- 'irrelevant': the chunk is unrelated to the query's topic entirely.
 
 Rules:
-- Be lenient with 'direct': partial relevance to the specific question still counts as 'direct'.
-- Use 'related' rather than 'no' whenever the chunk is at least in the same subject area — this lets the system honestly say "the documents don't cover X directly, but here is what they do cover".
-- Answer with a single word: 'direct', 'related', or 'no'.
+- Be lenient with 'relevant': partial relevance to the specific question still counts, as long as the chunk itself is substantial (not just a summary of it).
+- Use 'relevant_incomplete' whenever the chunk is on-topic but feels like a compressed/partial version of a fuller answer that likely exists elsewhere in the tree — do NOT downgrade these to 'irrelevant'.
+- Use 'irrelevant' only when the chunk's subject matter itself does not match the query at all.
+- Answer with a single word: 'relevant', 'relevant_incomplete', or 'irrelevant'.
 - Do NOT explain your reasoning.
 """
 
@@ -92,7 +143,7 @@ Retrieved document:
 
 User query: {query}
 
-Classify this document as 'direct', 'related', or 'no'.\
+Classify this document as 'relevant', 'relevant_incomplete', or 'irrelevant'.\
 """
 
 # ---------------------------------------------------------------------------
@@ -153,11 +204,10 @@ HƯỚNG DẪN BIÊN SOẠN CÂU TRẢ LỜI (PHONG CÁCH NOTEBOOKLM):
 3. Tính Trung Thực & Chính Xác (Strict Grounding):
    - Mọi luận điểm, số liệu, căn cứ phải xuất phát trực tiếp từ Ngữ cảnh được cung cấp.
    - Không tự ý suy diễn hoặc bịa đặt thông tin nằm ngoài phạm vi tài liệu.
-   - Nếu ngữ cảnh không có hoặc không đủ thông tin cho một ý cụ thể, hãy nêu rõ ràng và chỉ trả lời những gì có căn cứ.
-   - QUAN TRỌNG: Nếu ngữ cảnh KHÔNG chứa nội dung trả lời trực tiếp câu hỏi nhưng có chứa các đoạn tài liệu LIÊN QUAN/LÂN CẬN (cùng lĩnh vực, chủ đề gần), hãy:
-     (a) Nêu rõ ngay từ đầu rằng tài liệu không đề cập trực tiếp đến câu hỏi, rồi
-     (b) Trình bày đầy đủ những nội dung liên quan gần nhất mà tài liệu THỰC SỰ có, để người đọc vẫn nhận được giá trị tham khảo thay vì một câu trả lời trống.
-     Tuyệt đối không im lặng bỏ qua — luôn ưu tiên nêu những gì tài liệu CÓ ghi nhận, dù chỉ là gián tiếp.
+   - Mục "Đánh giá độ đầy đủ ngữ cảnh" bên dưới là NHẬN ĐỊNH SƠ BỘ từ một bước thẩm định độc lập chạy TRƯỚC bạn — nó có thể đã bỏ sót hoặc đánh giá sai, vì nó không phải lúc nào cũng đọc kỹ như bạn sắp làm. Coi đây là một CHECKLIST CẦN TỰ KIỂM TRA LẠI, không phải kết luận có sẵn để chép nguyên văn.
+   - Nếu mục đó liệt kê các khía cạnh CÒN THIẾU: với MỖI khía cạnh được liệt kê, hãy tự đọc lại toàn bộ ngữ cảnh bên dưới một lần nữa để xác minh. "Gián tiếp/suy ra được" ở đây CHỈ được phép là suy luận logic dựa trên các dữ kiện CÓ CHỮ trong chính đoạn ngữ cảnh (ví dụ: ngữ cảnh nêu định nghĩa A và A là một dạng của B, nên có thể suy ra tính chất chung của B) — KHÔNG được dùng kiến thức nền/hiểu biết chung của bạn nằm ngoài đoạn ngữ cảnh này để tự lấp khoảng trống. Nếu ngữ cảnh THỰC SỰ có dữ kiện (trực tiếp hoặc suy luận được như trên), hãy trả lời bình thường dựa trên đó — TUYỆT ĐỐI không chép lại câu "tài liệu không đề cập" chỉ vì nhận định sơ bộ nói vậy. Ngược lại, nếu sau khi đọc kỹ vẫn không tìm thấy MỘT dữ kiện nào trong ngữ cảnh liên quan đến khía cạnh đó (chỉ có kiến thức chung của bạn mới trả lời được), hãy GIỮ NGUYÊN lời rào đón "tài liệu không đề cập trực tiếp đến [khía cạnh]" cho đúng khía cạnh đó — không tự suy diễn hộ bằng hiểu biết bên ngoài để tỏ ra đầy đủ.
+   - Nếu mục đó ghi ngữ cảnh đã ĐẦY ĐỦ: trả lời TOÀN BỘ câu hỏi một cách đầy đủ, tự tin, dựa trên mọi nội dung liên quan có trong ngữ cảnh — KHÔNG thêm lời rào đón/phủ nhận nào, kể cả khi một đoạn văn cụ thể đọc qua có vẻ chỉ liên quan gián tiếp.
+   - Nếu ngữ cảnh có ghi chú dạng "[... N older chunk(s) omitted for length ...]" (một số chunk cũ bị lược bỏ do giới hạn độ dài khi tổng hợp, KHÔNG phải do tài liệu gốc không có): đây KHÔNG phải là dấu hiệu tài liệu thiếu nội dung — đừng suy diễn "tài liệu không đề cập" chỉ vì thấy ghi chú này.
    - Nếu trong ngữ cảnh có đoạn được đánh dấu tiền tố "[WEB]", đó là thông tin lấy từ tìm kiếm internet, KHÔNG phải từ tài liệu gốc. Phải nêu RÕ trong câu trả lời phần nào lấy từ internet (ví dụ: "Theo tìm kiếm trên internet, ..."), không được trộn lẫn với nội dung tài liệu mà không chú thích nguồn.
 
 4. Văn Phong:
@@ -170,6 +220,9 @@ Dưới đây là các tài liệu ngữ cảnh được trích xuất:
 \"\"\"
 {context}
 \"\"\"
+
+Đánh giá độ đầy đủ ngữ cảnh (nhận định SƠ BỘ từ bước thẩm định độc lập — hãy tự kiểm tra lại trong ngữ cảnh trước khi làm theo, xem hướng dẫn mục 3):
+{sufficiency_note}
 
 Câu hỏi của người dùng:
 {query}

@@ -201,12 +201,12 @@ class TreeRetriever(BaseRetriever):
 
             node_tokens = len(self.tokenizer.encode(node.text))
 
-            if total_tokens + node_tokens > max_tokens:
-                break
-
             selected_nodes.append(node)
             total_tokens += node_tokens
             node_similarities[node.index] = float(1.0 - distances[idx])
+
+            if total_tokens >= max_tokens:
+                break
 
         # Loại node cha nếu con của nó cũng lọt vào cùng kết quả — tránh
         # context trùng lặp (cha thường tóm tắt lại đúng nội dung các con).

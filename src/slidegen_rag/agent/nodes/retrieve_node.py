@@ -4,7 +4,14 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from slidegen_rag.agent.graph.state import AgentState
 from slidegen_rag.agent.models.llm import LLMModel
-from slidegen_rag.agent.tools.tools import expand_node, keyword_search, semantic_search, web_search, web_search_enabled
+from slidegen_rag.agent.tools.tools import (
+    expand_node,
+    find_in_subtree,
+    keyword_search,
+    semantic_search,
+    web_search,
+    web_search_enabled,
+)
 from slidegen_rag.agent.utils.prompts import (
     RETRIEVE_DUPLICATE_RETRY_PROMPT,
     RETRIEVE_SYSTEM_PROMPT,
@@ -27,7 +34,7 @@ def _get_llm_with_tools():
     enabled = web_search_enabled()
     llm = _llm_cache.get(enabled)
     if llm is None:
-        retrieval_tools = [semantic_search, keyword_search, expand_node]
+        retrieval_tools = [semantic_search, keyword_search, expand_node, find_in_subtree]
         if enabled:
             retrieval_tools.append(web_search)
         else:
@@ -66,17 +73,40 @@ def _format_digest(digest: list[dict]) -> str:
     return "\n".join(lines)
 
 
+_CANDIDATE_SNIPPET_CHARS = 150
+
+
+def _format_drill_candidates(candidates: list[dict]) -> str:
+    if not candidates:
+        return "(chưa có)"
+    lines = []
+    for c in candidates:
+        reason = c.get("reason", "")
+        if reason == "need_detail":
+            hint = f'expand_node(node_id={c["node_id"]}, direction="children")'
+        elif reason == "need_context":
+            hint = f'expand_node(node_id={c["node_id"]}, direction="parent")'
+        else:
+            hint = f'expand_node(node_id={c["node_id"]})'
+        snippet = str(c.get("content", ""))[:_CANDIDATE_SNIPPET_CHARS]
+        lines.append(f"- §N{c['node_id']}§ [{reason}] → gợi ý: {hint}\n  {snippet}")
+    return "\n".join(lines)
+
+
 async def retrieve_node(state: AgentState) -> dict:
     """
     Node quyết định retrieval strategy bằng LLM + bind_tools.
 
     LLM phân tích query (và feedback/lịch sử tìm kiếm nếu có) để tự quyết
     định nên phân rã câu hỏi thành các facet nào, gọi tool nào cho từng facet
-    (semantic_search / keyword_search / expand_node / web_search), với args
-    gì. Sau khi LLM trả lời, retrieve_node LỌC TRÙNG bằng code (không chỉ dựa
-    vào prompt): bỏ mọi tool call trùng (tool, query) đã có trong
-    search_history — đảm bảo cứng để vòng lặp không lặp lại chính nó dù LLM
-    có bỏ qua chỉ dẫn trong prompt.
+    (semantic_search / keyword_search / expand_node / find_in_subtree /
+    web_search), với args gì. `drill_candidates` (nếu có, từ
+    grade_documents_node hoặc seed từ lượt hỏi trước) được ưu tiên hiển thị
+    TRƯỚC node_digest trong prompt — hiện thực hoá ưu tiên Drill-down trước
+    Discovery mà không cần 1 node/branch quyết định riêng. Sau khi LLM trả
+    lời, retrieve_node LỌC TRÙNG bằng code (không chỉ dựa vào prompt): bỏ mọi
+    tool call trùng (tool, query) đã có trong search_history — đảm bảo cứng
+    để vòng lặp không lặp lại chính nó dù LLM có bỏ qua chỉ dẫn trong prompt.
 
     Luồng:
         retrieve_node → [tool_node] → grade_documents_node
@@ -84,7 +114,8 @@ async def retrieve_node(state: AgentState) -> dict:
 
     Args:
         state (AgentState): Cần có 'query'. 'feedback', 'search_history',
-                            'missing_aspects', 'node_digest' tuỳ chọn (retry).
+                            'missing_aspects', 'node_digest',
+                            'drill_candidates' tuỳ chọn (retry/follow-up).
 
     Returns:
         dict: {"tool_calls": list[dict], "retrieve_count": int}
@@ -95,13 +126,15 @@ async def retrieve_node(state: AgentState) -> dict:
     history = state.get("search_history", [])
     missing = state.get("missing_aspects", [])
     digest = state.get("node_digest", [])
+    drill_candidates = state.get("drill_candidates", [])
 
-    if feedback or history:
+    if feedback or history or drill_candidates:
         user_content = RETRIEVE_USER_PROMPT_WITH_FEEDBACK.format(
             query=query,
             round=retrieve_count + 1,
             feedback=feedback or "(không có)",
             missing="; ".join(missing) if missing else "(không rõ)",
+            drill_candidates=_format_drill_candidates(drill_candidates),
             digest=_format_digest(digest),
             tried=format_history(history) or "(chưa có)",
         )

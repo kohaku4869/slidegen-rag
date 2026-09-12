@@ -13,3 +13,6 @@ models_cache
 data/index
 benchmarks/.notebooklm_browser_data
 
+AGENTS.md
+CLAUDE.md
+plan.md

@@ -5,9 +5,14 @@ Conditional edge functions cho LangGraph CRAG pipeline.
 from langgraph.graph import END
 
 from slidegen_rag.agent.graph.state import AgentState
+from slidegen_rag.agent.utils.search_history import new_chunks_in_round
 
 # Số lần retrieve tối đa trước khi bắt buộc generate dù context chưa đủ
-MAX_RETRIEVE = 3
+MAX_RETRIEVE = 5
+
+# Số vòng tối thiểu trước khi bắt đầu xét no-progress guard — luôn cho phép
+# thử lại ít nhất 1 lần sau vòng đầu trước khi có thể bị dừng sớm.
+MIN_RETRIEVE_BEFORE_STALL_CHECK = 3
 
 
 def decide_after_context_eval(state: AgentState) -> str:
@@ -29,12 +34,17 @@ def decide_after_context_eval(state: AgentState) -> str:
     if retrieve_count >= MAX_RETRIEVE:
         return "generate"  # best-effort, tránh infinite loop
 
-    # No-progress guard: vòng vừa rồi không mang về chunk MỚI nào (tool_node
-    # ghi đè pending_documents mỗi vòng) — lặp lại retrieve cũng vô ích vì
-    # retrieve_node đã lọc trùng (tool, query), nên thử thêm 1 vòng nữa chỉ
-    # tốn token mà không đổi được gì. Chỉ áp dụng từ vòng 2 trở đi để vẫn cho
-    # phép retry sau lần retrieve đầu tiên.
-    if retrieve_count >= 2 and not state.get("pending_documents", []):
-        return "generate"
+    # No-progress guard: cần HAI vòng LIÊN TIẾP không mang về chunk MỚI nào
+    # (không chỉ vòng vừa rồi) mới coi là cạn kiệt — 1 vòng "0 chunk mới" là
+    # tín hiệu yếu (có thể do LLM chọn nhầm facet/tool đã cạn ở facet đó,
+    # không phải do topic thực sự hết), agent cần ít nhất 1 cơ hội đổi chiến
+    # lược trước khi bị ép dừng. Chỉ bắt đầu xét từ retrieve_count >= 3 để
+    # luôn cho retry sau lần đầu tiên.
+    if retrieve_count >= MIN_RETRIEVE_BEFORE_STALL_CHECK:
+        history = state.get("search_history", [])
+        current_round_new = new_chunks_in_round(history, retrieve_count)
+        previous_round_new = new_chunks_in_round(history, retrieve_count - 1)
+        if current_round_new == 0 and previous_round_new == 0:
+            return "generate"
 
     return "retrieve"

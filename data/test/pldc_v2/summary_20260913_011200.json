@@ -1,0 +1,15 @@
+{
+  "topic": "pldc_v2",
+  "timestamp": "20260913_011200",
+  "accuracy": 7.366666666666666,
+  "completeness": 6.75,
+  "relevance": 8.016666666666667,
+  "faithfulness": 9.016666666666667,
+  "total_score": 7.7876666666666665,
+  "coverage_pct": 78.48333333333333,
+  "coverage_pct_strict": 75.98,
+  "avg_chunks": 8.533333333333333,
+  "total_questions": 30,
+  "success_count": 30,
+  "failed_count": 0
+}

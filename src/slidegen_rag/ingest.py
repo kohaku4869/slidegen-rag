@@ -70,6 +70,7 @@ def _build_ra(cfg_tree, cfg_sum):
         top_k=RetrieverConfig.TOP_K,
         selection_mode=RetrieverConfig.SELECTION_MODE,
         context_embedding_model=RetrieverConfig.CONTEXT_EMBEDDING_MODEL,
+        embedding_model=embedding_model,
         num_layers=RetrieverConfig.NUM_LAYERS,
         start_layer=RetrieverConfig.START_LAYER,
     )

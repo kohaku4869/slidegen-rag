@@ -6,7 +6,7 @@ from langchain_core.runnables import RunnableConfig
 
 from slidegen_rag.agent.graph.state import AgentState
 from slidegen_rag.agent.tools.tools import SOFT_FAILURE_PREFIXES, TOOL_MAP
-from slidegen_rag.agent.utils.search_history import fingerprint
+from slidegen_rag.agent.utils.search_history import call_key, fingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +81,27 @@ def _merge_documents(existing: list[str], new_chunks: list[str]) -> list[str]:
     return merged
 
 
+def _merge_documents_with_ids(
+    existing_docs: list[str],
+    existing_ids: list,
+    new_docs: list[str],
+    new_ids: list,
+) -> tuple[list[str], list]:
+    """Như _merge_documents nhưng giữ `node_id` đi kèm từng document (1:1),
+    để grade_documents_node duy trì `document_node_ids` song song với
+    `documents` qua các vòng — dùng bởi ConversationManager (mục 7 trong
+    plan) để biết node nào thực sự được trích dẫn ở lượt hỏi này."""
+    seen = set(existing_docs)
+    merged_docs = list(existing_docs)
+    merged_ids = list(existing_ids)
+    for doc, node_id in zip(new_docs, new_ids):
+        if doc not in seen:
+            seen.add(doc)
+            merged_docs.append(doc)
+            merged_ids.append(node_id)
+    return merged_docs, merged_ids
+
+
 def _build_digest(chunk_infos: list[dict]) -> list[dict]:
     """
     Danh mục gọn các node vừa retrieve trong vòng này, để retrieve_node biết
@@ -148,6 +169,7 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
             "seen_fingerprints": seen,
             "search_history": history,
             "node_digest": [],
+            "pending_meta": [],
         }
 
     logger.info(
@@ -175,6 +197,7 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
     raw_outputs = await asyncio.gather(*[run_tool(tc) for tc in tool_calls])
 
     pending: list[str] = []
+    pending_meta: list[dict] = []
     all_chunk_infos: list[dict] = []
     for tc, raw in zip(tool_calls, raw_outputs):
         tool_name = tc.get("name", "")
@@ -189,14 +212,17 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
                 seen_set.add(fp)
                 seen.append(fp)
                 pending.append(info["text"])
+                pending_meta.append({"node_id": info["node_id"], "layer": info["layer"]})
                 fresh_count += 1
 
         soft_failed = bool(raw) and any(raw.startswith(p) for p in SOFT_FAILURE_PREFIXES)
-        # expand_node dùng node_id thay vì query — lưu node_id vào field
-        # "query" (dạng chuỗi) để search_history.call_key/tried_keys nhận
-        # diện đúng khoá trùng lặp; format_history sẽ hiển thị đẹp lại.
-        if tool_name == "expand_node":
-            query_repr = str(tool_args.get("node_id", ""))
+        # expand_node (node_id+direction) và find_in_subtree (root_node_id+
+        # patterns) không có "query" đơn — tái dùng đúng logic ghép khoá của
+        # search_history.call_key thay vì nhân bản, để lịch sử ghi lại luôn
+        # khớp với khoá dedup thật sự dùng ở retrieve_node. Các tool còn lại
+        # giữ nguyên query gốc (không normalize) để hiển thị log dễ đọc hơn.
+        if tool_name in ("expand_node", "find_in_subtree"):
+            _, query_repr = call_key(tc)
         else:
             query_repr = tool_args.get("query", "")
         history.append({
@@ -219,4 +245,5 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
         "seen_fingerprints": seen,
         "search_history": history,
         "node_digest": node_digest,
+        "pending_meta": pending_meta,
     }
