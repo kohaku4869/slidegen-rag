@@ -1,18 +1,40 @@
 """
 Ghi lại quỹ đạo (trajectory) thực thi của CRAG Agent: node nào chạy, gọi tool
-gì với args gì, lặp mấy vòng retrieve, feedback của context_evaluator từng
-vòng, latency & token/chi phí — tất cả những gì bị mất khi chỉ dùng
-graph.ainvoke() (state cuối, không có lịch sử trung gian).
+gì với args gì, lặp mấy vòng retrieve (theo TỪNG facet), feedback của
+context_evaluator từng vòng, latency & token/chi phí — tất cả những gì bị mất
+khi chỉ dùng graph.ainvoke() (state cuối, không có lịch sử trung gian).
 
 Cách hoạt động:
-    graph.astream(state, stream_mode=["updates", "values"]) được LangGraph
-    dùng CHÍNH XÁC để cài đặt ainvoke() (giữ lại payload "values" cuối cùng
-    làm kết quả trả về) — nên final_state ở đây LUÔN khớp graph.ainvoke().
-    "updates" cho biết thứ tự các node đã chạy (thấy rõ vòng lặp retrieve).
-    TrajectoryCallbackHandler thu thập tool/LLM call trong lúc chạy; vì graph
-    này thực thi tuần tự (không có 2 node chạy song song trong 1 superstep),
-    "drain" buffer của handler tại mỗi ranh giới node là đủ để gán đúng
-    record vào đúng NodeStep, không cần dò cây parent_run_id.
+    graph.astream(state, stream_mode=["updates", "values"], subgraphs=True)
+    được LangGraph dùng CHÍNH XÁC để cài đặt ainvoke() (giữ lại payload
+    "values" cuối cùng có namespace=() làm kết quả trả về) — nên final_state
+    ở đây LUÔN khớp graph.ainvoke(). "updates" cho biết thứ tự các node đã
+    chạy (thấy rõ vòng lặp retrieve của từng facet).
+
+    `subgraphs=True` là BẮT BUỘC kể từ khi graph có facet_subgraph (agent/
+    graph/facet_subgraph.py) — mỗi bản facet_subgraph là 1 node cấp cha
+    nhưng bên trong lại là 1 graph compiled riêng (retrieve→tool→
+    grade_documents→context_evaluator, chạy N bản SONG SONG qua Send). Không
+    có subgraphs=True, các bước bên trong hoàn toàn vô hình — mỗi mục
+    "updates" chỉ thấy đúng 1 lần "facet_subgraph" hoàn tất, mất hết chi tiết
+    tool call/round/feedback per-facet. Có subgraphs=True, mỗi item yielded
+    là 3-tuple (namespace, mode, payload): namespace=() cho các bước cấp cha
+    (decompose_facets, facet_subgraph tổng, collect_facets, generate);
+    namespace=("facet_subgraph:<task_id>",) cho các bước BÊN TRONG 1 nhánh
+    facet cụ thể. `<task_id>` không mang ý nghĩa gì (UUID nội bộ LangGraph)
+    nên phải map namespace -> facet_label bằng THỨ TỰ xuất hiện lần đầu của
+    mỗi namespace, khớp với thứ tự facet_queries mà fan_out_facets phát Send
+    ra (LangGraph giữ đúng thứ tự list khi lập lịch task).
+
+    TrajectoryCallbackHandler thu thập tool/LLM call trong lúc chạy — kể cả
+    bên trong facet_subgraph, MIỄN LÀ facet_branch_node forward đúng `config`
+    (mang theo callbacks) vào `.ainvoke()` của subgraph compiled (xem agent/
+    graph/facet_subgraph.py). N facet chạy song song có thể phát callback từ
+    nhiều task/thread khác nhau CÙNG LÚC — "drain" buffer của handler tại mỗi
+    ranh giới node (bất kể namespace nào) vẫn đúng vì mỗi callback được gắn
+    đúng ranh giới node của chính nó qua on_tool_start/on_llm_end (không dựa
+    vào thứ tự toàn cục), TrajectoryCallbackHandler đã có threading.Lock sẵn
+    cho việc này.
 
 Sử dụng:
     from slidegen_rag.agent.observability.trajectory import TrajectoryRecorder, make_initial_state
@@ -46,35 +68,33 @@ from slidegen_rag.config import LangSmithConfig
 logger = logging.getLogger(__name__)
 
 
-def make_initial_state(query: str, drill_candidates: list[dict] | None = None) -> AgentState:
-    """State khởi tạo chuẩn cho CRAG graph — thay dict lặp lại ở main.py và
-    evaluate/evaluate.py.
+def make_initial_state(
+    query: str, drill_candidates: list[dict] | None = None
+) -> AgentState:
+    """State khởi tạo chuẩn cho graph CHA (AgentState) — thay dict lặp lại ở
+    main.py và evaluate/evaluate.py. Giữ NGUYÊN tên tham số `drill_candidates`
+    (không đổi thành seed_drill_candidates) để main.py/evaluate.py không cần
+    sửa lời gọi — chỉ đổi tên field bên trong dict trả về.
 
     Args:
         query: Câu hỏi (đã được ConversationManager.contextualize() viết lại
             thành câu độc lập nếu là câu hỏi nối tiếp trong hội thoại).
-        drill_candidates: Seed ban đầu cho drill_candidates — dùng bởi
-            ConversationManager khi câu hỏi mới là follow-up của lượt trước
-            (xem agent/graph/conversation.py), để retrieve_node ưu tiên đào
-            sâu các node đã trích dẫn ở lượt trước thay vì Discovery lại từ
-            đầu. None/rỗng cho câu hỏi độc lập (hành vi mặc định trước đây).
+        drill_candidates: Seed ban đầu cho state["seed_drill_candidates"] —
+            dùng bởi ConversationManager khi câu hỏi mới là follow-up của
+            lượt trước (xem agent/graph/conversation.py) — builder.py::
+            fan_out_facets copy NGUYÊN VẸN list này vào drill_candidates của
+            MỌI facet khi fan-out. None/rỗng cho câu hỏi độc lập (hành vi
+            mặc định trước đây).
     """
     return {
         "query": query,
-        "tool_calls": [],
+        "facet_queries": [],
+        "facet_results": [],
+        "facet_sufficiency": [],
         "documents": [],
-        "pending_documents": [],
-        "seen_fingerprints": [],
-        "search_history": [],
-        "missing_aspects": [],
-        "node_digest": [],
-        "pending_meta": [],
-        "feedback": "",
-        "context_sufficient": False,
-        "generation": "",
-        "retrieve_count": 0,
         "document_node_ids": [],
-        "drill_candidates": list(drill_candidates) if drill_candidates else [],
+        "generation": "",
+        "seed_drill_candidates": list(drill_candidates) if drill_candidates else [],
     }
 
 
@@ -115,6 +135,10 @@ class NodeStep:
     llm_calls: list[LLMCallRecord] = field(default_factory=list)
     update_summary: dict = field(default_factory=dict)
     error: Optional[str] = None
+    facet: Optional[str] = None
+    """Nhãn facet (facet_label) nếu step này chạy BÊN TRONG 1 nhánh
+    facet_subgraph (namespace != ()) — None cho các bước cấp cha
+    (decompose_facets, facet_subgraph tổng, collect_facets, generate)."""
 
 
 @dataclass
@@ -128,6 +152,10 @@ class Trajectory:
     max_retrieve: int = MAX_RETRIEVE
     hit_max_retrieve: bool = False
     context_sufficient: bool = False
+    facet_retrieve_counts: dict[str, int] = field(default_factory=dict)
+    """retrieve_count CUỐI CÙNG của TỪNG facet (key = facet_label) — retrieve_count/
+    hit_max_retrieve ở trên là MAX qua các facet này (giữ đúng ý nghĩa cũ "có
+    facet nào chạm ngân sách chưa" từ thời graph còn 1 loop duy nhất)."""
     feedback_history: list[tuple[int, str]] = field(default_factory=list)
     token_usage: dict = field(default_factory=dict)
     run_id: Optional[str] = None
@@ -145,6 +173,9 @@ class Trajectory:
 
     @property
     def loop_count(self) -> int:
+        """Tổng số lượt "retrieve" TRÊN MỌI FACET cộng lại (không phải max
+        theo facet — xem retrieve_count/facet_retrieve_counts cho con số
+        đó)."""
         return sum(1 for step in self.steps if step.name == "retrieve")
 
     def render_text(self, *, title: Optional[str] = None) -> str:
@@ -204,34 +235,40 @@ class TrajectoryCallbackHandler(BaseCallbackHandler):
             name, args, t0 = self._tool_starts.pop(run_id, ("?", {}, now))
             text = str(output)
             soft_failed = any(text.startswith(p) for p in SOFT_FAILURE_PREFIXES)
-            self.tool_records.append(ToolCallRecord(
-                name=name,
-                args=args,
-                duration_s=now - t0,
-                output_chars=len(text),
-                output_preview=text[: self._preview_len],
-                soft_failed=soft_failed,
-            ))
+            self.tool_records.append(
+                ToolCallRecord(
+                    name=name,
+                    args=args,
+                    duration_s=now - t0,
+                    output_chars=len(text),
+                    output_preview=text[: self._preview_len],
+                    soft_failed=soft_failed,
+                )
+            )
 
     def on_tool_error(self, error, *, run_id, **kwargs):
         now = time.perf_counter()
         with self._lock:
             name, args, t0 = self._tool_starts.pop(run_id, ("?", {}, now))
-            self.tool_records.append(ToolCallRecord(
-                name=name,
-                args=args,
-                duration_s=now - t0,
-                output_chars=0,
-                output_preview="",
-                soft_failed=False,
-                error=str(error),
-            ))
+            self.tool_records.append(
+                ToolCallRecord(
+                    name=name,
+                    args=args,
+                    duration_s=now - t0,
+                    output_chars=0,
+                    output_preview="",
+                    soft_failed=False,
+                    error=str(error),
+                )
+            )
 
     # ------------------------------------------------------------------
     # LLM / chat model callbacks
     # ------------------------------------------------------------------
 
-    def on_chat_model_start(self, serialized, messages, *, run_id, metadata=None, **kwargs):
+    def on_chat_model_start(
+        self, serialized, messages, *, run_id, metadata=None, **kwargs
+    ):
         meta = metadata or {}
         model = meta.get("ls_model_name") or (serialized or {}).get("name") or "?"
         provider = meta.get("ls_provider") or "?"
@@ -257,23 +294,30 @@ class TrajectoryCallbackHandler(BaseCallbackHandler):
             pass
 
         with self._lock:
-            self.llm_records.append(LLMCallRecord(
-                model=model,
-                provider=provider,
-                duration_s=now - t0,
-                input_tokens=usage.get("input_tokens", 0) or 0,
-                output_tokens=usage.get("output_tokens", 0) or 0,
-                total_tokens=usage.get("total_tokens", 0) or 0,
-                tool_calls_emitted=tool_calls_emitted,
-            ))
+            self.llm_records.append(
+                LLMCallRecord(
+                    model=model,
+                    provider=provider,
+                    duration_s=now - t0,
+                    input_tokens=usage.get("input_tokens", 0) or 0,
+                    output_tokens=usage.get("output_tokens", 0) or 0,
+                    total_tokens=usage.get("total_tokens", 0) or 0,
+                    tool_calls_emitted=tool_calls_emitted,
+                )
+            )
 
     def on_llm_error(self, error, *, run_id, **kwargs):
         now = time.perf_counter()
         with self._lock:
             model, provider, t0 = self._llm_starts.pop(run_id, ("?", "?", now))
-            self.llm_records.append(LLMCallRecord(
-                model=model, provider=provider, duration_s=now - t0, error=str(error),
-            ))
+            self.llm_records.append(
+                LLMCallRecord(
+                    model=model,
+                    provider=provider,
+                    duration_s=now - t0,
+                    error=str(error),
+                )
+            )
 
 
 # =============================================================================
@@ -336,7 +380,10 @@ class TrajectoryRecorder:
         final_run_name = run_name or f"{self.run_name_prefix}:{query_preview}"
 
         config, tracer = build_run_config(
-            final_run_name, tags=merged_tags, metadata=merged_metadata, callbacks=[handler]
+            final_run_name,
+            tags=merged_tags,
+            metadata=merged_metadata,
+            callbacks=[handler],
         )
 
         started_at = datetime.now()
@@ -346,13 +393,40 @@ class TrajectoryRecorder:
         final_state: dict = dict(initial_state)
         error: Optional[str] = None
 
+        # Map namespace ("facet_subgraph:<task_id>",) -> facet_label, theo
+        # THỨ TỰ xuất hiện lần đầu của mỗi namespace (khớp thứ tự Send mà
+        # fan_out_facets phát ra — xem module docstring). facet_labels được
+        # điền ngay khi "updates" của node "decompose_facets" (namespace=())
+        # tới, TRƯỚC khi bất kỳ namespace facet nào xuất hiện.
+        facet_labels: list[str] = []
+        namespace_to_label: dict[str, str] = {}
+
         try:
-            async for mode, payload in self.graph.astream(
-                initial_state, stream_mode=["updates", "values"], config=config
+            async for namespace, mode, payload in self.graph.astream(
+                initial_state,
+                stream_mode=["updates", "values"],
+                subgraphs=True,
+                config=config,
             ):
                 now = time.perf_counter()
                 if mode == "updates":
                     for node_name, node_output in (payload or {}).items():
+                        if node_name == "decompose_facets" and not namespace:
+                            fq = (node_output or {}).get("facet_queries") or []
+                            facet_labels = [f.get("label", "?") for f in fq]
+
+                        facet_label: Optional[str] = None
+                        if namespace:
+                            ns_key = namespace[0]
+                            if ns_key not in namespace_to_label:
+                                idx = len(namespace_to_label)
+                                namespace_to_label[ns_key] = (
+                                    facet_labels[idx]
+                                    if idx < len(facet_labels)
+                                    else f"facet_{idx + 1}"
+                                )
+                            facet_label = namespace_to_label[ns_key]
+
                         tool_recs, llm_recs = handler.drain()
                         step = NodeStep(
                             index=len(steps) + 1,
@@ -361,6 +435,7 @@ class TrajectoryRecorder:
                             tool_calls=tool_recs,
                             llm_calls=llm_recs,
                             update_summary=_summarize_update(node_output),
+                            facet=facet_label,
                         )
                         steps.append(step)
                         t_prev = now
@@ -369,38 +444,61 @@ class TrajectoryRecorder:
                                 self.on_step(step)
                             except Exception:
                                 logger.debug(
-                                    "[trajectory] on_step callback lỗi, bỏ qua", exc_info=True
+                                    "[trajectory] on_step callback lỗi, bỏ qua",
+                                    exc_info=True,
                                 )
                 elif mode == "values":
-                    final_state = payload
+                    # Chỉ cập nhật final_state ở namespace TOP-LEVEL (()) —
+                    # "values" với namespace khác là final FacetState riêng
+                    # của 1 nhánh facet, không phải state cha (AgentState).
+                    if not namespace:
+                        final_state = payload
         except Exception as e:
             logger.error(f"[trajectory] Agent chạy lỗi: {e}")
             error = str(e)
 
         duration_s = time.perf_counter() - t_start
 
-        # retrieve_count thật (theo đúng semantics router dùng để so với MAX_RETRIEVE)
-        retrieve_counts = [
-            s.update_summary.get("retrieve_count")
-            for s in steps
-            if s.name == "retrieve" and isinstance(s.update_summary.get("retrieve_count"), int)
-        ]
-        final_retrieve_count = (
-            retrieve_counts[-1] if retrieve_counts else final_state.get("retrieve_count", 0)
-        )
-        context_sufficient = bool(final_state.get("context_sufficient", False))
+        # retrieve_count CUỐI CÙNG của TỪNG facet (increment đơn điệu trong
+        # chính facet đó, nên giá trị CUỐI = số vòng loop thật của facet đó).
+        facet_retrieve_counts: dict[str, int] = {}
+        for s in steps:
+            if s.name == "retrieve" and isinstance(
+                s.update_summary.get("retrieve_count"), int
+            ):
+                key = s.facet or "?"
+                facet_retrieve_counts[key] = s.update_summary["retrieve_count"]
 
-        # Lịch sử feedback theo từng vòng retrieve
+        final_retrieve_count = (
+            max(facet_retrieve_counts.values())
+            if facet_retrieve_counts
+            else final_state.get("retrieve_count", 0)
+        )
+
+        # context_sufficient toàn cục = MỌI facet đều sufficient (facet_sufficiency
+        # do collect_facets_node build trên final_state cấp cha — thay thế
+        # hẳn field context_sufficient toàn cục cũ, không còn tồn tại trên
+        # AgentState mới).
+        facet_sufficiency = final_state.get("facet_sufficiency") or []
+        context_sufficient = bool(facet_sufficiency) and all(
+            f.get("sufficient", False) for f in facet_sufficiency
+        )
+
+        # Lịch sử feedback theo từng vòng retrieve, TÁCH RIÊNG theo facet (N
+        # facet chạy song song nên "vòng lặp hiện tại" phải theo dõi độc lập
+        # cho mỗi facet, không dùng chung 1 biến đếm toàn cục).
         feedback_history: list[tuple[int, str]] = []
-        loop_no = 0
+        loop_no_by_facet: dict[Optional[str], int] = {}
         for s in steps:
             if s.name == "retrieve":
                 rc = s.update_summary.get("retrieve_count")
-                loop_no = rc if isinstance(rc, int) else loop_no + 1
+                loop_no_by_facet[s.facet] = (
+                    rc if isinstance(rc, int) else loop_no_by_facet.get(s.facet, 0) + 1
+                )
             if s.name == "context_evaluator":
                 fb = s.update_summary.get("feedback")
                 if fb:
-                    feedback_history.append((loop_no, fb))
+                    feedback_history.append((loop_no_by_facet.get(s.facet, 0), fb))
 
         token_usage = LLMModel.get_usage_summary()
 
@@ -421,8 +519,11 @@ class TrajectoryRecorder:
             final_state=final_state,
             retrieve_count=final_retrieve_count,
             max_retrieve=MAX_RETRIEVE,
-            hit_max_retrieve=(final_retrieve_count >= MAX_RETRIEVE and not context_sufficient),
+            hit_max_retrieve=(
+                final_retrieve_count >= MAX_RETRIEVE and not context_sufficient
+            ),
             context_sufficient=context_sufficient,
+            facet_retrieve_counts=facet_retrieve_counts,
             feedback_history=feedback_history,
             token_usage=token_usage,
             run_id=run_id,
@@ -458,10 +559,15 @@ def _fmt_args(args: dict) -> str:
 def _render_step(step: NodeStep, ctx: dict) -> list[str]:
     """Render 1 NodeStep. `ctx` là state có thể thay đổi giữa các bước:
     doc_count (số documents ở bước trước) và retrieve_loop (vòng retrieve
-    hiện tại) — dùng để tính delta / hiển thị "vòng #n"."""
+    hiện tại) — dùng để tính delta / hiển thị "vòng #n". `ctx` PHẢI là context
+    RIÊNG của facet này (hoặc riêng của cấp cha) — xem render_trajectory():
+    N facet chạy song song nên steps của chúng interleave trong traj.steps,
+    dùng chung 1 ctx sẽ tính delta/vòng lặp sai (trộn facet A với facet B)."""
     lines = []
     label = _NODE_LABELS.get(step.name, step.name)
     header = f"[{step.index}] {label:<18} ({step.duration_s:.2f}s)"
+    if step.facet:
+        header += f"  [facet: {step.facet}]"
 
     if step.name == "retrieve":
         rc = step.update_summary.get("retrieve_count")
@@ -543,22 +649,30 @@ def _render_step(step: NodeStep, ctx: dict) -> list[str]:
         fb = upd.get("feedback") or ""
         lines.append(f"    → context_sufficient={suff}")
         if fb:
-            lines.append(f"    → feedback: \"{fb}\"")
+            lines.append(f'    → feedback: "{fb}"')
         loop = ctx.get("retrieve_loop", 0)
         if suff:
             lines.append("    → định tuyến: generate")
         elif loop >= MAX_RETRIEVE:
-            lines.append(f"    → định tuyến: generate  (hết lượt retrieve, best-effort {loop}/{MAX_RETRIEVE})")
+            lines.append(
+                f"    → định tuyến: generate  (hết lượt retrieve, best-effort {loop}/{MAX_RETRIEVE})"
+            )
         else:
-            lines.append(f"    → định tuyến: retrieve  (retrieve_count={loop} < MAX_RETRIEVE={MAX_RETRIEVE})")
+            lines.append(
+                f"    → định tuyến: retrieve  (retrieve_count={loop} < MAX_RETRIEVE={MAX_RETRIEVE})"
+            )
 
     if step.name == "retrieve" and "tool_calls" in upd:
-        lines.append(f"    → cập nhật: tool_calls=list[{upd['tool_calls']}], retrieve_count={upd.get('retrieve_count', '?')}")
+        lines.append(
+            f"    → cập nhật: tool_calls=list[{upd['tool_calls']}], retrieve_count={upd.get('retrieve_count', '?')}"
+        )
 
     if step.name == "generate":
         gen_val = upd.get("generation")
         if isinstance(gen_val, str):
-            lines.append(f"    → cập nhật: generation sinh xong ({len(gen_val)} ký tự đã tóm tắt)")
+            lines.append(
+                f"    → cập nhật: generation sinh xong ({len(gen_val)} ký tự đã tóm tắt)"
+            )
 
     if step.error:
         lines.append(f"    ⚠ LỖI NODE: {step.error}")
@@ -576,15 +690,25 @@ def render_trajectory(traj: Trajectory, *, title: Optional[str] = None) -> str:
     lines.append(f"Câu hỏi : {traj.query}")
     lines.append(f"Bắt đầu : {traj.started_at.strftime('%Y-%m-%d %H:%M:%S')}")
 
-    end_desc = "ĐỦ NGỮ CẢNH" if traj.context_sufficient else (
-        f"HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, "
-        f"{traj.retrieve_count}/{traj.max_retrieve})"
-        if traj.hit_max_retrieve else "CHƯA ĐỦ NGỮ CẢNH"
+    end_desc = (
+        "ĐỦ NGỮ CẢNH"
+        if traj.context_sufficient
+        else (
+            f"HẾT LƯỢT RETRIEVE (best-effort, context_sufficient=False, "
+            f"{traj.retrieve_count}/{traj.max_retrieve})"
+            if traj.hit_max_retrieve
+            else "CHƯA ĐỦ NGỮ CẢNH"
+        )
     )
     lines.append(
         f"Tổng thời gian: {traj.duration_s:.1f}s | Số bước node: {len(traj.steps)} "
         f"| Vòng lặp retrieve: {traj.retrieve_count}/{traj.max_retrieve}"
     )
+    if traj.facet_retrieve_counts:
+        facet_loops_str = ", ".join(
+            f"{label}={n}" for label, n in traj.facet_retrieve_counts.items()
+        )
+        lines.append(f"Vòng lặp theo facet: {facet_loops_str}")
     lines.append(f"Kết thúc: {end_desc}")
 
     usage = traj.token_usage or {}
@@ -610,8 +734,13 @@ def render_trajectory(traj: Trajectory, *, title: Optional[str] = None) -> str:
     lines.append("")
     lines.append("── QUỸ ĐẠO THỰC THI " + "─" * 55)
 
-    ctx: dict = {"doc_count": 0, "retrieve_loop": 0}
+    # 1 ctx RIÊNG cho mỗi facet (key=facet_label, None=cấp cha) — N facet chạy
+    # song song nên steps của chúng interleave trong traj.steps; dùng chung 1
+    # ctx sẽ tính sai delta documents / vòng lặp hiện tại (trộn lẫn facet A
+    # với facet B khi steps của 2 facet xen kẽ nhau trong danh sách).
+    ctx_by_facet: dict[Optional[str], dict] = {}
     for step in traj.steps:
+        ctx = ctx_by_facet.setdefault(step.facet, {"doc_count": 0, "retrieve_loop": 0})
         lines.extend(_render_step(step, ctx))
         lines.append("")
 
@@ -623,7 +752,9 @@ def render_trajectory(traj: Trajectory, *, title: Optional[str] = None) -> str:
     )
     if tool_counts:
         tool_str = ", ".join(f"{name} ×{n}" for name, n in tool_counts.items())
-        lines.append(f"Tool đã gọi     : {tool_str}  (tổng {total_tool_calls} lượt, {tool_errors} lỗi)")
+        lines.append(
+            f"Tool đã gọi     : {tool_str}  (tổng {total_tool_calls} lượt, {tool_errors} lỗi)"
+        )
     else:
         lines.append("Tool đã gọi     : (không có)")
 
@@ -634,10 +765,14 @@ def render_trajectory(traj: Trajectory, *, title: Optional[str] = None) -> str:
     local_calls = sum(1 for c in all_llm if c.provider == "openai")
     other_calls = len(all_llm) - gemini_calls - local_calls
     other_str = f", khác {other_calls}" if other_calls else ""
-    lines.append(f"Số lượt gọi LLM : {len(all_llm)} (Gemini {gemini_calls}, Local {local_calls}{other_str})")
+    lines.append(
+        f"Số lượt gọi LLM : {len(all_llm)} (Gemini {gemini_calls}, Local {local_calls}{other_str})"
+    )
 
     final_docs = traj.final_state.get("documents", [])
-    lines.append(f"Chunk cuối cùng : {len(final_docs) if isinstance(final_docs, list) else 0}")
+    lines.append(
+        f"Chunk cuối cùng : {len(final_docs) if isinstance(final_docs, list) else 0}"
+    )
 
     slowest = sorted(traj.steps, key=lambda s: s.duration_s, reverse=True)[:3]
     if slowest:

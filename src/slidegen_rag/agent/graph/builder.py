@@ -1,14 +1,21 @@
 """
-LangGraph builder cho Corrective RAG (CRAG) Agent — redesigned flow.
+LangGraph builder cho Multi-Facet Parallel Retrieval CRAG Agent.
 
 Pipeline:
     START
-      → retrieve_node         (LLM quyết định tool_calls)
-      → tool_node             (thực thi tool_calls, lấy raw docs)
-      → grade_documents_node  (LLM lọc docs liên quan)
-      → context_evaluator_node
-            ├─ sufficient     → generate_node → END
-            └─ not sufficient → retrieve_node  (kèm feedback, tối đa MAX_RETRIEVE lần)
+      → decompose_facets      (LLM tách câu hỏi gốc thành N facet độc lập)
+      → [fan-out Send]        (N bản facet_subgraph chạy SONG SONG, mỗi bản
+                                giữ documents/search_history/retrieve_count/
+                                context_sufficient RIÊNG — xem
+                                agent/graph/facet_state.py)
+      → facet_subgraph × N    (mỗi bản: retrieve→tool→grade_documents→
+                                context_evaluator, retry nội bộ như cũ, thoát
+                                khi đủ HOẶC hết MAX_RETRIEVE riêng của facet đó)
+      → collect_facets        (gộp + dedup documents xuyên-facet, tính
+                                facet_sufficiency — CHẠY ĐÚNG 1 LẦN)
+      → generate               (đọc CONTEXT_BUDGET_CHARS KHÔNG ĐỔI trên pool
+                                đã gộp — CHẠY ĐÚNG 1 LẦN bất kể N facet)
+      → END
 
 Sử dụng:
     from slidegen_rag.agent.graph.builder import build_graph
@@ -22,22 +29,47 @@ Sử dụng:
 import logging
 
 from langgraph.graph import END, StateGraph
+from langgraph.types import Send
 
-from slidegen_rag.agent.graph.router import decide_after_context_eval
+from slidegen_rag.agent.graph.facet_state import FacetState, make_initial_facet_state
+from slidegen_rag.agent.graph.facet_subgraph import facet_branch_node
 from slidegen_rag.agent.graph.state import AgentState
-from slidegen_rag.agent.nodes.context_evaluator_node import context_evaluator_node
+from slidegen_rag.agent.nodes.collect_facets_node import collect_facets_node
+from slidegen_rag.agent.nodes.decompose_facets_node import decompose_facets_node
 from slidegen_rag.agent.nodes.generate_node import generate_node
-from slidegen_rag.agent.nodes.grade_documents_node import grade_documents_node
-from slidegen_rag.agent.nodes.retrieve_node import retrieve_node
-from slidegen_rag.agent.nodes.tool_node import tool_node
 from slidegen_rag.agent.observability.tracing import init_langsmith
 
 logger = logging.getLogger(__name__)
 
 
+def fan_out_facets(state: AgentState) -> list[Send]:
+    """
+    Conditional edge sau decompose_facets: phát ra 1 Send("facet_subgraph", ...)
+    cho mỗi facet trong state["facet_queries"] — LangGraph chạy các Send này
+    SONG SONG, mỗi bản với 1 FacetState độc lập (không chia sẻ documents/
+    search_history/retrieve_count với nhau).
+
+    `seed_drill_candidates` (nếu có, từ ConversationManager khi câu hỏi là
+    follow-up) được copy NGUYÊN VẸN vào MỌI facet — không chia theo facet vì
+    không có cách xác định đáng tin cậy node cũ thuộc facet mới nào; trùng
+    lặp vô hại vì grade_documents_node._prune_drilled tự loại khi đã đào.
+    """
+    facet_queries = state.get("facet_queries", [])
+    seed_drill_candidates = state.get("seed_drill_candidates", [])
+    return [
+        Send(
+            "facet_subgraph",
+            make_initial_facet_state(
+                fq["label"], fq["query"], seed_drill_candidates=seed_drill_candidates
+            ),
+        )
+        for fq in facet_queries
+    ]
+
+
 def build_graph():
     """
-    Lắp ráp và compile CRAG LangGraph.
+    Lắp ráp và compile Multi-Facet Parallel Retrieval CRAG LangGraph.
 
     Returns:
         CompiledGraph: Graph sẵn sàng để invoke / ainvoke / stream.
@@ -50,38 +82,29 @@ def build_graph():
     workflow = StateGraph(AgentState)
 
     # ── Đăng ký nodes ─────────────────────────────────────────────────────
-    workflow.add_node("retrieve", retrieve_node)
-    workflow.add_node("tool", tool_node)
-    workflow.add_node("grade_documents", grade_documents_node)
-    workflow.add_node("context_evaluator", context_evaluator_node)
+    workflow.add_node("decompose_facets", decompose_facets_node)
+    workflow.add_node("facet_subgraph", facet_branch_node, input_schema=FacetState)
+    workflow.add_node("collect_facets", collect_facets_node)
     workflow.add_node("generate", generate_node)
 
     # ── Entry point ────────────────────────────────────────────────────────
-    workflow.set_entry_point("retrieve")
+    workflow.set_entry_point("decompose_facets")
 
     # ── Edges ─────────────────────────────────────────────────────────────
-    # retrieve → tool: LLM đã quyết định tool_calls, tool_node thực thi
-    workflow.add_edge("retrieve", "tool")
+    # decompose_facets → fan-out Send theo facet (chạy song song)
+    workflow.add_conditional_edges("decompose_facets", fan_out_facets)
 
-    # tool → grade: raw docs được lọc bằng LLM grader
-    workflow.add_edge("tool", "grade_documents")
+    # mỗi bản facet_subgraph (đã thoát nội bộ ở END của chính nó) → collect_facets
+    workflow.add_edge("facet_subgraph", "collect_facets")
 
-    # grade → evaluator: docs đã lọc được đánh giá xem đủ chưa
-    workflow.add_edge("grade_documents", "context_evaluator")
-
-    # evaluator → generate hoặc quay lại retrieve (kèm feedback)
-    workflow.add_conditional_edges(
-        "context_evaluator",
-        decide_after_context_eval,
-        {
-            "generate": "generate",
-            "retrieve": "retrieve",
-        },
-    )
+    # collect_facets → generate (1 lần, trên pool documents đã gộp)
+    workflow.add_edge("collect_facets", "generate")
 
     # generate → END
     workflow.add_edge("generate", END)
 
     graph = workflow.compile()
-    logger.info("[build_graph] CRAG graph compiled successfully")
+    logger.info(
+        "[build_graph] Multi-Facet Parallel Retrieval CRAG graph compiled successfully"
+    )
     return graph

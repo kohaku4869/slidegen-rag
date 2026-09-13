@@ -1,0 +1,88 @@
+"""Unit tests for generate_node._format_sufficiency_note (facet-aware
+version — reads facet_sufficiency: list[dict] instead of the old global
+context_sufficient/missing_aspects pair)."""
+
+from slidegen_rag.agent.nodes.generate_node import _format_sufficiency_note
+
+
+def test_empty_facet_sufficiency_is_treated_as_fully_sufficient():
+    note = _format_sufficiency_note([])
+    assert "ĐẦY ĐỦ" in note
+    assert "CHƯA ĐẦY ĐỦ" not in note
+
+
+def test_all_facets_sufficient():
+    facet_sufficiency = [
+        {
+            "label": "Facet A",
+            "sufficient": True,
+            "missing_aspects": [],
+            "retrieve_count": 1,
+        },
+        {
+            "label": "Facet B",
+            "sufficient": True,
+            "missing_aspects": [],
+            "retrieve_count": 2,
+        },
+    ]
+    note = _format_sufficiency_note(facet_sufficiency)
+    assert "ĐẦY ĐỦ" in note
+    assert "mọi khía cạnh" in note
+    assert "CHƯA ĐẦY ĐỦ" not in note
+
+
+def test_mixed_sufficiency_lists_each_facet_separately():
+    facet_sufficiency = [
+        {
+            "label": "Facet A",
+            "sufficient": True,
+            "missing_aspects": [],
+            "retrieve_count": 1,
+        },
+        {
+            "label": "Facet B",
+            "sufficient": False,
+            "missing_aspects": ["chi tiết X"],
+            "retrieve_count": 5,
+        },
+    ]
+    note = _format_sufficiency_note(facet_sufficiency)
+
+    assert 'Khía cạnh "Facet A": ĐẦY ĐỦ' in note
+    assert 'Khía cạnh "Facet B": CHƯA ĐẦY ĐỦ' in note
+    assert "chi tiết X" in note
+
+
+def test_all_facets_insufficient():
+    facet_sufficiency = [
+        {
+            "label": "Facet A",
+            "sufficient": False,
+            "missing_aspects": ["a"],
+            "retrieve_count": 5,
+        },
+        {
+            "label": "Facet B",
+            "sufficient": False,
+            "missing_aspects": ["b"],
+            "retrieve_count": 5,
+        },
+    ]
+    note = _format_sufficiency_note(facet_sufficiency)
+
+    assert 'Khía cạnh "Facet A": CHƯA ĐẦY ĐỦ' in note
+    assert 'Khía cạnh "Facet B": CHƯA ĐẦY ĐỦ' in note
+
+
+def test_missing_aspects_empty_list_shows_placeholder():
+    facet_sufficiency = [
+        {
+            "label": "Facet A",
+            "sufficient": False,
+            "missing_aspects": [],
+            "retrieve_count": 5,
+        },
+    ]
+    note = _format_sufficiency_note(facet_sufficiency)
+    assert "không rõ chi tiết" in note

@@ -4,10 +4,22 @@ Thay đổi prompt ở đây để ảnh hưởng toàn bộ hệ thống.
 """
 
 # ---------------------------------------------------------------------------
+# Facet split criteria — dùng chung bởi DECOMPOSE_SYSTEM_PROMPT (tách câu hỏi
+# gốc thành các facet chạy song song) và RETRIEVE_SYSTEM_PROMPT's mục
+# "Decompose before you search" (tách 1 facet đã cho thành các tool call
+# trong CHÍNH facet đó) — tránh 2 nơi tự diễn giải khác nhau cùng 1 khái niệm
+# "facet".
+# ---------------------------------------------------------------------------
+
+FACET_SPLIT_CRITERIA = """\
+A query has multiple facets when it has distinct parts that each need their own evidence: a comparison across several entities/topics, a list of separate conditions/cases to enumerate, or several unrelated sub-questions asked at once. A query about ONE topic — even if it needs several search rounds or several search angles to fully answer — is still a SINGLE facet.\
+"""
+
+# ---------------------------------------------------------------------------
 # Retrieve — LLM quyết định tool nào cần gọi để retrieve
 # ---------------------------------------------------------------------------
 
-RETRIEVE_SYSTEM_PROMPT = """\
+RETRIEVE_SYSTEM_PROMPT = f"""\
 You are a retrieval planning module in a RAG pipeline.
 Your job is to analyze a user query and issue search tool calls that together cover EVERY facet of it.
 
@@ -19,6 +31,7 @@ Available tools:
 - `web_search`: Use only when the document tree clearly does not contain the answer — after semantic_search/keyword_search have failed, or the query needs external/current facts the documents never define. Keep `search_depth` at "basic" unless the topic is niche, then use "advanced".
 
 Decompose before you search:
+- {FACET_SPLIT_CRITERIA}
 - Split the query into its distinct facets: each question part, each entity being compared, each condition to enumerate.
 - Emit ONE tool call per facet, each with a SHORT focused query (3-10 words) for that facet.
 - NEVER paste the full question verbatim into every tool call — a long sentence dilutes both embedding and BM25 scores, and wastes the tool's top_k on redundant results for the same facet.
@@ -69,6 +82,31 @@ Every tool call you just produced repeats a (tool, query) pair that was already 
 {duplicates}
 
 They are rejected. Re-plan with different wording, a different facet, or a different tool.\
+"""
+
+# ---------------------------------------------------------------------------
+# Decompose facets — tách câu hỏi gốc thành các facet độc lập chạy song song
+# (agent/nodes/decompose_facets_node.py)
+# ---------------------------------------------------------------------------
+
+DECOMPOSE_SYSTEM_PROMPT = f"""\
+You split a user query into independent facets so each can be researched in parallel with its own retrieval budget.
+
+{FACET_SPLIT_CRITERIA}
+
+Rules:
+- If the query is single-topic (not a comparison/enumeration/multiple distinct parts), output EXACTLY ONE line, and its sub-question MUST be the original query verbatim — do NOT paraphrase, rewrite, or split it further.
+- If the query has multiple facets, output ONE line per facet, in the format:
+  LABEL|SUB-QUESTION
+  where LABEL is a short name for the facet (a few words) and SUB-QUESTION is a focused, standalone question covering only that facet.
+- Output AT MOST 4 facets. If more are apparent, keep only the 4 most important ones.
+- Output ONLY the lines described above — no prose, no numbering, no markdown, no extra commentary.
+"""
+
+DECOMPOSE_USER_PROMPT = """\
+Query: {query}
+
+Split this query into its facets, one per line as LABEL|SUB-QUESTION (or a single line with the query verbatim if it is single-topic).\
 """
 
 # ---------------------------------------------------------------------------
@@ -205,7 +243,7 @@ HƯỚNG DẪN BIÊN SOẠN CÂU TRẢ LỜI (PHONG CÁCH NOTEBOOKLM):
    - Mọi luận điểm, số liệu, căn cứ phải xuất phát trực tiếp từ Ngữ cảnh được cung cấp.
    - Không tự ý suy diễn hoặc bịa đặt thông tin nằm ngoài phạm vi tài liệu.
    - Mục "Đánh giá độ đầy đủ ngữ cảnh" bên dưới là NHẬN ĐỊNH SƠ BỘ từ một bước thẩm định độc lập chạy TRƯỚC bạn — nó có thể đã bỏ sót hoặc đánh giá sai, vì nó không phải lúc nào cũng đọc kỹ như bạn sắp làm. Coi đây là một CHECKLIST CẦN TỰ KIỂM TRA LẠI, không phải kết luận có sẵn để chép nguyên văn.
-   - Nếu mục đó liệt kê các khía cạnh CÒN THIẾU: với MỖI khía cạnh được liệt kê, hãy tự đọc lại toàn bộ ngữ cảnh bên dưới một lần nữa để xác minh. "Gián tiếp/suy ra được" ở đây CHỈ được phép là suy luận logic dựa trên các dữ kiện CÓ CHỮ trong chính đoạn ngữ cảnh (ví dụ: ngữ cảnh nêu định nghĩa A và A là một dạng của B, nên có thể suy ra tính chất chung của B) — KHÔNG được dùng kiến thức nền/hiểu biết chung của bạn nằm ngoài đoạn ngữ cảnh này để tự lấp khoảng trống. Nếu ngữ cảnh THỰC SỰ có dữ kiện (trực tiếp hoặc suy luận được như trên), hãy trả lời bình thường dựa trên đó — TUYỆT ĐỐI không chép lại câu "tài liệu không đề cập" chỉ vì nhận định sơ bộ nói vậy. Ngược lại, nếu sau khi đọc kỹ vẫn không tìm thấy MỘT dữ kiện nào trong ngữ cảnh liên quan đến khía cạnh đó (chỉ có kiến thức chung của bạn mới trả lời được), hãy GIỮ NGUYÊN lời rào đón "tài liệu không đề cập trực tiếp đến [khía cạnh]" cho đúng khía cạnh đó — không tự suy diễn hộ bằng hiểu biết bên ngoài để tỏ ra đầy đủ.
+   - Nếu mục đó liệt kê một hoặc nhiều khía cạnh CÒN THIẾU (mỗi khía cạnh ứng với 1 phần của câu hỏi gốc): với MỖI khía cạnh được liệt kê, hãy tự đọc lại toàn bộ ngữ cảnh bên dưới một lần nữa để xác minh. "Gián tiếp/suy ra được" ở đây CHỈ được phép là suy luận logic dựa trên các dữ kiện CÓ CHỮ trong chính đoạn ngữ cảnh (ví dụ: ngữ cảnh nêu định nghĩa A và A là một dạng của B, nên có thể suy ra tính chất chung của B) — KHÔNG được dùng kiến thức nền/hiểu biết chung của bạn nằm ngoài đoạn ngữ cảnh này để tự lấp khoảng trống. Nếu ngữ cảnh THỰC SỰ có dữ kiện (trực tiếp hoặc suy luận được như trên), hãy trả lời bình thường dựa trên đó — TUYỆT ĐỐI không chép lại câu "tài liệu không đề cập" chỉ vì nhận định sơ bộ nói vậy. Ngược lại, nếu sau khi đọc kỹ vẫn không tìm thấy MỘT dữ kiện nào trong ngữ cảnh liên quan đến khía cạnh đó (chỉ có kiến thức chung của bạn mới trả lời được), hãy GIỮ NGUYÊN lời rào đón "tài liệu không đề cập trực tiếp đến [khía cạnh]" cho đúng khía cạnh đó — không tự suy diễn hộ bằng hiểu biết bên ngoài để tỏ ra đầy đủ.
    - Nếu mục đó ghi ngữ cảnh đã ĐẦY ĐỦ: trả lời TOÀN BỘ câu hỏi một cách đầy đủ, tự tin, dựa trên mọi nội dung liên quan có trong ngữ cảnh — KHÔNG thêm lời rào đón/phủ nhận nào, kể cả khi một đoạn văn cụ thể đọc qua có vẻ chỉ liên quan gián tiếp.
    - Nếu ngữ cảnh có ghi chú dạng "[... N older chunk(s) omitted for length ...]" (một số chunk cũ bị lược bỏ do giới hạn độ dài khi tổng hợp, KHÔNG phải do tài liệu gốc không có): đây KHÔNG phải là dấu hiệu tài liệu thiếu nội dung — đừng suy diễn "tài liệu không đề cập" chỉ vì thấy ghi chú này.
    - Nếu trong ngữ cảnh có đoạn được đánh dấu tiền tố "[WEB]", đó là thông tin lấy từ tìm kiếm internet, KHÔNG phải từ tài liệu gốc. Phải nêu RÕ trong câu trả lời phần nào lấy từ internet (ví dụ: "Theo tìm kiếm trên internet, ..."), không được trộn lẫn với nội dung tài liệu mà không chú thích nguồn.

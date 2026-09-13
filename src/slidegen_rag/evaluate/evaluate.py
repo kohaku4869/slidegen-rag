@@ -881,22 +881,32 @@ async def evaluate_single_answer_with_judge(
 
 def _parse_trajectory_summary(
     traj_text: Optional[str],
-) -> tuple[Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str], Optional[str]]:
     """
-    Trích 2 chỉ số ngắn gọn từ text trajectory (dùng chung cho cả câu vừa
+    Trích 3 chỉ số ngắn gọn từ text trajectory (dùng chung cho cả câu vừa
     chạy lẫn câu nạp từ cache — cả hai đều ở dạng text render sẵn, nên chỉ
     cần parse text thay vì phải giữ lại Trajectory object).
 
+    "Vòng lặp retrieve: N/MAX" giữ nguyên ý nghĩa MAX qua các facet (xem
+    Trajectory.retrieve_count trong agent/observability/trajectory.py) —
+    KHÔNG đổi format dòng này để không vỡ script/CSV cũ đang parse nó.
+    "Vòng lặp theo facet: label1=n1, label2=n2, ..." là dòng MỚI, chỉ xuất
+    hiện khi trajectory có >= 1 facet (mọi trajectory mới đều có).
+
     Returns:
-        (traj_loops: "2/3" hoặc None, traj_tools: "semantic_search x1, ..." hoặc None)
+        (traj_loops: "2/3" hoặc None,
+         traj_tools: "semantic_search x1, ..." hoặc None,
+         traj_facet_loops: "label1=n1, label2=n2, ..." hoặc None)
     """
     if not traj_text:
-        return None, None
+        return None, None, None
     loop_match = re.search(r"Vòng lặp retrieve:\s*(\d+/\d+)", traj_text)
     tools_match = re.search(r"Tool đã gọi\s*:\s*(.+)", traj_text)
+    facet_loops_match = re.search(r"Vòng lặp theo facet:\s*(.+)", traj_text)
     traj_loops = loop_match.group(1) if loop_match else None
     traj_tools = tools_match.group(1).strip() if tools_match else None
-    return traj_loops, traj_tools
+    traj_facet_loops = facet_loops_match.group(1).strip() if facet_loops_match else None
+    return traj_loops, traj_tools, traj_facet_loops
 
 
 def run_evaluation_for_topic(
@@ -932,7 +942,7 @@ def run_evaluation_for_topic(
         ref = item["reference"]
         chunks = item["used_chunks"]
         traj_text = item.get("trajectory")
-        traj_loops, traj_tools = _parse_trajectory_summary(traj_text)
+        traj_loops, traj_tools, traj_facet_loops = _parse_trajectory_summary(traj_text)
 
         if progress_callback:
             progress_callback(f"[{topic}] LLM Judge đang chấm câu {idx}/{total}...")
@@ -987,6 +997,7 @@ def run_evaluation_for_topic(
                 "used_chunks": chunks,
                 "traj_loops": traj_loops,
                 "traj_tools": traj_tools,
+                "traj_facet_loops": traj_facet_loops,
                 "traj_text": traj_text
                 or "(chưa có trajectory — cache cũ trước khi bật tính năng này)",
             }
