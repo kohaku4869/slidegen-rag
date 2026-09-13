@@ -46,11 +46,19 @@ def _base_state(**overrides) -> dict:
 
 @pytest.mark.asyncio
 async def test_relevant_and_incomplete_both_kept_in_documents(monkeypatch):
-    monkeypatch.setattr(gdn, "_grader_llm", _fake_llm({
-        "full answer chunk": "relevant",
-        "summary fragment chunk": "relevant_incomplete",
-    }))
-    monkeypatch.setattr(gdn, "describe_node", lambda node_id: {"has_children": True, "has_parent": True})
+    monkeypatch.setattr(
+        gdn,
+        "_grader_llm",
+        _fake_llm(
+            {
+                "full answer chunk": "relevant",
+                "summary fragment chunk": "relevant_incomplete",
+            }
+        ),
+    )
+    monkeypatch.setattr(
+        gdn, "describe_node", lambda node_id: {"has_children": True, "has_parent": True}
+    )
 
     state = _base_state(
         pending_documents=["full answer chunk", "summary fragment chunk"],
@@ -70,8 +78,14 @@ async def test_relevant_and_incomplete_both_kept_in_documents(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_incomplete_needs_context_when_no_children(monkeypatch):
-    monkeypatch.setattr(gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"}))
-    monkeypatch.setattr(gdn, "describe_node", lambda node_id: {"has_children": False, "has_parent": True})
+    monkeypatch.setattr(
+        gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"})
+    )
+    monkeypatch.setattr(
+        gdn,
+        "describe_node",
+        lambda node_id: {"has_children": False, "has_parent": True},
+    )
 
     state = _base_state(
         pending_documents=["fragment"],
@@ -85,8 +99,14 @@ async def test_incomplete_needs_context_when_no_children(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_incomplete_isolated_node_not_added_as_candidate(monkeypatch):
-    monkeypatch.setattr(gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"}))
-    monkeypatch.setattr(gdn, "describe_node", lambda node_id: {"has_children": False, "has_parent": False})
+    monkeypatch.setattr(
+        gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"})
+    )
+    monkeypatch.setattr(
+        gdn,
+        "describe_node",
+        lambda node_id: {"has_children": False, "has_parent": False},
+    )
 
     state = _base_state(
         pending_documents=["fragment"],
@@ -123,7 +143,9 @@ async def test_no_pending_keeps_existing_documents_and_prunes_drilled():
         documents=["old doc"],
         document_node_ids=[1],
         drill_candidates=[{"node_id": 1, "content": "old", "reason": "need_detail"}],
-        tool_calls=[{"name": "expand_node", "args": {"node_id": 1, "direction": "children"}}],
+        tool_calls=[
+            {"name": "expand_node", "args": {"node_id": 1, "direction": "children"}}
+        ],
     )
 
     result = await gdn.grade_documents_node(state)
@@ -139,7 +161,9 @@ async def test_find_in_subtree_call_prunes_matching_root(monkeypatch):
 
     state = _base_state(
         drill_candidates=[{"node_id": 7, "content": "old", "reason": "need_detail"}],
-        tool_calls=[{"name": "find_in_subtree", "args": {"root_node_id": 7, "patterns": ["x"]}}],
+        tool_calls=[
+            {"name": "find_in_subtree", "args": {"root_node_id": 7, "patterns": ["x"]}}
+        ],
     )
 
     result = await gdn.grade_documents_node(state)
@@ -147,8 +171,52 @@ async def test_find_in_subtree_call_prunes_matching_root(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_incomplete_no_children_many_siblings_needs_siblings(monkeypatch):
+    monkeypatch.setattr(
+        gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"})
+    )
+    monkeypatch.setattr(
+        gdn,
+        "describe_node",
+        lambda node_id: {"has_children": False, "has_parent": True, "n_siblings": 4},
+    )
+
+    state = _base_state(
+        pending_documents=["fragment"],
+        pending_meta=[{"node_id": 5, "layer": 0}],
+    )
+
+    result = await gdn.grade_documents_node(state)
+
+    assert result["drill_candidates"][0]["reason"] == "need_siblings"
+
+
+@pytest.mark.asyncio
+async def test_incomplete_one_sibling_still_needs_context(monkeypatch):
+    monkeypatch.setattr(
+        gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"})
+    )
+    monkeypatch.setattr(
+        gdn,
+        "describe_node",
+        lambda node_id: {"has_children": False, "has_parent": True, "n_siblings": 1},
+    )
+
+    state = _base_state(
+        pending_documents=["fragment"],
+        pending_meta=[{"node_id": 5, "layer": 0}],
+    )
+
+    result = await gdn.grade_documents_node(state)
+
+    assert result["drill_candidates"][0]["reason"] == "need_context"
+
+
+@pytest.mark.asyncio
 async def test_describe_node_none_skips_candidate(monkeypatch):
-    monkeypatch.setattr(gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"}))
+    monkeypatch.setattr(
+        gdn, "_grader_llm", _fake_llm({"fragment": "relevant_incomplete"})
+    )
     monkeypatch.setattr(gdn, "describe_node", lambda node_id: None)
 
     state = _base_state(

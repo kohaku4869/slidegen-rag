@@ -34,13 +34,21 @@ def _get_llm_with_tools():
     enabled = web_search_enabled()
     llm = _llm_cache.get(enabled)
     if llm is None:
-        retrieval_tools = [semantic_search, keyword_search, expand_node, find_in_subtree]
+        retrieval_tools = [
+            semantic_search,
+            keyword_search,
+            expand_node,
+            find_in_subtree,
+        ]
         if enabled:
             retrieval_tools.append(web_search)
         else:
-            logger.info("[retrieve_node] web_search bị tắt (TAVILY_API_KEY thiếu hoặc benchmark closed-book)")
+            logger.info(
+                "[retrieve_node] web_search bị tắt (TAVILY_API_KEY thiếu hoặc benchmark closed-book)"
+            )
         llm = LLMModel(temperature=0.0).bind_tools(
-            retrieval_tools, tool_choice="any"  # bắt buộc phải gọi ít nhất 1 tool
+            retrieval_tools,
+            tool_choice="any",  # bắt buộc phải gọi ít nhất 1 tool
         )
         _llm_cache[enabled] = llm
     return llm
@@ -55,7 +63,9 @@ def _fallback_tool_call(query: str, tried: set[tuple[str, str]]) -> dict | None:
         ("keyword_search", {"name": "keyword_search", "args": {"query": query}}),
     ]
     if web_search_enabled():
-        candidates.append(("web_search", {"name": "web_search", "args": {"query": query}}))
+        candidates.append(
+            ("web_search", {"name": "web_search", "args": {"query": query}})
+        )
     for name, tc in candidates:
         key = (name, query.lower().strip())
         if key not in tried:
@@ -63,13 +73,52 @@ def _fallback_tool_call(query: str, tried: set[tuple[str, str]]) -> dict | None:
     return None
 
 
+# Ngưỡng chọn tool đào sâu — đặt ở đây vì đây là heuristic hướng prompt của
+# retrieve_node, không phải cấu trúc dữ liệu của node_digest.
+_DIGEST_MANY_CHILDREN = 5
+_DIGEST_MIN_SIBLINGS = 2
+
+
+def _digest_hint(d: dict) -> str:
+    """Gợi ý tool/direction nên dùng cho 1 entry của node_digest, theo thứ tự
+    ưu tiên: nhiều con → find_in_subtree (đọc hết cả nhánh quá đắt); có con
+    (ít) → expand_node(children); không con nhưng nhiều anh em → node này là
+    1 MỤC trong danh sách liệt kê, anh em mới là nơi trả lời trực tiếp →
+    expand_node(siblings); còn lại nếu có cha → expand_node(parent) để lấy
+    bối cảnh bao quát hơn. Trả về "" khi không có gợi ý nào (node lá cô lập)
+    hoặc khi describe_node không tra được (n_children is None)."""
+    n_children = d.get("n_children")
+    if n_children is None:
+        return ""
+    if n_children >= _DIGEST_MANY_CHILDREN:
+        return f"find_in_subtree(root_node_id={d['id']}, patterns=[...])"
+    if n_children >= 1:
+        return f'expand_node(node_id={d["id"]}, direction="children")'
+    if (d.get("n_siblings") or 0) >= _DIGEST_MIN_SIBLINGS:
+        return f'expand_node(node_id={d["id"]}, direction="siblings")'
+    if d.get("has_parent"):
+        return f'expand_node(node_id={d["id"]}, direction="parent")'
+    return ""
+
+
 def _format_digest(digest: list[dict]) -> str:
     if not digest:
         return "(chưa có)"
     lines = []
     for d in digest:
-        tag = " [có thể expand]" if d.get("has_children") else ""
-        lines.append(f"- §N{d['id']}|L{d['layer']}§{tag}: {d['snippet']}")
+        n_children = d.get("n_children")
+        if n_children is None:
+            # describe_node không tra được (tree chưa sẵn sàng/node_id lạ) —
+            # giữ nguyên tag cũ, không bịa số con/anh em.
+            counts = " [có thể expand]" if d.get("has_children") else ""
+        else:
+            counts = f" | {n_children} con, {d.get('n_siblings') or 0} anh em"
+        heading = d.get("heading") or ""
+        heading_part = f" {heading}" if heading else ""
+        hint = _digest_hint(d)
+        hint_part = f" → gợi ý: {hint}" if hint else ""
+        lines.append(f"- §N{d['id']}|L{d['layer']}§{heading_part}{counts}{hint_part}")
+        lines.append(f"  {d['snippet']}")
     return "\n".join(lines)
 
 
@@ -84,10 +133,12 @@ def _format_drill_candidates(candidates: list[dict]) -> str:
         reason = c.get("reason", "")
         if reason == "need_detail":
             hint = f'expand_node(node_id={c["node_id"]}, direction="children")'
+        elif reason == "need_siblings":
+            hint = f'expand_node(node_id={c["node_id"]}, direction="siblings")'
         elif reason == "need_context":
             hint = f'expand_node(node_id={c["node_id"]}, direction="parent")'
         else:
-            hint = f'expand_node(node_id={c["node_id"]})'
+            hint = f"expand_node(node_id={c['node_id']})"
         snippet = str(c.get("content", ""))[:_CANDIDATE_SNIPPET_CHARS]
         lines.append(f"- §N{c['node_id']}§ [{reason}] → gợi ý: {hint}\n  {snippet}")
     return "\n".join(lines)
@@ -138,7 +189,9 @@ async def retrieve_node(state: AgentState) -> dict:
             digest=_format_digest(digest),
             tried=format_history(history) or "(chưa có)",
         )
-        logger.info(f"[retrieve_node] Retry #{retrieve_count} with feedback: '{feedback[:80]}'")
+        logger.info(
+            f"[retrieve_node] Retry #{retrieve_count} with feedback: '{feedback[:80]}'"
+        )
     else:
         user_content = RETRIEVE_USER_PROMPT_NO_FEEDBACK.format(query=query)
         logger.info(f"[retrieve_node] Initial retrieval for: '{query[:80]}'")
@@ -171,14 +224,18 @@ async def retrieve_node(state: AgentState) -> dict:
             seen_in_batch.add(key)  # chặn cả trùng trong cùng 1 batch
 
     if dupes and not fresh:
-        logger.warning(f"[retrieve_node] Toàn bộ {len(dupes)} tool call trùng — nhắc lại LLM 1 lần")
+        logger.warning(
+            f"[retrieve_node] Toàn bộ {len(dupes)} tool call trùng — nhắc lại LLM 1 lần"
+        )
         retry_messages = messages + [
-            HumanMessage(content=RETRIEVE_DUPLICATE_RETRY_PROMPT.format(
-                duplicates="\n".join(
-                    f"- {tc['name']}({(tc.get('args') or {}).get('query', (tc.get('args') or {}).get('node_id', ''))!r})"
-                    for tc in dupes
+            HumanMessage(
+                content=RETRIEVE_DUPLICATE_RETRY_PROMPT.format(
+                    duplicates="\n".join(
+                        f"- {tc['name']}({(tc.get('args') or {}).get('query', (tc.get('args') or {}).get('node_id', ''))!r})"
+                        for tc in dupes
+                    )
                 )
-            ))
+            )
         ]
         try:
             retry_response = await llm_with_tools.ainvoke(retry_messages)
@@ -196,10 +253,14 @@ async def retrieve_node(state: AgentState) -> dict:
     if not fresh:
         fb = _fallback_tool_call(query, already_tried)
         if fb is not None:
-            logger.warning("[retrieve_node] Không có tool call mới hợp lệ — dùng fallback")
+            logger.warning(
+                "[retrieve_node] Không có tool call mới hợp lệ — dùng fallback"
+            )
             fresh = [fb]
         else:
-            logger.warning("[retrieve_node] Mọi lựa chọn fallback đều đã thử — không thêm tool call mới")
+            logger.warning(
+                "[retrieve_node] Mọi lựa chọn fallback đều đã thử — không thêm tool call mới"
+            )
 
     logger.info(
         f"[retrieve_node] Generated {len(fresh)} tool call(s): "

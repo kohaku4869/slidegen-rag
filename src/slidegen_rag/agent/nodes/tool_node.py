@@ -5,7 +5,11 @@ import re
 from langchain_core.runnables import RunnableConfig
 
 from slidegen_rag.agent.graph.state import AgentState
-from slidegen_rag.agent.tools.tools import SOFT_FAILURE_PREFIXES, TOOL_MAP
+from slidegen_rag.agent.tools.tools import (
+    SOFT_FAILURE_PREFIXES,
+    TOOL_MAP,
+    describe_node,
+)
 from slidegen_rag.agent.utils.search_history import call_key, fingerprint
 
 logger = logging.getLogger(__name__)
@@ -19,6 +23,7 @@ NODE_MARKER_RE = re.compile(r"^§N(-?\d+)\|L(-?\d+)§ ")
 _MIN_CHUNK_CHARS = 20
 _MAX_DIGEST_ENTRIES = 15
 _DIGEST_SNIPPET_CHARS = 120
+_DIGEST_HEADING_CHARS = 60
 
 
 def _split_raw(raw: str, sep: str) -> list[str]:
@@ -57,7 +62,7 @@ def _extract_chunks(raw: str, tool_name: str) -> list[dict]:
         m = NODE_MARKER_RE.match(piece)
         if m:
             node_id, layer = int(m.group(1)), int(m.group(2))
-            piece = piece[m.end():].strip()
+            piece = piece[m.end() :].strip()
 
         if len(piece) < _MIN_CHUNK_CHARS:
             continue
@@ -102,22 +107,60 @@ def _merge_documents_with_ids(
     return merged_docs, merged_ids
 
 
+def _format_heading(heading_path) -> str:
+    """Ghép 2 thành phần cuối của heading_path (mục gần node nhất), cắt
+    _DIGEST_HEADING_CHARS ký tự — đủ để LLM nhận ra node đang ở đâu trong
+    cây mà không phình digest."""
+    if not heading_path:
+        return ""
+    parts = [str(p) for p in list(heading_path)[-2:] if p]
+    return " > ".join(parts)[:_DIGEST_HEADING_CHARS]
+
+
 def _build_digest(chunk_infos: list[dict]) -> list[dict]:
     """
     Danh mục gọn các node vừa retrieve trong vòng này, để retrieve_node biết
     node nào có thể `expand_node` để lấy chi tiết thay vì search lại từ đầu.
-    Ưu tiên node có khả năng có con (layer > 0, tức node summary) lên đầu.
+    Ưu tiên node có khả năng có con lên đầu.
+
+    Dùng `describe_node()` (metadata thật từ cây) thay vì đoán qua layer —
+    cấp thêm n_children/n_siblings/has_parent/heading để retrieve_node biết
+    NÊN chọn direction nào (children/siblings/parent) chứ không chỉ biết
+    "có thể expand". `None` (không phải 0) đánh dấu "không tra được" (tree
+    chưa sẵn sàng hoặc node_id lạ) — fallback về heuristic layer cũ chỉ khi
+    đó, để _format_digest ở retrieve_node.py phân biệt được "0 con" thật với
+    "không biết".
     """
     entries = []
     for info in chunk_infos:
-        if info["node_id"] is None:
+        node_id = info["node_id"]
+        if node_id is None:
             continue
-        entries.append({
-            "id": info["node_id"],
-            "layer": info["layer"],
-            "snippet": info["text"][:_DIGEST_SNIPPET_CHARS],
-            "has_children": (info["layer"] or 0) > 0,
-        })
+        meta = describe_node(node_id)
+        if meta is not None:
+            has_children = meta.get("has_children", False)
+            n_children = meta.get("n_children")
+            n_siblings = meta.get("n_siblings")
+            has_parent = meta.get("has_parent")
+            heading = _format_heading(meta.get("heading_path"))
+        else:
+            has_children = (info["layer"] or 0) > 0
+            n_children = None
+            n_siblings = None
+            has_parent = None
+            heading = ""
+        entries.append(
+            {
+                "id": node_id,
+                "layer": info["layer"],
+                "snippet": info["text"][:_DIGEST_SNIPPET_CHARS],
+                "has_children": has_children,
+                "n_children": n_children,
+                "n_siblings": n_siblings,
+                "has_parent": has_parent,
+                "heading": heading,
+            }
+        )
     entries.sort(key=lambda e: not e["has_children"])
 
     seen_ids = set()
@@ -188,7 +231,9 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
 
         try:
             result = await asyncio.to_thread(tool_func.invoke, tool_args, config)
-            logger.info(f"[tool_node] '{tool_name}' completed | output len={len(str(result))}")
+            logger.info(
+                f"[tool_node] '{tool_name}' completed | output len={len(str(result))}"
+            )
             return str(result)
         except Exception as e:
             logger.error(f"[tool_node] '{tool_name}' failed: {e}")
@@ -212,10 +257,14 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
                 seen_set.add(fp)
                 seen.append(fp)
                 pending.append(info["text"])
-                pending_meta.append({"node_id": info["node_id"], "layer": info["layer"]})
+                pending_meta.append(
+                    {"node_id": info["node_id"], "layer": info["layer"]}
+                )
                 fresh_count += 1
 
-        soft_failed = bool(raw) and any(raw.startswith(p) for p in SOFT_FAILURE_PREFIXES)
+        soft_failed = bool(raw) and any(
+            raw.startswith(p) for p in SOFT_FAILURE_PREFIXES
+        )
         # expand_node (node_id+direction) và find_in_subtree (root_node_id+
         # patterns) không có "query" đơn — tái dùng đúng logic ghép khoá của
         # search_history.call_key thay vì nhân bản, để lịch sử ghi lại luôn
@@ -225,13 +274,15 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
             _, query_repr = call_key(tc)
         else:
             query_repr = tool_args.get("query", "")
-        history.append({
-            "round": round_no,
-            "tool": tool_name,
-            "query": query_repr,
-            "new_chunks": fresh_count,
-            "soft_failed": soft_failed,
-        })
+        history.append(
+            {
+                "round": round_no,
+                "tool": tool_name,
+                "query": query_repr,
+                "new_chunks": fresh_count,
+                "soft_failed": soft_failed,
+            }
+        )
 
     node_digest = _build_digest(all_chunk_infos)
 

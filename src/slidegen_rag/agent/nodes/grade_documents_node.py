@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 # temperature=0 để output ổn định; dùng provider="local" (LLM_BASE_URL), tự động fallback sang Gemini.
 # max_tokens=24: output là 1 trong 3 từ (relevant/irrelevant/relevant_incomplete).
-_grader_llm = LLMModel(provider="local", temperature=0.0, max_tokens=24, fallback_to_gemini=True)
+_grader_llm = LLMModel(
+    provider="local", temperature=0.0, max_tokens=24, fallback_to_gemini=True
+)
 
 # Sàn cứng cuối cùng: nếu grader loại sạch (kể cả relevant_incomplete) mà
 # pending vẫn có chunk, giữ lại top-K theo đúng thứ tự retrieval trả về (đã
@@ -25,6 +27,11 @@ _HARD_FLOOR = 5
 # Giới hạn số candidate tích luỹ trong drill_candidates — tránh phình prompt
 # của retrieve_node qua nhiều vòng nếu tài liệu có rất nhiều chỗ "incomplete".
 _MAX_DRILL_CANDIDATES = 10
+
+# Ngưỡng số anh em để coi 1 node "không con" là 1 MỤC trong danh sách liệt kê
+# (điều/khoản/trường hợp) — khi đó anh em là nơi trả lời trực tiếp, không
+# phải node cha (vốn chỉ là tóm tắt bao quát cả danh sách).
+_MIN_SIBLINGS_FOR_ENUM = 2
 
 
 async def _grade_one(document: str, query: str, sem: asyncio.Semaphore) -> str:
@@ -45,11 +52,17 @@ async def _grade_one(document: str, query: str, sem: asyncio.Semaphore) -> str:
                 return "relevant"
             return "irrelevant"
         except Exception as e:
-            logger.warning(f"[grade_documents_node] Grading error: {e} — giữ lại document (relevant_incomplete)")
-            return "relevant_incomplete"  # fail-safe: giữ lại thay vì loại khi grader lỗi
+            logger.warning(
+                f"[grade_documents_node] Grading error: {e} — giữ lại document (relevant_incomplete)"
+            )
+            return (
+                "relevant_incomplete"  # fail-safe: giữ lại thay vì loại khi grader lỗi
+            )
 
 
-def _prune_drilled(drill_candidates: list[dict], tool_calls: list[dict]) -> tuple[list[dict], set]:
+def _prune_drilled(
+    drill_candidates: list[dict], tool_calls: list[dict]
+) -> tuple[list[dict], set]:
     """Bỏ khỏi drill_candidates các node vừa bị `expand_node`/`find_in_subtree`
     nhắm tới trong vòng này (đọc từ state["tool_calls"], vẫn còn nguyên ở
     thời điểm grade_documents_node chạy) — tránh gợi ý lặp lại node đã đào,
@@ -92,12 +105,14 @@ def _build_drill_candidates(
         info = describe_node(node_id)
         if info is None:
             continue
-        if info["has_children"]:
+        if info.get("has_children"):
             reason = "need_detail"
-        elif info["has_parent"]:
+        elif info.get("n_siblings", 0) >= _MIN_SIBLINGS_FOR_ENUM:
+            reason = "need_siblings"
+        elif info.get("has_parent"):
             reason = "need_context"
         else:
-            continue  # node lá, không cha — không còn gì để đào sâu thêm
+            continue  # node lá, không cha, không đủ anh em — không còn gì để đào sâu thêm
 
         candidates.append({"node_id": node_id, "content": doc, "reason": reason})
         known_ids.add(node_id)
@@ -141,10 +156,14 @@ async def grade_documents_node(state: AgentState) -> dict:
     pending_meta = state.get("pending_meta", [])
     tool_calls = state.get("tool_calls", [])
 
-    drill_candidates, drilled_ids = _prune_drilled(list(state.get("drill_candidates", [])), tool_calls)
+    drill_candidates, drilled_ids = _prune_drilled(
+        list(state.get("drill_candidates", [])), tool_calls
+    )
 
     if not pending:
-        logger.info(f"[grade_documents_node] Không có chunk mới | giữ {len(documents)} document(s) cũ")
+        logger.info(
+            f"[grade_documents_node] Không có chunk mới | giữ {len(documents)} document(s) cũ"
+        )
         return {
             "documents": documents,
             "document_node_ids": document_node_ids,
@@ -152,10 +171,14 @@ async def grade_documents_node(state: AgentState) -> dict:
         }
 
     if len(pending_meta) != len(pending):
-        logger.warning("[grade_documents_node] pending_meta lệch kích thước với pending_documents — bỏ qua node_id")
+        logger.warning(
+            "[grade_documents_node] pending_meta lệch kích thước với pending_documents — bỏ qua node_id"
+        )
         pending_meta = [{"node_id": None, "layer": None}] * len(pending)
 
-    logger.info(f"[grade_documents_node] Grading {len(pending)} chunk mới (đã có {len(documents)} survivor)...")
+    logger.info(
+        f"[grade_documents_node] Grading {len(pending)} chunk mới (đã có {len(documents)} survivor)..."
+    )
 
     sem = asyncio.Semaphore(16)
     grades = await asyncio.gather(*[_grade_one(doc, query, sem) for doc in pending])
@@ -187,8 +210,12 @@ async def grade_documents_node(state: AgentState) -> dict:
             f"áp sàn cứng, giữ {len(kept_docs)} chunk đầu theo thứ tự retrieval"
         )
 
-    merged_docs, merged_ids = _merge_documents_with_ids(documents, document_node_ids, kept_docs, kept_ids)
-    drill_candidates = _build_drill_candidates(drill_candidates, incomplete_docs, incomplete_ids, drilled_ids)
+    merged_docs, merged_ids = _merge_documents_with_ids(
+        documents, document_node_ids, kept_docs, kept_ids
+    )
+    drill_candidates = _build_drill_candidates(
+        drill_candidates, incomplete_docs, incomplete_ids, drilled_ids
+    )
 
     logger.info(
         f"[grade_documents_node] relevant={len(relevant_docs)} "

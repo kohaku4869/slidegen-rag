@@ -24,17 +24,35 @@ def _make_tree() -> Tree:
     """
     nodes = {
         0: Node(text="root summary", index=0, children={1, 2}, embeddings={}),
-        1: Node(text="child1 summary", index=1, children={3, 4}, embeddings={}, parent=0),
+        1: Node(
+            text="child1 summary", index=1, children={3, 4}, embeddings={}, parent=0
+        ),
         2: Node(text="child2 leaf", index=2, children=set(), embeddings={}, parent=0),
-        3: Node(text="grandchild1 detail about alpha", index=3, children=set(), embeddings={}, parent=1),
-        4: Node(text="grandchild2 detail about beta", index=4, children=set(), embeddings={}, parent=1),
+        3: Node(
+            text="grandchild1 detail about alpha",
+            index=3,
+            children=set(),
+            embeddings={},
+            parent=1,
+        ),
+        4: Node(
+            text="grandchild2 detail about beta",
+            index=4,
+            children=set(),
+            embeddings={},
+            parent=1,
+        ),
     }
     tree = Tree(
         all_nodes=nodes,
         root_nodes={0: nodes[0]},
         leaf_nodes={2: nodes[2], 3: nodes[3], 4: nodes[4]},
         num_layers=3,
-        layer_to_nodes={0: [nodes[3], nodes[4], nodes[2]], 1: [nodes[1]], 2: [nodes[0]]},
+        layer_to_nodes={
+            0: [nodes[3], nodes[4], nodes[2]],
+            1: [nodes[1]],
+            2: [nodes[0]],
+        },
         doc_id="doc1",
         parent_of={1: 0, 2: 0, 3: 1, 4: 1},
     )
@@ -106,7 +124,9 @@ def test_expand_node_siblings():
 
 
 def test_expand_node_siblings_only_child_soft_fails():
-    only_child = Node(text="lonely only child", index=1, children=set(), embeddings={}, parent=0)
+    only_child = Node(
+        text="lonely only child", index=1, children=set(), embeddings={}, parent=0
+    )
     root = Node(text="root", index=0, children={1}, embeddings={})
     nodes = {0: root, 1: only_child}
     tree = Tree(
@@ -158,7 +178,9 @@ def test_find_in_subtree_no_match():
     tree = _make_tree()
     _setup_ra(tree)
 
-    result = find_in_subtree.invoke({"root_node_id": 1, "patterns": ["nonexistent_term_zzz"]})
+    result = find_in_subtree.invoke(
+        {"root_node_id": 1, "patterns": ["nonexistent_term_zzz"]}
+    )
     assert result.startswith("No matches found in subtree")
 
 
@@ -166,7 +188,9 @@ def test_find_in_subtree_dedup_across_patterns():
     tree = _make_tree()
     _setup_ra(tree)
 
-    result = find_in_subtree.invoke({"root_node_id": 1, "patterns": ["detail", "detail"]})
+    result = find_in_subtree.invoke(
+        {"root_node_id": 1, "patterns": ["detail", "detail"]}
+    )
     # "detail" appears in both grandchild texts — same node must not repeat
     # just because it matched twice across pattern iterations run separately.
     assert result.count("grandchild1 detail about alpha") == 1
@@ -179,12 +203,14 @@ def test_find_in_subtree_semantic_mode_ranks_by_similarity():
 
     _setup_ra(tree, create_embedding=lambda text: [1.0, 0.0])
 
-    result = find_in_subtree.invoke({
-        "root_node_id": 1,
-        "patterns": ["alpha-ish query"],
-        "mode": "semantic",
-        "max_matches_per_pattern": 1,
-    })
+    result = find_in_subtree.invoke(
+        {
+            "root_node_id": 1,
+            "patterns": ["alpha-ish query"],
+            "mode": "semantic",
+            "max_matches_per_pattern": 1,
+        }
+    )
     assert "grandchild1 detail about alpha" in result
     assert "grandchild2" not in result
 
@@ -231,3 +257,21 @@ def test_describe_node_missing_node_returns_none():
     _setup_ra(tree)
 
     assert describe_node(999) is None
+
+
+def test_describe_node_reports_n_children_and_n_siblings():
+    tree = _make_tree()
+    _setup_ra(tree)
+
+    info = describe_node(1)
+    assert info["n_children"] == 2
+    assert info["n_siblings"] == 1  # sibling under root: child2 (node 2)
+
+
+def test_describe_node_root_has_zero_siblings():
+    tree = _make_tree()
+    _setup_ra(tree)
+
+    info = describe_node(0)
+    assert info["n_children"] == 2
+    assert info["n_siblings"] == 0

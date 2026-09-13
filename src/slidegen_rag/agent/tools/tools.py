@@ -40,6 +40,7 @@ def set_web_search_enabled(flag: bool) -> None:
 def web_search_enabled() -> bool:
     return _web_search_enabled
 
+
 # Tiền tố các thông báo "lỗi mềm" — khi search thất bại, các tool dưới đây
 # KHÔNG raise exception mà trả về 1 chuỗi lỗi như kết quả bình thường (để
 # LLM/pipeline không crash). agent/nodes/tool_node.py dùng để lọc chunk lỗi
@@ -64,6 +65,7 @@ SOFT_FAILURE_PREFIXES = (
     "No matches found in subtree",
     "No children to search",
 )
+
 
 # Marker gắn trước mỗi node trong context trả về, để tool_node tách được
 # node nào ứng với đoạn text nào (phục vụ node_digest cho expand_node) mà
@@ -144,8 +146,9 @@ def describe_node(node_id: int) -> Optional[dict]:
     từ node đã trích dẫn ở lượt hỏi trước.
 
     Returns:
-        dict | None: {"has_children", "has_parent", "heading_path", "layer"},
-            None nếu chưa có tree hoặc node_id không tồn tại.
+        dict | None: {"has_children", "has_parent", "heading_path", "layer",
+            "n_children", "n_siblings"}, None nếu chưa có tree hoặc node_id
+            không tồn tại.
     """
     if _ra is None or _ra.tree is None:
         return None
@@ -154,13 +157,24 @@ def describe_node(node_id: int) -> Optional[dict]:
     if node is None:
         return None
     parent_of_map = getattr(tree, "parent_of", None) or {}
-    parent_id = node.parent if getattr(node, "parent", None) is not None else parent_of_map.get(node_id)
+    parent_id = (
+        node.parent
+        if getattr(node, "parent", None) is not None
+        else parent_of_map.get(node_id)
+    )
     node_to_layer = _ra.retriever.tree_node_index_to_layer
+    children = getattr(node, "children", None) or ()
+    parent = tree.all_nodes.get(parent_id) if parent_id is not None else None
+    sibling_count = (
+        max(len(getattr(parent, "children", None) or ()) - 1, 0) if parent else 0
+    )
     return {
-        "has_children": bool(getattr(node, "children", None)),
+        "has_children": bool(children),
         "has_parent": parent_id is not None,
         "heading_path": getattr(node, "heading_path", ()) or (),
         "layer": node_to_layer.get(node_id, getattr(node, "layer", -1)),
+        "n_children": len(children),
+        "n_siblings": sibling_count,
     }
 
 
@@ -225,7 +239,9 @@ def semantic_search(query: str, top_k: int = 3) -> str:
             for li, piece in zip(layer_info, pieces)
         ]
         result = "\n\n".join(marked)
-        logging.info(f"[semantic_search] Query: {query[:60]}... | top_k={top_k} | nodes={len(marked)}")
+        logging.info(
+            f"[semantic_search] Query: {query[:60]}... | top_k={top_k} | nodes={len(marked)}"
+        )
         return result
     except Exception as e:
         logging.error(f"[semantic_search] Error: {e}")
@@ -266,7 +282,9 @@ def keyword_search(query: str, top_k: int = 3) -> str:
         tokenized_query = query.lower().split()
         scores = bm25.get_scores(tokenized_query)
 
-        ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
+        ranked_indices = sorted(
+            range(len(scores)), key=lambda i: scores[i], reverse=True
+        )[:top_k]
         top_nodes = [all_nodes[i] for i in ranked_indices if scores[i] > 0]
 
         # Cùng heuristic dedup cha/con như semantic_search — tránh trả về
@@ -278,11 +296,14 @@ def keyword_search(query: str, top_k: int = 3) -> str:
 
         node_to_layer = ra.retriever.tree_node_index_to_layer
         marked = [
-            _node_marker(node.index, node_to_layer.get(node.index, -1)) + _flatten(node.text)
+            _node_marker(node.index, node_to_layer.get(node.index, -1))
+            + _flatten(node.text)
             for node in top_nodes
         ]
         context = "\n\n".join(marked)
-        logging.info(f"[keyword_search] Query: {query[:60]}... | Top nodes: {len(top_nodes)}")
+        logging.info(
+            f"[keyword_search] Query: {query[:60]}... | Top nodes: {len(top_nodes)}"
+        )
         return context
 
     except Exception as e:
@@ -291,7 +312,9 @@ def keyword_search(query: str, top_k: int = 3) -> str:
 
 
 @tool
-def expand_node(node_id: int, direction: Literal["children", "parent", "siblings"] = "children") -> str:
+def expand_node(
+    node_id: int, direction: Literal["children", "parent", "siblings"] = "children"
+) -> str:
     """
     Expands a node returned by a previous search call (identified by the
     `§N<id>|L<layer>§` marker prefix of a chunk) to drill down for more
@@ -330,7 +353,11 @@ def expand_node(node_id: int, direction: Literal["children", "parent", "siblings
                 return f"Node has no children (leaf node): {node_id}"
         else:
             parent_of_map = getattr(tree, "parent_of", None) or {}
-            parent_id = node.parent if getattr(node, "parent", None) is not None else parent_of_map.get(node_id)
+            parent_id = (
+                node.parent
+                if getattr(node, "parent", None) is not None
+                else parent_of_map.get(node_id)
+            )
             if direction == "parent":
                 if parent_id is None:
                     return f"Node has no parent (root node): {node_id}"
@@ -339,7 +366,9 @@ def expand_node(node_id: int, direction: Literal["children", "parent", "siblings
                 if parent_id is None:
                     return f"Node has no siblings (root node): {node_id}"
                 parent = tree.all_nodes.get(parent_id)
-                target_indices = sorted((getattr(parent, "children", None) or set()) - {node_id})
+                target_indices = sorted(
+                    (getattr(parent, "children", None) or set()) - {node_id}
+                )
                 if not target_indices:
                     return f"Node has no siblings: {node_id}"
 
@@ -349,14 +378,18 @@ def expand_node(node_id: int, direction: Literal["children", "parent", "siblings
             target = tree.all_nodes.get(idx)
             if target is None or not target.text or not target.text.strip():
                 continue
-            marked.append(_node_marker(idx, node_to_layer.get(idx, -1)) + _flatten(target.text))
+            marked.append(
+                _node_marker(idx, node_to_layer.get(idx, -1)) + _flatten(target.text)
+            )
 
         if not marked:
             if direction == "children":
                 return f"Node has no children (leaf node): {node_id}"
             return f"No {direction} content found for node {node_id}."
 
-        logging.info(f"[expand_node] node_id={node_id} | direction={direction} | results={len(marked)}")
+        logging.info(
+            f"[expand_node] node_id={node_id} | direction={direction} | results={len(marked)}"
+        )
         return "\n\n".join(marked)
 
     except Exception as e:
@@ -416,7 +449,9 @@ def find_in_subtree(
         ordered_matches = []
 
         if mode == "semantic":
-            embeddings = get_embeddings(subtree_nodes, ra.retriever.context_embedding_model)
+            embeddings = get_embeddings(
+                subtree_nodes, ra.retriever.context_embedding_model
+            )
             for pattern in patterns:
                 query_embedding = ra.retriever.create_embedding(pattern)
                 distances = distances_from_embeddings(query_embedding, embeddings)
@@ -440,7 +475,9 @@ def find_in_subtree(
                     continue
                 query_tokens = set(pattern.lower().split())
                 scores = bm25.get_scores(list(query_tokens))
-                ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
+                ranked = sorted(
+                    range(len(scores)), key=lambda i: scores[i], reverse=True
+                )
                 count = 0
                 for i in ranked:
                     # rank_bm25's classic IDF goes to 0 (or negative) once a
@@ -514,9 +551,7 @@ def web_search(
 
     try:
         response = tavily_client.search(
-            query=query,
-            search_depth=search_depth,
-            max_results=min(max(top_k, 1), 10)
+            query=query, search_depth=search_depth, max_results=min(max(top_k, 1), 10)
         )
 
         results = response.get("results", [])
@@ -528,10 +563,10 @@ def web_search(
             title = res.get("title", "No Title")
             url = res.get("url", "")
             content = res.get("content", "")
-            formatted_results.append(
-                f"[{idx}] {title}\nURL: {url}\nContent: {content}"
-            )
-        logging.info(f"[web_search] Query: {query[:60]}... | Found {len(results)} results")
+            formatted_results.append(f"[{idx}] {title}\nURL: {url}\nContent: {content}")
+        logging.info(
+            f"[web_search] Query: {query[:60]}... | Found {len(results)} results"
+        )
         return "\n\n---\n\n".join(formatted_results)
     except Exception as e:
         logging.error(f"[web_search] Error: {e}")
