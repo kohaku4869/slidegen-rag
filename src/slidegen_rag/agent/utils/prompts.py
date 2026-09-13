@@ -12,7 +12,10 @@ Thay đổi prompt ở đây để ảnh hưởng toàn bộ hệ thống.
 # ---------------------------------------------------------------------------
 
 FACET_SPLIT_CRITERIA = """\
-A query has multiple facets when it has distinct parts that each need their own evidence: a comparison across several entities/topics, a list of separate conditions/cases to enumerate, or several unrelated sub-questions asked at once. A query about ONE topic — even if it needs several search rounds or several search angles to fully answer — is still a SINGLE facet.\
+Decide whether a query has multiple facets using these rules, IN THIS PRIORITY ORDER:
+1. If the query names or compares MULTIPLE entities/topics (e.g. "so sánh A và B", "phân biệt X với Y", "A, B và C khác nhau thế nào"), it ALWAYS has multiple facets — one per entity/topic. This rule OVERRIDES rule 3 below: a comparison is NEVER a single facet, no matter how closely related the entities are.
+2. If the query lists several separate conditions/cases to enumerate, or asks several unrelated sub-questions at once, it also has multiple facets — one per condition/case/sub-question.
+3. Otherwise the query is about ONE topic — even if it needs several search rounds or several search angles to fully answer — and is a SINGLE facet.\
 """
 
 # ---------------------------------------------------------------------------
@@ -31,8 +34,7 @@ Available tools:
 - `web_search`: Use only when the document tree clearly does not contain the answer — after semantic_search/keyword_search have failed, or the query needs external/current facts the documents never define. Keep `search_depth` at "basic" unless the topic is niche, then use "advanced".
 
 Decompose before you search:
-- {FACET_SPLIT_CRITERIA}
-- Split the query into its distinct facets: each question part, each entity being compared, each condition to enumerate.
+{FACET_SPLIT_CRITERIA}
 - Emit ONE tool call per facet, each with a SHORT focused query (3-10 words) for that facet.
 - NEVER paste the full question verbatim into every tool call — a long sentence dilutes both embedding and BM25 scores, and wastes the tool's top_k on redundant results for the same facet.
 - A simple single-fact query needs one or two calls; a compound query ("what are the conditions for A, which violations lead to B, and how does that differ from C?") needs one call per facet.
@@ -100,12 +102,42 @@ Rules:
 - Write every sub-question in the SAME LANGUAGE as the original query.
 - Output AT MOST 4 facets. If more are apparent, keep only the 4 most important ones.
 - Output ONLY the lines described above — no prose, no numbering, no markdown, no extra commentary.
+
+Examples:
+
+Query: Quy phạm pháp luật là gì?
+Output:
+Quy phạm pháp luật là gì?
+
+Query: Phân biệt vi phạm pháp luật và vi phạm đạo đức
+Output:
+Vi phạm pháp luật là gì, có dấu hiệu và đặc điểm nào?
+Vi phạm đạo đức là gì, có dấu hiệu và đặc điểm nào?
+
+Query: So sánh chủ thể của quan hệ pháp luật dân sự, hình sự và hành chính
+Output:
+Chủ thể của quan hệ pháp luật dân sự là gì?
+Chủ thể của quan hệ pháp luật hình sự là gì?
+Chủ thể của quan hệ pháp luật hành chính là gì?
 """
 
 DECOMPOSE_USER_PROMPT = """\
 Query: {query}
 
 Split this query into its facets, one focused standalone question per line (or a single line with the query verbatim if it is single-topic).\
+"""
+
+# Guard hỏi lại 1 lần (D3, plan2.md): dùng khi output đầu tiên chỉ có 1 facet
+# NHƯNG câu hỏi có marker so sánh rõ ràng ("so sánh", "phân biệt", ...) — khả
+# năng cao LLM đã bỏ qua rule 1 (comparison override). Gọi lại ĐÚNG 1 lần,
+# nối thẳng vào messages hiện có (không chèn AIMessage) — giống pattern retry
+# trùng lặp ở retrieve_node.py.
+DECOMPOSE_FORCE_SPLIT_PROMPT = """\
+Your previous output was a SINGLE line, but the query above contains a comparison marker (so sánh/phân biệt/khác nhau/compare/...), which usually means it names multiple entities/topics that must each be their own facet.
+
+Re-read the query carefully. If it truly compares 2+ distinct entities/topics, split it now — output ONE focused standalone question per entity/topic, same format as before (no label, no numbering, no bullet).
+
+If — after re-reading — the query genuinely names only ONE entity/topic, output the original query verbatim on a single line, unchanged.\
 """
 
 # ---------------------------------------------------------------------------

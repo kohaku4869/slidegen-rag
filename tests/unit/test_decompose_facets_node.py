@@ -30,6 +30,20 @@ def _fake_llm_raises(exc: Exception):
     return SimpleNamespace(ainvoke=ainvoke)
 
 
+def _fake_llm_sequence(contents: list[str]):
+    """Returns (llm, calls) — calls["n"] counts ainvoke invocations; each call
+    consumes the next content in `contents` (the last one repeats if called
+    more times than provided)."""
+    calls = {"n": 0}
+
+    async def ainvoke(messages):
+        idx = min(calls["n"], len(contents) - 1)
+        calls["n"] += 1
+        return _FakeResponse(contents[idx])
+
+    return SimpleNamespace(ainvoke=ainvoke), calls
+
+
 @pytest.mark.asyncio
 async def test_single_topic_query_forces_exactly_one_facet_with_verbatim_query(
     monkeypatch,
@@ -174,6 +188,101 @@ async def test_labels_are_unique_even_for_identical_subquestions(monkeypatch):
     facets = result["facet_queries"]
     assert len(facets) == 2
     assert facets[0]["label"] != facets[1]["label"]
+
+
+@pytest.mark.asyncio
+async def test_force_split_retries_once_and_accepts_multi_facet_result(monkeypatch):
+    query = "So sánh trách nhiệm dân sự và trách nhiệm hình sự của chủ thể vi phạm"
+    second_content = (
+        "Trách nhiệm dân sự của chủ thể vi phạm là gì?\n"
+        "Trách nhiệm hình sự của chủ thể vi phạm là gì?"
+    )
+    llm, calls = _fake_llm_sequence(
+        [
+            "Trách nhiệm dân sự và hình sự của chủ thể vi phạm là gì?",
+            second_content,
+        ]
+    )
+    monkeypatch.setattr(dfn, "_decompose_llm", llm)
+
+    result = await dfn.decompose_facets_node({"query": query})
+
+    assert calls["n"] == 2
+    assert len(result["facet_queries"]) == 2
+
+
+@pytest.mark.asyncio
+async def test_force_split_retry_still_one_facet_keeps_original(monkeypatch):
+    query = "So sánh trách nhiệm dân sự và trách nhiệm hình sự của chủ thể vi phạm"
+    llm, calls = _fake_llm_sequence(
+        ["một dòng diễn giải lại không tách được thành 2 phần"]
+    )
+    monkeypatch.setattr(dfn, "_decompose_llm", llm)
+
+    result = await dfn.decompose_facets_node({"query": query})
+
+    assert calls["n"] == 2
+    assert len(result["facet_queries"]) == 1
+    assert result["facet_queries"][0]["query"] == query
+
+
+@pytest.mark.asyncio
+async def test_no_comparison_marker_does_not_retry(monkeypatch):
+    query = "Điều kiện áp dụng biện pháp khẩn cấp tạm thời trong tố tụng dân sự là gì?"
+    llm, calls = _fake_llm_sequence(["diễn giải lại không có marker so sánh nào cả"])
+    monkeypatch.setattr(dfn, "_decompose_llm", llm)
+
+    result = await dfn.decompose_facets_node({"query": query})
+
+    assert calls["n"] == 1
+    assert len(result["facet_queries"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_already_multi_facet_on_first_try_does_not_retry(monkeypatch):
+    query = "So sánh trách nhiệm dân sự và trách nhiệm hình sự của chủ thể vi phạm"
+    content = (
+        "Trách nhiệm dân sự của chủ thể vi phạm là gì?\n"
+        "Trách nhiệm hình sự của chủ thể vi phạm là gì?"
+    )
+    llm, calls = _fake_llm_sequence([content])
+    monkeypatch.setattr(dfn, "_decompose_llm", llm)
+
+    result = await dfn.decompose_facets_node({"query": query})
+
+    assert calls["n"] == 1
+    assert len(result["facet_queries"]) == 2
+
+
+@pytest.mark.asyncio
+async def test_force_split_retry_raises_keeps_original_single_facet(monkeypatch):
+    query = "So sánh trách nhiệm dân sự và trách nhiệm hình sự của chủ thể vi phạm"
+    calls = {"n": 0}
+
+    async def ainvoke(messages):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return _FakeResponse("một dòng diễn giải lại")
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(dfn, "_decompose_llm", SimpleNamespace(ainvoke=ainvoke))
+
+    result = await dfn.decompose_facets_node({"query": query})
+
+    assert calls["n"] == 2
+    assert len(result["facet_queries"]) == 1
+    assert result["facet_queries"][0]["query"] == query
+
+
+@pytest.mark.asyncio
+async def test_short_query_with_marker_does_not_retry(monkeypatch):
+    query = "phân biệt A và B"  # < 8 từ
+    llm, calls = _fake_llm_sequence(["A và B khác nhau ở chỗ nào đó"])
+    monkeypatch.setattr(dfn, "_decompose_llm", llm)
+
+    await dfn.decompose_facets_node({"query": query})
+
+    assert calls["n"] == 1
 
 
 @pytest.mark.asyncio

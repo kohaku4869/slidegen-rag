@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from slidegen_rag.agent.models.llm import LLMModel
 from slidegen_rag.agent.utils.prompts import (
+    DECOMPOSE_FORCE_SPLIT_PROMPT,
     DECOMPOSE_SYSTEM_PROMPT,
     DECOMPOSE_USER_PROMPT,
 )
@@ -15,6 +16,25 @@ logger = logging.getLogger(__name__)
 # đặt ở router.py) vì đây là fan-out cap (số nhánh Send), khác hẳn
 # MAX_RETRIEVE (số vòng retry NỘI BỘ trong 1 facet).
 MAX_FACETS = 4
+
+# Marker so sánh — từ vựng ĐÓNG, không đếm số thực thể bằng regex (tiếng Việt
+# không có cue viết hoa; đếm "và"/"với"/"hay" over-fire nặng, vd "điều kiện
+# và hậu quả của giao dịch vô hiệu" là 1 chủ đề). Chỉ marker rõ ràng mới đủ
+# tin cậy để kích hoạt hỏi lại.
+_COMPARISON_MARKERS = (
+    "so sánh",
+    "phân biệt",
+    "khác nhau",
+    "khác gì",
+    "đối chiếu",
+    "so với",
+    "compare",
+    "difference between",
+)
+
+# Trigger hỏi lại chỉ khi câu hỏi đủ dài (câu quá ngắn có marker vẫn thường là
+# 1 chủ đề, vd "phân biệt các loại quy phạm pháp luật").
+_MIN_WORDS_FOR_FORCE_SPLIT = 8
 
 # Bỏ bullet/đánh số ở đầu dòng ("- ", "* ", "• ", "1. ", "2) ") trước khi xét
 # dòng có phải 1 sub-question hợp lệ hay không.
@@ -86,6 +106,17 @@ def _parse_facets(content: str, original_query: str) -> list[dict]:
     ]
 
 
+def _should_force_split(facets: list[dict], query: str) -> bool:
+    """Trigger khi CẢ 3 đúng: kết quả hiện tại chỉ có 1 facet, query chứa
+    ≥1 marker so sánh, và query đủ dài — xem _COMPARISON_MARKERS."""
+    if len(facets) != 1:
+        return False
+    if len(query.split()) < _MIN_WORDS_FOR_FORCE_SPLIT:
+        return False
+    q = query.lower()
+    return any(marker in q for marker in _COMPARISON_MARKERS)
+
+
 async def decompose_facets_node(state: dict) -> dict:
     """
     Tách câu hỏi gốc thành các facet độc lập, mỗi facet sẽ chạy song song qua
@@ -109,6 +140,27 @@ async def decompose_facets_node(state: dict) -> dict:
     try:
         response = await _decompose_llm.ainvoke(messages)
         facets = _parse_facets(response.content, query)
+
+        if _should_force_split(facets, query):
+            logger.info(
+                f"[decompose_facets_node] 1 facet nhưng query có marker so sánh — "
+                f"hỏi lại 1 lần: '{query[:80]}'"
+            )
+            try:
+                retry_response = await _decompose_llm.ainvoke(
+                    messages + [HumanMessage(content=DECOMPOSE_FORCE_SPLIT_PROMPT)]
+                )
+                retry_facets = _parse_facets(retry_response.content, query)
+                if len(retry_facets) >= 2:
+                    facets = retry_facets
+                else:
+                    logger.info(
+                        "[decompose_facets_node] Hỏi lại vẫn 1 facet — giữ nguyên"
+                    )
+            except Exception as e:
+                logger.warning(
+                    f"[decompose_facets_node] Hỏi lại lỗi: {e} — giữ nguyên 1 facet"
+                )
     except Exception as e:
         logger.error(
             f"[decompose_facets_node] LLM error: {e} — fallback về 1 facet (câu hỏi gốc)"
