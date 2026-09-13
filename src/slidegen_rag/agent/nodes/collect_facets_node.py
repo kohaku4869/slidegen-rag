@@ -43,6 +43,7 @@ async def collect_facets_node(state: dict) -> dict:
         facet_sufficiency.append(
             {
                 "label": label,
+                "query": facet_state.get("query", ""),
                 "sufficient": bool(facet_state.get("context_sufficient", False)),
                 "missing_aspects": facet_state.get("missing_aspects", []),
                 "retrieve_count": facet_state.get("retrieve_count", 0),

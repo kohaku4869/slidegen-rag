@@ -1,4 +1,5 @@
 import logging
+import re
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -15,7 +16,13 @@ logger = logging.getLogger(__name__)
 # MAX_RETRIEVE (số vòng retry NỘI BỘ trong 1 facet).
 MAX_FACETS = 4
 
-_FALLBACK_LABEL = "Toàn bộ câu hỏi"
+# Bỏ bullet/đánh số ở đầu dòng ("- ", "* ", "• ", "1. ", "2) ") trước khi xét
+# dòng có phải 1 sub-question hợp lệ hay không.
+_BULLET_RE = re.compile(r"^\s*(?:[-*•–]|\d+[.)])\s*")
+
+# Dòng ngắn hơn ngưỡng này gần như chắc chắn là rác/heading trơ, không phải
+# 1 sub-question thật.
+_MIN_LINE_CHARS = 8
 
 # temperature=0.0 theo house style _eval_llm/_grader_llm — parse text thủ
 # công, không dùng structured output vì codebase hiện chưa dùng pattern đó ở
@@ -23,9 +30,30 @@ _FALLBACK_LABEL = "Toàn bộ câu hỏi"
 _decompose_llm = LLMModel(temperature=0.0, max_tokens=512)
 
 
+def _make_label(i: int, sub_question: str) -> str:
+    """Sinh label TRONG CODE thay vì tin LLM tự ghép LABEL với SUB-QUESTION —
+    benchmark đo được 2/4 facet bị ghép lệch (nhãn "Dân sự" đi kèm sub-question
+    "hình sự"), khiến facet_sufficiency mô tả sai khía cạnh cho generate_node.
+
+    Tiền tố số thứ tự (bắt đầu từ 1) bảo đảm label KHÔNG BAO GIỜ trùng nhau
+    dù 2 sub-question giống hệt nhau — trajectory.py dùng label làm key dict
+    (ctx_by_facet, facet_retrieve_counts) và để map namespace_to_label theo
+    đúng thứ tự Send được phát ra, nên key trùng sẽ làm mất dữ liệu 1 facet.
+    Thay ","/"=" bằng khoảng trắng vì trajectory.py render dòng
+    "Vòng lặp theo facet: {label}={n}, ..." — không làm vỡ evaluate.py (parser
+    lấy nguyên đuôi dòng) nhưng ',' / '=' bên trong label sẽ khó đọc."""
+    text = sub_question.replace(",", " ").replace("=", " ").strip()
+    return f"{i + 1}. {text[:40]}…"
+
+
 def _parse_facets(content: str, original_query: str) -> list[dict]:
     """
-    Parse output dạng "LABEL|SUB-QUESTION" mỗi dòng.
+    Parse output: MỖI DÒNG LÀ 1 SUB-QUESTION độc lập — không còn LLM tự đặt
+    LABEL nữa (xem _make_label). Dòng được coi là hợp lệ sau khi: bỏ
+    khoảng trắng đầu/cuối, bỏ bullet/đánh số, bỏ nếu rỗng/là heading
+    ("#"/"```")/là dòng dẫn nhập kết thúc bằng ":" (vd "Các khía cạnh:"), rồi
+    (dung sai ngược cho LLM quen format cũ) nếu dòng còn ký tự "|" thì lấy
+    phần sau dấu "|" CUỐI làm sub-question, và cuối cùng bỏ nếu quá ngắn.
 
     Enforce lại bằng code (không tin riêng LLM):
     - Parse lỗi/không dòng nào hợp lệ -> fail-closed về đúng 1 facet (câu hỏi
@@ -35,26 +63,27 @@ def _parse_facets(content: str, original_query: str) -> list[dict]:
       bắt buộc để không đổi hành vi/chi phí của câu hỏi đơn giản.
     - Cap cứng MAX_FACETS.
     """
-    facets: list[dict] = []
+    sub_questions: list[str] = []
     for raw_line in content.splitlines():
         line = raw_line.strip()
-        if not line or "|" not in line:
+        if not line:
             continue
-        label, _, sub_question = line.partition("|")
-        label = label.strip().strip("-* ").strip()
-        sub_question = sub_question.strip()
-        if not label or not sub_question:
+        line = _BULLET_RE.sub("", line).strip()
+        if not line or line.startswith(("#", "```")) or line.endswith(":"):
             continue
-        facets.append({"label": label, "query": sub_question})
+        if "|" in line:
+            line = line.rpartition("|")[2].strip()
+        if len(line) < _MIN_LINE_CHARS:
+            continue
+        sub_questions.append(line)
 
-    if not facets:
-        return [{"label": _FALLBACK_LABEL, "query": original_query}]
+    if not sub_questions or len(sub_questions) == 1:
+        return [{"label": _make_label(0, original_query), "query": original_query}]
 
-    if len(facets) == 1:
-        facets[0]["query"] = original_query
-        return facets
-
-    return facets[:MAX_FACETS]
+    sub_questions = sub_questions[:MAX_FACETS]
+    return [
+        {"label": _make_label(i, sq), "query": sq} for i, sq in enumerate(sub_questions)
+    ]
 
 
 async def decompose_facets_node(state: dict) -> dict:
@@ -84,7 +113,7 @@ async def decompose_facets_node(state: dict) -> dict:
         logger.error(
             f"[decompose_facets_node] LLM error: {e} — fallback về 1 facet (câu hỏi gốc)"
         )
-        facets = [{"label": _FALLBACK_LABEL, "query": query}]
+        facets = [{"label": _make_label(0, query), "query": query}]
 
     logger.info(
         f"[decompose_facets_node] {len(facets)} facet(s): {[f['label'] for f in facets]}"

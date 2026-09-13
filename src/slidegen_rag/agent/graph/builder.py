@@ -60,7 +60,9 @@ def fan_out_facets(state: AgentState) -> list[Send]:
         Send(
             "facet_subgraph",
             make_initial_facet_state(
-                fq["label"], fq["query"], seed_drill_candidates=seed_drill_candidates
+                fq.get("label") or fq.get("query", "")[:40],
+                fq["query"],
+                seed_drill_candidates=seed_drill_candidates,
             ),
         )
         for fq in facet_queries

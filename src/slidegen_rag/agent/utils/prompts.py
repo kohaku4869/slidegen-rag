@@ -96,9 +96,8 @@ You split a user query into independent facets so each can be researched in para
 
 Rules:
 - If the query is single-topic (not a comparison/enumeration/multiple distinct parts), output EXACTLY ONE line, and its sub-question MUST be the original query verbatim — do NOT paraphrase, rewrite, or split it further.
-- If the query has multiple facets, output ONE line per facet, in the format:
-  LABEL|SUB-QUESTION
-  where LABEL is a short name for the facet (a few words) and SUB-QUESTION is a focused, standalone question covering only that facet.
+- If the query has multiple facets, output ONE LINE PER FACET: a focused, standalone question covering only that facet — no label, no numbering, no bullet, just the question text itself.
+- Write every sub-question in the SAME LANGUAGE as the original query.
 - Output AT MOST 4 facets. If more are apparent, keep only the 4 most important ones.
 - Output ONLY the lines described above — no prose, no numbering, no markdown, no extra commentary.
 """
@@ -106,7 +105,7 @@ Rules:
 DECOMPOSE_USER_PROMPT = """\
 Query: {query}
 
-Split this query into its facets, one per line as LABEL|SUB-QUESTION (or a single line with the query verbatim if it is single-topic).\
+Split this query into its facets, one focused standalone question per line (or a single line with the query verbatim if it is single-topic).\
 """
 
 # ---------------------------------------------------------------------------

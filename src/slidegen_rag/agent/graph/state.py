@@ -27,12 +27,16 @@ class AgentState(TypedDict):
                                  khác mọi field khác (chỉ 1 writer, không cần
                                  reducer, giống lý do AgentState gốc trước khi
                                  tách facet không cần reducer).
-        facet_sufficiency:      [{"label", "sufficient", "missing_aspects",
-                                 "retrieve_count"}] mỗi facet — do
-                                 collect_facets_node build từ facet_results,
-                                 thay thế hẳn cặp context_sufficient/
-                                 missing_aspects toàn cục cũ. Single-writer:
-                                 collect_facets_node.
+        facet_sufficiency:      [{"label", "query", "sufficient",
+                                 "missing_aspects", "retrieve_count"}] mỗi
+                                 facet — do collect_facets_node build từ
+                                 facet_results, thay thế hẳn cặp
+                                 context_sufficient/missing_aspects toàn cục
+                                 cũ. "query" (sub-question gốc của facet) là
+                                 nguồn hiển thị chính cho generate_node —
+                                 "label" giờ chỉ còn dùng cho log/trajectory
+                                 (xem generate_node.py::_format_sufficiency_note).
+                                 Single-writer: collect_facets_node.
         documents:              Pool document đã gộp + dedup xuyên-facet, do
                                  collect_facets_node build từ facet_results
                                  (dùng _merge_documents_with_ids của

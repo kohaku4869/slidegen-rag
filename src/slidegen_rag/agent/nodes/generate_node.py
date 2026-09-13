@@ -30,7 +30,12 @@ def _format_sufficiency_note(facet_sufficiency: list[dict]) -> str:
     Câu hỏi đã được decompose_facets_node tách thành một hoặc nhiều khía
     cạnh (mỗi khía cạnh ứng với 1 phần câu hỏi gốc — câu hỏi 1 chủ đề luôn
     có đúng 1 khía cạnh), nên note được liệt kê THEO TỪNG khía cạnh thay vì
-    1 khối phẳng như thiết kế cũ."""
+    1 khối phẳng như thiết kế cũ.
+
+    Hiển thị nguyên văn sub-question (facet_sufficiency[i]["query"]) thay vì
+    "label" — label giờ chỉ là 1 chuỗi số thứ tự + cắt ngắn do code sinh ra
+    (xem decompose_facets_node._make_label), không còn ý nghĩa để đọc; fallback
+    về "label" khi thiếu "query" (fixture cũ/facet fail-closed)."""
     if not facet_sufficiency:
         return "Ngữ cảnh được đánh giá là ĐẦY ĐỦ để trả lời toàn bộ câu hỏi. Không cần rào đón bất kỳ phần nào."
 
@@ -42,14 +47,14 @@ def _format_sufficiency_note(facet_sufficiency: list[dict]) -> str:
 
     lines = []
     for f in facet_sufficiency:
-        label = f.get("label", "?")
+        shown = f.get("query") or f.get("label") or "?"
         if f.get("sufficient", False):
-            lines.append(f'- Khía cạnh "{label}": ĐẦY ĐỦ.')
+            lines.append(f'- Khía cạnh "{shown}": ĐẦY ĐỦ.')
         else:
             missing = f.get("missing_aspects") or []
             missing_str = "; ".join(missing) if missing else "(không rõ chi tiết)"
             lines.append(
-                f'- Khía cạnh "{label}": CHƯA ĐẦY ĐỦ — nghi ngờ thiếu: {missing_str}.'
+                f'- Khía cạnh "{shown}": CHƯA ĐẦY ĐỦ — nghi ngờ thiếu: {missing_str}.'
             )
 
     return (

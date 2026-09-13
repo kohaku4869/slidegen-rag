@@ -39,7 +39,8 @@ async def test_merges_and_dedups_documents_across_facets():
 async def test_facet_sufficiency_shape_and_content():
     facet_results = [
         {
-            "facet_label": "Facet A",
+            "facet_label": "1. Facet A question",
+            "query": "Facet A question?",
             "documents": [],
             "document_node_ids": [],
             "context_sufficient": True,
@@ -47,7 +48,8 @@ async def test_facet_sufficiency_shape_and_content():
             "retrieve_count": 2,
         },
         {
-            "facet_label": "Facet B",
+            "facet_label": "2. Facet B question",
+            "query": "Facet B question?",
             "documents": [],
             "document_node_ids": [],
             "context_sufficient": False,
@@ -55,7 +57,8 @@ async def test_facet_sufficiency_shape_and_content():
             "retrieve_count": 5,
         },
         {
-            "facet_label": "Facet C",
+            "facet_label": "3. Facet C question",
+            "query": "Facet C question?",
             "documents": [],
             "document_node_ids": [],
             "context_sufficient": True,
@@ -69,18 +72,21 @@ async def test_facet_sufficiency_shape_and_content():
 
     assert len(sufficiency) == 3
     assert sufficiency[0] == {
-        "label": "Facet A",
+        "label": "1. Facet A question",
+        "query": "Facet A question?",
         "sufficient": True,
         "missing_aspects": [],
         "retrieve_count": 2,
     }
     assert sufficiency[1] == {
-        "label": "Facet B",
+        "label": "2. Facet B question",
+        "query": "Facet B question?",
         "sufficient": False,
         "missing_aspects": ["thiếu chi tiết X"],
         "retrieve_count": 5,
     }
-    assert sufficiency[2]["label"] == "Facet C"
+    assert sufficiency[2]["label"] == "3. Facet C question"
+    assert sufficiency[2]["query"] == "Facet C question?"
     assert sufficiency[2]["sufficient"] is True
 
 

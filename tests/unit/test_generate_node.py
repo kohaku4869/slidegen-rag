@@ -75,6 +75,34 @@ def test_all_facets_insufficient():
     assert 'Khía cạnh "Facet B": CHƯA ĐẦY ĐỦ' in note
 
 
+def test_query_shown_instead_of_label_when_both_present():
+    facet_sufficiency = [
+        {
+            "label": "1. some truncated code-generated label…",
+            "query": "Câu hỏi đầy đủ của khía cạnh này là gì?",
+            "sufficient": False,
+            "missing_aspects": ["a"],
+            "retrieve_count": 5,
+        },
+    ]
+    note = _format_sufficiency_note(facet_sufficiency)
+    assert 'Khía cạnh "Câu hỏi đầy đủ của khía cạnh này là gì?"' in note
+    assert "some truncated code-generated label" not in note
+
+
+def test_falls_back_to_label_when_query_missing():
+    facet_sufficiency = [
+        {
+            "label": "Facet A",
+            "sufficient": False,
+            "missing_aspects": ["a"],
+            "retrieve_count": 5,
+        },
+    ]
+    note = _format_sufficiency_note(facet_sufficiency)
+    assert 'Khía cạnh "Facet A"' in note
+
+
 def test_missing_aspects_empty_list_shows_placeholder():
     facet_sufficiency = [
         {
