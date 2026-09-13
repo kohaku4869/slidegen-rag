@@ -58,6 +58,9 @@ SOFT_FAILURE_PREFIXES = (
     "Node not found",
     "Node has no parent",
     "Node has no siblings",
+    "Node has no children",  # expand_node(children) trên node lá — tools.py:327, :353
+    "No parent content found for node",  # tools.py:354, direction="parent"
+    "No siblings content found for node",  # tools.py:354, direction="siblings"
     "No matches found in subtree",
     "No children to search",
 )
@@ -324,7 +327,7 @@ def expand_node(node_id: int, direction: Literal["children", "parent", "siblings
         if direction == "children":
             target_indices = sorted(getattr(node, "children", None) or [])
             if not target_indices:
-                return f"Node has no children (leaf node): {_flatten(node.text)}"
+                return f"Node has no children (leaf node): {node_id}"
         else:
             parent_of_map = getattr(tree, "parent_of", None) or {}
             parent_id = node.parent if getattr(node, "parent", None) is not None else parent_of_map.get(node_id)
@@ -350,7 +353,7 @@ def expand_node(node_id: int, direction: Literal["children", "parent", "siblings
 
         if not marked:
             if direction == "children":
-                return f"Node has no children (leaf node): {_flatten(node.text)}"
+                return f"Node has no children (leaf node): {node_id}"
             return f"No {direction} content found for node {node_id}."
 
         logging.info(f"[expand_node] node_id={node_id} | direction={direction} | results={len(marked)}")

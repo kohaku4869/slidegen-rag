@@ -78,7 +78,6 @@ def test_expand_node_leaf_has_no_children():
 
     result = expand_node.invoke({"node_id": 2, "direction": "children"})
     assert "leaf node" in result
-    assert "child2 leaf" in result
 
 
 def test_expand_node_parent():
