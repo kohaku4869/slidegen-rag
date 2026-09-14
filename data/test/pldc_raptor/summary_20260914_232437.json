@@ -1,0 +1,18 @@
+{
+  "topic": "pldc_raptor",
+  "timestamp": "20260914_232437",
+  "accuracy": 6.383333333333334,
+  "completeness": 5.466666666666667,
+  "relevance": 7.083333333333333,
+  "faithfulness": 8.8,
+  "total_score": 6.932666666666667,
+  "coverage_pct": 62.55,
+  "coverage_pct_strict": 60.356666666666655,
+  "answer_coverage_pct": 53.67999999999999,
+  "utilization_pct": 243.2133333333333,
+  "avg_chunks": 10.166666666666666,
+  "total_questions": 30,
+  "success_count": 30,
+  "failed_count": 0,
+  "generate_provider": "local"
+}

@@ -92,15 +92,12 @@ _MAX_EVAL_ANS_CHARS = 12_000
 # câu trả lời dài nhưng hợp lệ rồi trừ điểm oan vì bị cắt giữa chừng. Rút gọn
 # các đoạn lặp bất thường (>= 100 ký tự lặp liên tiếp) TRƯỚC khi áp dụng cắt
 # theo độ dài, để giới hạn ký tự phía trên không bị "ăn" hết vào rác lặp.
-_REPEAT_RUN_RE = re.compile(r"(.)\1{99,}", re.DOTALL)
-
-
-def _collapse_pathological_repetition(text: str) -> str:
-    def _replace(match: "re.Match[str]") -> str:
-        run = match.group(0)
-        return f"{match.group(1)}... [lặp {len(run)} lần liên tiếp, đã rút gọn] "
-
-    return _REPEAT_RUN_RE.sub(_replace, text)
+# Guard chống degenerate output giờ dùng chung với generate_node (nơi chặn TẠI
+# NGUỒN). Giữ lớp này ở tầng judge làm phòng thủ thứ hai cho answer.txt cache cũ
+# đã sinh ra trước khi generate_node có guard.
+from slidegen_rag.agent.utils.text_guard import (  # noqa: E402
+    collapse_pathological_repetition as _collapse_pathological_repetition,
+)
 
 
 # =============================================================================
@@ -359,17 +356,24 @@ def get_answers_and_chunks_for_topic(
     topic: str,
     force_rerun: bool = False,
     progress_callback=None,
+    lowcost: bool = False,
 ) -> tuple[list[dict], bool]:
     """
     Lấy danh sách câu trả lời và chunks cho chủ đề.
     Nếu file answer.txt và chunks.txt đã tồn tại đầy đủ và force_rerun=False,
     đọc trực tiếp từ file (cache).
 
+    Args:
+        lowcost: True → generate_node dùng model tự host (LLM_BASE_URL) thay
+            Gemini (xem generate_node.set_generate_provider). Các node khác
+            (retrieve/decompose/context_evaluator) không đổi — vẫn Gemini.
+
     Returns:
         (results, was_cached)
     """
     from slidegen_rag.main import load_ra
     from slidegen_rag.agent.graph.builder import build_graph
+    from slidegen_rag.agent.nodes.generate_node import set_generate_provider
     from slidegen_rag.agent.tools.tools import (
         set_retrieval_augmentation,
         set_web_search_enabled,
@@ -410,6 +414,15 @@ def get_answers_and_chunks_for_topic(
             progress_callback(
                 f"[{topic}] Đã nạp {len(questions)} câu từ cache (answer.txt & chunks.txt)"
             )
+            # answer.txt/chunks.txt chỉ cache theo topic, KHÔNG theo provider —
+            # nếu bật lowcost mà dùng cache cũ, câu trả lời vẫn là của lần
+            # chạy trước (có thể là Gemini), không phải của model tự host.
+            if lowcost:
+                progress_callback(
+                    f"[{topic}] ⚠️ Lowcost đang BẬT nhưng đang đọc cache từ lần chạy "
+                    f"trước (không rõ provider) — tick 'Buộc chạy lại' để có kết quả "
+                    f"thật sự sinh bởi model tự host"
+                )
         logger.info(f"[{topic}] Sử dụng kết quả có sẵn từ answer.txt & chunks.txt")
         cached_trajectories = load_trajectory_texts(trajectory_file)
         results = []
@@ -442,6 +455,7 @@ def get_answers_and_chunks_for_topic(
     # đề cập"), làm sai lệch điểm accuracy/faithfulness. Chạy thật (main.py)
     # vẫn giữ mặc định bật.
     set_web_search_enabled(False)
+    set_generate_provider("local" if lowcost else "gemini")
     graph = build_graph()
     recorder = TrajectoryRecorder(
         graph, tags=["evaluate", topic], metadata={"topic": topic}
@@ -452,6 +466,17 @@ def get_answers_and_chunks_for_topic(
     new_chunks = {}
     new_trajectories: dict[int, Trajectory] = {}
     total = len(questions)
+
+    # Tích lũy token Gemini XUYÊN SUỐT cả benchmark — mỗi traj.token_usage chỉ
+    # là của RIÊNG câu hỏi đó (LLMModel.reset_usage() chạy đầu mỗi
+    # TrajectoryRecorder.arun()), nên phải cộng dồn thủ công ở đây mới theo
+    # dõi được tổng chi phí thật của cả lần chạy topic này.
+    gemini_running_total = {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "cost_usd": 0.0,
+    }
 
     for idx, q in enumerate(questions):
         num = q["num"]
@@ -486,6 +511,29 @@ def get_answers_and_chunks_for_topic(
         new_chunks[num] = used_docs
         new_trajectories[num] = traj
 
+        q_usage = traj.token_usage or {}
+        q_gemini_tokens = q_usage.get(
+            "gemini_total_tokens", q_usage.get("total_tokens", 0)
+        )
+        q_cost_usd = q_usage.get("total_cost_usd", 0.0)
+        gemini_running_total["input_tokens"] += q_usage.get(
+            "gemini_input_tokens", q_usage.get("input_tokens", 0)
+        )
+        gemini_running_total["output_tokens"] += q_usage.get(
+            "gemini_output_tokens", q_usage.get("output_tokens", 0)
+        )
+        gemini_running_total["total_tokens"] += q_gemini_tokens
+        gemini_running_total["cost_usd"] += q_cost_usd
+
+        usage_msg = (
+            f"[{topic}] Câu {num}/{total}: Gemini +{q_gemini_tokens:,} token (~${q_cost_usd:.4f}) "
+            f"| Tích lũy: {gemini_running_total['total_tokens']:,} token "
+            f"(~${gemini_running_total['cost_usd']:.4f} USD)"
+        )
+        logger.info(usage_msg)
+        if progress_callback:
+            progress_callback(usage_msg)
+
         results.append(
             {
                 "num": num,
@@ -503,6 +551,13 @@ def get_answers_and_chunks_for_topic(
     logger.info(
         f"[{topic}] Đã lưu câu trả lời vào {answer_file}, chunks vào {chunks_file}, "
         f"trajectory vào {trajectory_file}"
+    )
+    logger.info(
+        f"[{topic}] Tổng Gemini token cả lần chạy: "
+        f"in={gemini_running_total['input_tokens']:,} out={gemini_running_total['output_tokens']:,} "
+        f"tổng={gemini_running_total['total_tokens']:,} "
+        f"| Chi phí ước tính: ${gemini_running_total['cost_usd']:.4f} USD "
+        f"(~{gemini_running_total['cost_usd'] * 25400:.0f} VNĐ)"
     )
 
     return results, False
@@ -685,6 +740,37 @@ def calculate_keyword_coverage_strict(reference: str, used_chunks: list[str]) ->
     matched = sum(1 for w in unique_words if w in chunk_tokens)
     coverage = (matched / len(unique_words)) * 100.0
     return min(100.0, coverage)
+
+
+def calculate_answer_coverage(reference: str, answer: str) -> float:
+    """
+    Như `calculate_keyword_coverage_strict` nhưng đo trên CÂU TRẢ LỜI CUỐI
+    thay vì trên chunk đã retrieve — deterministic, KHÔNG dùng LLM.
+
+    Lý do tồn tại: `coverage_pct_strict` chỉ nói "nguyên liệu có về tới
+    context hay không", không nói agent có DÙNG được nó không. Đặt cạnh nhau,
+    hai con số tách được 3 loại lỗi mà trước đây phải đoán qua feedback của
+    judge (đo thực nghiệm trên run 20260914_003444):
+
+        cov_chunk THẤP                      -> lỗi RETRIEVAL
+            vd Q19: chunk 37.3% / answer 35.9% (dùng 96% — đã tận dụng hết
+            nhưng nguyên liệu vốn đã thiếu)
+
+        cov_chunk CAO, tỷ lệ dùng THẤP      -> lỗi GENERATION
+            vd Q6: chunk 83.0% / answer 23.8% (dùng 29% — sinh văn bản hỏng)
+            vd Q7: chunk 85.2% / answer 61.3% (dùng 72% — trả lời bị cắt)
+
+        cov_chunk CAO, tỷ lệ dùng CAO, điểm judge THẤP -> lỗi JUDGE/REFERENCE
+            vd Q28: chunk 72.1% / answer 70.9% (dùng 98%) mà vẫn 5.0 điểm —
+            vì reference có lỗi dữ liệu, không phải agent làm sai
+
+    Tương quan với total_score cao hơn hẳn coverage chunk (r=+0.55 so với
+    +0.37), nhưng KHÔNG phải để thay điểm judge: câu trả lời đúng mà diễn đạt
+    khác reference vẫn có thể coverage thấp (Q15 đạt 10.0 điểm với answer
+    coverage chỉ 34.6%). Đây là công cụ CHẨN ĐOÁN chỉ ra tầng nào đang rò rỉ,
+    không phải thước đo chất lượng.
+    """
+    return calculate_keyword_coverage_strict(reference, [answer] if answer else [])
 
 
 def parse_metric_output(raw_text: str) -> Optional[MetricEval]:
@@ -913,17 +999,23 @@ def run_evaluation_for_topic(
     topic: str,
     force_rerun: bool = False,
     progress_callback=None,
+    lowcost: bool = False,
 ) -> tuple[pd.DataFrame, dict, bool]:
     """
     Thực hiện đánh giá toàn diện một chủ đề.
     Nếu một câu hỏi bị lỗi (không đánh giá được), câu đó sẽ được đánh dấu FAILED
     và KHÔNG ĐƯỢC TÍNH VÀO ĐIỂM TỔNG để tránh làm lệch kết quả.
 
+    Args:
+        lowcost: True → generate_node dùng model tự host thay Gemini (xem
+            get_answers_and_chunks_for_topic). Ghi lại vào summary["generate_provider"]
+            để về sau biết file summary/score nào ứng với provider nào.
+
     Returns:
         (detail_df, summary_dict, was_cached)
     """
     results, was_cached = get_answers_and_chunks_for_topic(
-        topic, force_rerun=force_rerun, progress_callback=progress_callback
+        topic, force_rerun=force_rerun, progress_callback=progress_callback, lowcost=lowcost
     )
 
     primary_llm, fallback_llm = create_evaluator_llm()
@@ -957,6 +1049,15 @@ def run_evaluation_for_topic(
 
         coverage = calculate_keyword_coverage(ref, chunks)
         coverage_strict = calculate_keyword_coverage_strict(ref, chunks)
+        # answer_coverage: cùng công thức strict nhưng đo trên CÂU TRẢ LỜI thay vì
+        # chunk — tách được 3 loại lỗi mà coverage chunk đơn thuần không phân biệt
+        # nổi (xem docstring calculate_answer_coverage).
+        answer_coverage = calculate_answer_coverage(ref, resp)
+        utilization = (
+            round(answer_coverage / coverage_strict * 100.0, 1)
+            if coverage_strict > 0
+            else 0.0
+        )
 
         if eval_res is not None:
             is_success = True
@@ -991,6 +1092,8 @@ def run_evaluation_for_topic(
                 "total_score": total_score,
                 "coverage_pct": round(coverage, 1),
                 "coverage_pct_strict": round(coverage_strict, 1),
+                "answer_coverage_pct": round(answer_coverage, 1),
+                "utilization_pct": utilization,
                 "chunks_count": len(chunks),
                 "feedback": feedback_val,
                 "is_success": is_success,
@@ -1020,10 +1123,15 @@ def run_evaluation_for_topic(
             "coverage_pct_strict": float(
                 valid_df["coverage_pct_strict"].astype(float).mean()
             ),
+            "answer_coverage_pct": float(
+                valid_df["answer_coverage_pct"].astype(float).mean()
+            ),
+            "utilization_pct": float(valid_df["utilization_pct"].astype(float).mean()),
             "avg_chunks": float(detail_df["chunks_count"].mean()),
             "total_questions": len(detail_df),
             "success_count": success_count,
             "failed_count": failed_count,
+            "generate_provider": "local" if lowcost else "gemini",
         }
     else:
         summary = {
@@ -1034,10 +1142,13 @@ def run_evaluation_for_topic(
             "total_score": 0.0,
             "coverage_pct": 0.0,
             "coverage_pct_strict": 0.0,
+            "answer_coverage_pct": 0.0,
+            "utilization_pct": 0.0,
             "avg_chunks": 0.0,
             "total_questions": len(detail_df),
             "success_count": 0,
             "failed_count": failed_count,
+            "generate_provider": "local" if lowcost else "gemini",
         }
 
     return detail_df, summary, was_cached
@@ -1336,7 +1447,7 @@ def export_evaluation_results(
 
 
 def evaluate_single_topic_handler(
-    topic: str, force_rerun: bool, progress=gr.Progress()
+    topic: str, force_rerun: bool, lowcost: bool = False, progress=gr.Progress()
 ):
     """Handler đánh giá một chủ đề."""
     global _current_detail_df
@@ -1357,7 +1468,7 @@ def evaluate_single_topic_handler(
             progress(0.4, desc=msg)
 
         detail_df, summary, was_cached = run_evaluation_for_topic(
-            topic, force_rerun=force_rerun, progress_callback=cb
+            topic, force_rerun=force_rerun, progress_callback=cb, lowcost=lowcost
         )
 
         _current_detail_df = detail_df
@@ -1496,7 +1607,9 @@ def inspect_question_handler(selected_q_text: str):
     return col1_content, col2_content, col3_content, col4_content
 
 
-def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
+def evaluate_all_topics_handler(
+    force_rerun: bool, lowcost: bool = False, progress=gr.Progress()
+):
     """Handler đánh giá toàn bộ các chủ đề."""
     topics = get_available_topics()
     if not topics:
@@ -1525,7 +1638,7 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
                 progress(base_prog + 0.5 / len(topics), desc=msg)
 
             detail_df, summary, was_cached = run_evaluation_for_topic(
-                topic, force_rerun=force_rerun, progress_callback=cb
+                topic, force_rerun=force_rerun, progress_callback=cb, lowcost=lowcost
             )
 
             all_summaries[topic] = summary
@@ -1680,6 +1793,11 @@ def build_gradio_app():
                             label="🔄 Buộc chạy lại Agent (Bỏ qua cache answer/chunks)",
                             value=False,
                         )
+                    with gr.Column(scale=2):
+                        chk_lowcost_single = gr.Checkbox(
+                            label="💰 Lowcost (generate_node dùng model tự host thay Gemini)",
+                            value=False,
+                        )
                     with gr.Column(scale=1):
                         btn_eval_single = gr.Button(
                             "🚀 Bắt đầu đánh giá",
@@ -1730,7 +1848,7 @@ def build_gradio_app():
 
                 btn_eval_single.click(
                     fn=evaluate_single_topic_handler,
-                    inputs=[topic_dropdown, chk_force_single],
+                    inputs=[topic_dropdown, chk_force_single, chk_lowcost_single],
                     outputs=[
                         chart_single,
                         table_single,
@@ -1758,6 +1876,11 @@ def build_gradio_app():
                     with gr.Column(scale=2):
                         chk_force_all = gr.Checkbox(
                             label="🔄 Buộc chạy lại Agent cho tất cả (Bỏ qua cache)",
+                            value=False,
+                        )
+                    with gr.Column(scale=2):
+                        chk_lowcost_all = gr.Checkbox(
+                            label="💰 Lowcost (generate_node dùng model tự host thay Gemini)",
                             value=False,
                         )
                     with gr.Column(scale=1):
@@ -1792,7 +1915,7 @@ def build_gradio_app():
 
                 btn_eval_all.click(
                     fn=evaluate_all_topics_handler,
-                    inputs=[chk_force_all],
+                    inputs=[chk_force_all, chk_lowcost_all],
                     outputs=[
                         chart_all,
                         summary_table_all,

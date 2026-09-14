@@ -284,6 +284,15 @@ HƯỚNG DẪN BIÊN SOẠN CÂU TRẢ LỜI (PHONG CÁCH NOTEBOOKLM):
    - Trả lời bằng cùng ngôn ngữ với câu hỏi (tiếng Việt).
 """
 
+GENERATE_RETRY_PROMPT = """\
+Câu trả lời vừa rồi bị lỗi kỹ thuật: hoặc chứa một đoạn ký tự lặp lại bất thường, hoặc bị cắt ngang giữa chừng do vượt giới hạn độ dài.
+
+Hãy viết lại câu trả lời HOÀN CHỈNH cho cùng câu hỏi đó, giữ nguyên mọi yêu cầu về nội dung và cách trình bày ở trên, nhưng:
+- Ưu tiên VIẾT TRỌN VẸN đến hết: thà mỗi mục ngắn gọn hơn còn hơn chi tiết rồi bị cắt giữa bảng/danh sách.
+- Nếu phải dùng bảng so sánh, giữ số cột vừa phải và điền đủ mọi hàng.
+- Tuyệt đối không lặp lại một ký tự, một từ hay một câu nhiều lần liên tiếp.\
+"""
+
 GENERATE_USER_PROMPT = """\
 Dưới đây là các tài liệu ngữ cảnh được trích xuất:
 \"\"\"

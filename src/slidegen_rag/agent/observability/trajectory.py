@@ -715,10 +715,24 @@ def render_trajectory(traj: Trajectory, *, title: Optional[str] = None) -> str:
     if usage:
         vnd = usage.get("total_cost_vnd", 0.0)
         usd = usage.get("total_cost_usd", 0.0)
+        # Gemini-only — đây là phần TÍNH PHÍ thật, tách khỏi local (miễn phí)
+        # để chi phí ước tính không bị pha loãng bởi token của local model
+        # (xem TokenTracker ở agent/models/llm.py). Fallback về khoá tổng
+        # gộp cũ (input_tokens/...) cho token_usage được ghi trước bản sửa
+        # này (không có khoá gemini_*).
+        gem_in = usage.get("gemini_input_tokens", usage.get("input_tokens", 0))
+        gem_out = usage.get("gemini_output_tokens", usage.get("output_tokens", 0))
+        gem_tot = usage.get("gemini_total_tokens", usage.get("total_tokens", 0))
         lines.append(
-            f"Tokens: in={usage.get('input_tokens', 0):,} out={usage.get('output_tokens', 0):,} "
-            f"tổng={usage.get('total_tokens', 0):,} | Chi phí ước tính: ${usd:.6f} USD (~{vnd:.2f} VNĐ)"
+            f"Tokens Gemini: in={gem_in:,} out={gem_out:,} tổng={gem_tot:,} "
+            f"| Chi phí ước tính: ${usd:.6f} USD (~{vnd:.2f} VNĐ)"
         )
+        local_tot = usage.get("local_total_tokens", 0)
+        if local_tot:
+            lines.append(
+                f"Tokens Local (miễn phí): tổng={local_tot:,} "
+                f"({usage.get('local_calls', 0)} lượt)"
+            )
 
     if traj.run_id:
         line = f"LangSmith: project={LangSmithConfig.PROJECT} | run_id={traj.run_id}"
