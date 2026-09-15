@@ -127,7 +127,7 @@ Query: {query}
 Split this query into its facets, one focused standalone question per line (or a single line with the query verbatim if it is single-topic).\
 """
 
-# Guard hỏi lại 1 lần (D3, plan2.md): dùng khi output đầu tiên chỉ có 1 facet
+# Guard hỏi lại 1 lần: dùng khi output đầu tiên chỉ có 1 facet
 # NHƯNG câu hỏi có marker so sánh rõ ràng ("so sánh", "phân biệt", ...) — khả
 # năng cao LLM đã bỏ qua rule 1 (comparison override). Gọi lại ĐÚNG 1 lần,
 # nối thẳng vào messages hiện có (không chèn AIMessage) — giống pattern retry

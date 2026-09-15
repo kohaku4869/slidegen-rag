@@ -67,9 +67,7 @@ from slidegen_rag.config import AgentConfig, LangSmithConfig
 logger = logging.getLogger(__name__)
 
 
-# =============================================================================
-# Dataclasses
-# =============================================================================
+# ── Dataclasses ───────────────────────────────────────────────────────────
 
 
 @dataclass
@@ -151,9 +149,7 @@ class Trajectory:
         return render_trajectory(self, title=title)
 
 
-# =============================================================================
-# Callback handler — thu thập tool/LLM call, thread-safe
-# =============================================================================
+# ── Callback handler — thu thập tool/LLM call, thread-safe ────────────────
 
 
 class TrajectoryCallbackHandler(BaseCallbackHandler):
@@ -289,9 +285,7 @@ class TrajectoryCallbackHandler(BaseCallbackHandler):
             )
 
 
-# =============================================================================
-# Recorder
-# =============================================================================
+# ── Recorder ──────────────────────────────────────────────────────────────
 
 
 def _summarize_update(update: dict) -> dict:
@@ -336,6 +330,17 @@ class TrajectoryRecorder:
         tags: Optional[list[str]] = None,
         metadata: Optional[dict] = None,
     ) -> tuple[dict, Trajectory]:
+        """Chạy graph MỘT lần và trả về (state cuối, Trajectory).
+
+        Thay trực tiếp cho `graph.ainvoke()`: state cuối trả về là y hệt (xem
+        docstring module về việc astream/ainvoke tương đương), chỉ khác là kèm
+        theo toàn bộ lịch sử trung gian. Token/chi phí được reset ở đầu mỗi
+        lượt gọi nên `traj.token_usage` là của RIÊNG câu hỏi này.
+
+        Args:
+            initial_state: dựng bằng graph/state.py::make_initial_state.
+            run_name, tags, metadata: gắn vào run trên LangSmith (nếu bật).
+        """
         from slidegen_rag.agent.models.llm import LLMModel
 
         LLMModel.reset_usage()
@@ -503,13 +508,11 @@ class TrajectoryRecorder:
         return final_state, traj
 
     def run(self, initial_state: dict, **kwargs: Any) -> tuple[dict, Trajectory]:
-        """Bọc asyncio.run cho code đồng bộ (evaluate.py)."""
+        """Bọc asyncio.run cho code đồng bộ (evaluate/runner.py)."""
         return asyncio.run(self.arun(initial_state, **kwargs))
 
 
-# =============================================================================
-# Renderer — text tiếng Việt
-# =============================================================================
+# ── Renderer — text tiếng Việt ────────────────────────────────────────────
 
 _NODE_LABELS = {
     "retrieve": "retrieve",
@@ -767,9 +770,7 @@ def render_trajectory(traj: Trajectory, *, title: Optional[str] = None) -> str:
     return "\n".join(lines)
 
 
-# =============================================================================
-# I/O — song song save_chunks/load_chunks trong evaluate/evaluate.py
-# =============================================================================
+# ── I/O — song song save_chunks/load_chunks trong evaluate/io.py ──────────
 
 
 def render_trajectories_file(trajs: dict[int, Trajectory], topic: str) -> str:

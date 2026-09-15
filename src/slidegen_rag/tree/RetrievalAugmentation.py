@@ -18,7 +18,6 @@ class RetrievalAugmentationConfig:
         tree_retriever_config=None,
         embedding_model=None,
         summarization_model=None,
-        # TreeRetrieverConfig arguments
         tr_tokenizer=None,
         tr_threshold=0.5,
         tr_top_k=5,
@@ -27,7 +26,6 @@ class RetrievalAugmentationConfig:
         tr_embedding_model=None,
         tr_num_layers=None,
         tr_start_layer=None,
-        # TreeBuilderConfig arguments
         tb_tokenizer=None,
         tb_max_tokens=100,
         tb_num_layers=5,
@@ -39,7 +37,6 @@ class RetrievalAugmentationConfig:
         tb_embedding_models=None,
         tb_cluster_embedding_model="SBERT",
     ):
-        # Validate and propagate shared embedding_model
         if embedding_model is not None and not isinstance(embedding_model, BaseEmbeddingModel):
             raise ValueError("embedding_model must be an instance of BaseEmbeddingModel")
         elif embedding_model is not None:
@@ -52,7 +49,6 @@ class RetrievalAugmentationConfig:
             tb_cluster_embedding_model = "EMB"
             tr_context_embedding_model = "EMB"
 
-        # Validate and propagate shared summarization_model
         if summarization_model is not None and not isinstance(
             summarization_model, BaseSummarizationModel
         ):
@@ -64,7 +60,6 @@ class RetrievalAugmentationConfig:
                 )
             tb_summarization_model = summarization_model
 
-        # Set TreeBuilderConfig
         if tree_builder_config is None:
             tree_builder_config = TreeBuilderConfig(
                 tokenizer=tb_tokenizer,
@@ -81,7 +76,6 @@ class RetrievalAugmentationConfig:
         elif not isinstance(tree_builder_config, TreeBuilderConfig):
             raise ValueError("tree_builder_config must be an instance of TreeBuilderConfig")
 
-        # Set TreeRetrieverConfig
         if tree_retriever_config is None:
             tree_retriever_config = TreeRetrieverConfig(
                 tokenizer=tr_tokenizer,
@@ -131,7 +125,6 @@ class RetrievalAugmentation:
         if not isinstance(config, RetrievalAugmentationConfig):
             raise ValueError("config must be an instance of RetrievalAugmentationConfig")
 
-        # Load tree from path if a string is given
         if isinstance(tree, str):
             try:
                 with open(tree, "rb") as file:

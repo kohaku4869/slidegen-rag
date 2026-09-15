@@ -91,7 +91,7 @@ def make_initial_state(
 ) -> AgentState:
     """State khởi tạo chuẩn cho graph CHA (AgentState) — thay dict lặp lại ở
     main.py và evaluate/runner.py. Giữ NGUYÊN tên tham số `drill_candidates`
-    (không đổi thành seed_drill_candidates) để main.py/evaluate.py không cần
+    (không đổi thành seed_drill_candidates) để main.py/evaluate không cần
     sửa lời gọi — chỉ đổi tên field bên trong dict trả về.
 
     Args:

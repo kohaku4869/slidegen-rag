@@ -1,14 +1,14 @@
 """
-Quản lý hội thoại nhiều lượt cho CRAG agent ở CLI (main.py) — theo plan.md §6.
+Quản lý hội thoại nhiều lượt cho CRAG agent ở CLI (main.py).
 
-Tách biệt 2 tầng state theo đúng thiết kế trong plan.md:
+Tách biệt 2 tầng state:
     - CRAG AgentState (agent/graph/state.py): ephemeral, reset hoàn toàn mỗi
       câu hỏi qua `make_initial_state()`.
     - ConversationState (`ConversationManager` ở đây): persistent, chỉ giữ
       chat_history + node đã trích dẫn lượt gần nhất + tóm tắt lịch sử cũ.
 
 Quyết định kiến trúc: KHÔNG dùng LangGraph checkpointer (MemorySaver/
-SqliteSaver) như plan.md §6.1 gợi ý nguyên văn — `main.py` hiện chạy 1
+SqliteSaver) — `main.py` hiện chạy 1
 process/phiên duy nhất và đã giữ state ngay trong Python, nên checkpointer
 (giải quyết bài toán persist qua nhiều tiến trình/API) là thừa máy móc so
 với nhu cầu thực tế. Nếu sau này có API server cần resume qua nhiều tiến
@@ -62,7 +62,7 @@ class ConversationManager:
     async def contextualize(self, new_query: str) -> str:
         """
         Viết lại câu hỏi follow-up thành câu độc lập dựa trên vài lượt gần
-        nhất (plan.md §6.2). Bỏ qua (trả nguyên câu) nếu chưa có lịch sử —
+        nhất. Bỏ qua (trả nguyên câu) nếu chưa có lịch sử —
         không tốn thêm 1 LLM call cho câu hỏi đầu tiên của phiên.
         """
         if not self.chat_history:
@@ -135,7 +135,7 @@ class ConversationManager:
     async def maybe_compact(self) -> None:
         """
         Cuộn các lượt cũ nhất thành 1 đoạn tóm tắt khi vượt `max_turns`
-        (plan.md §6.3) — 1 LLM call duy nhất cho mọi lượt bị cuộn, không
+        — 1 LLM call duy nhất cho mọi lượt bị cuộn, không
         phải mỗi lượt 1 call.
         """
         max_entries = self.max_turns * 2  # mỗi lượt = 1 entry user + 1 entry assistant

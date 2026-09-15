@@ -252,9 +252,7 @@ class LLMModel:
             max_retries=self.max_retries,
         )
 
-    # ------------------------------------------------------------------
-    # Tracking helpers
-    # ------------------------------------------------------------------
+    # ── Tracking helpers ────────────────────────────────────────────────────
 
     @classmethod
     def reset_usage(cls):
@@ -269,9 +267,7 @@ class LLMModel:
     def get_usage_report(cls, model_name: Optional[str] = None) -> str:
         return cls.tracker.format_report(model_name or cls.DEFAULT_MODEL)
 
-    # ------------------------------------------------------------------
-    # Tool binding
-    # ------------------------------------------------------------------
+    # ── Tool binding ────────────────────────────────────────────────────────
 
     def bind_tools(self, tools: list[BaseTool], **kwargs: Any) -> BaseChatModel:
         """
@@ -297,11 +293,11 @@ class LLMModel:
             response.content = "".join(parts)
         return response
 
-    # ------------------------------------------------------------------
-    # Synchronous
-    # ------------------------------------------------------------------
+    # ── Synchronous ─────────────────────────────────────────────────────────
 
     def invoke(self, messages: list[BaseMessage], **kwargs: Any) -> BaseMessage:
+        """Gọi LLM và cộng dồn token vào TokenTracker. Lỗi context-overflow ở
+        provider tự host sẽ fallback sang Gemini nếu fallback_to_gemini=True."""
         try:
             response = self._client.invoke(messages, **kwargs)
             usage = getattr(response, "usage_metadata", None)
@@ -349,11 +345,10 @@ class LLMModel:
             logging.error(f"[LLMModel] stream error: {e}")
             raise
 
-    # ------------------------------------------------------------------
-    # Asynchronous
-    # ------------------------------------------------------------------
+    # ── Asynchronous ────────────────────────────────────────────────────────
 
     async def ainvoke(self, messages: list[BaseMessage], **kwargs: Any) -> BaseMessage:
+        """Bản async của invoke() — cùng cơ chế tracking token và fallback."""
         try:
             response = await self._client.ainvoke(messages, **kwargs)
             usage = getattr(response, "usage_metadata", None)
@@ -399,9 +394,7 @@ class LLMModel:
             logging.error(f"[LLMModel] astream error: {e}")
             raise
 
-    # ------------------------------------------------------------------
-    # Utilities
-    # ------------------------------------------------------------------
+    # ── Utilities ───────────────────────────────────────────────────────────
 
     @property
     def client(self) -> BaseChatModel:

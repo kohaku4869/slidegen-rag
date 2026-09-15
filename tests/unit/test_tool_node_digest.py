@@ -1,4 +1,4 @@
-"""Unit tests for FIX A (plan2.md): `tool_node._build_digest` now calls
+"""Unit tests: `tool_node._build_digest` calls
 `describe_node()` for real tree metadata (n_children/n_siblings/has_parent/
 heading) instead of guessing `has_children` from layer, and falls back to
 the old heuristic only when `describe_node` can't resolve the node."""

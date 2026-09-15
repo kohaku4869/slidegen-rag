@@ -1,6 +1,6 @@
 """Unit tests for decompose_facets_node: single-topic fast-path (sub-question
 MUST be the original query verbatim), multi-facet parsing (one plain question
-per line — no LLM-assigned LABEL, see plan2.md FIX C), MAX_FACETS cap, and
+per line — no LLM-assigned LABEL), MAX_FACETS cap, and
 fail-closed fallback (parse error / LLM error -> exactly 1 facet, never
 0 facets)."""
 

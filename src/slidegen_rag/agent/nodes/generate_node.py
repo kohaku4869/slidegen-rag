@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # lượt gọi (xem so sánh token retrieve vs generate) — LLMModel tự fallback
 # sang Gemini nếu self-host lỗi/timeout (fallback_to_gemini=True mặc định).
 # Cache theo provider, KHÔNG dựng client mỗi lượt gọi node, nhưng vẫn cho
-# evaluate.py đổi cờ giữa các lần chạy trong cùng 1 process — cùng pattern với
+# evaluate/runner.py đổi cờ giữa các lần chạy trong cùng 1 process — cùng pattern
 # set_web_search_enabled ở agent/tools/tools.py.
 _provider = "gemini"
 _llm_cache: dict[str, LLMModel] = {}

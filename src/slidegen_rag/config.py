@@ -17,22 +17,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Paths
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Paths ─────────────────────────────────────────────────────────────────
 
 # Thư mục gốc của project (repo root — 3 cấp trên: config.py -> slidegen_rag -> src -> root)
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Thư mục chứa các file Markdown nguồn cần index
 DATA_SRC_DIR = ROOT_DIR / "data" / "src"
 
-# Thư mục lưu tree index đã build (.pkl)
 DATA_INDEX_DIR = ROOT_DIR / "data" / "index"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Tree Builder Config
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Tree Builder Config ───────────────────────────────────────────────────
 
 class TreeConfig:
     """
@@ -41,14 +35,12 @@ class TreeConfig:
     """
 
     # ── Embedding ──────────────────────────────────────────────────────────
-    # Model SentenceTransformer dùng để tạo embedding cho các node
     EMBEDDING_MODEL_NAME: str = "BAAI/bge-m3"
 
     # URL endpoint ngrok / server embedding từ xa (ưu tiên gọi trước, fallback về local nếu lỗi)
     EMBEDDING_BASE_URL: str = os.getenv("EMBEDDING_BASE_URL", "").strip()
     EMBEDDING_TIMEOUT: int = 60
 
-    # Key định danh model trong hệ thống
     EMBEDDING_MODEL_KEY: str = "SBERT"
     CLUSTER_EMBEDDING_MODEL: str = "SBERT"
 
@@ -57,9 +49,7 @@ class TreeConfig:
     SUMMARIZATION_LENGTH: int = 2000
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Tree Retriever Config
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Tree Retriever Config ─────────────────────────────────────────────────
 
 class RetrieverConfig:
     """Tham số cho quá trình truy xuất từ cây (retrieval)."""
@@ -89,9 +79,7 @@ class RetrieverConfig:
     START_LAYER: int = None
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Agent / LLM Config
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Agent / LLM Config ────────────────────────────────────────────────────
 
 class LLMConfig:
     """Tham số cho LLM sử dụng trong Agent (Google Gemini)."""
@@ -132,9 +120,7 @@ class LLMConfig:
     RETRIEVE_TEMPERATURE: float = 0.0
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Agent Config (vòng lặp điều khiển của graph)
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Agent Config (vòng lặp điều khiển của graph) ──────────────────────────
 
 
 class AgentConfig:
@@ -153,9 +139,7 @@ class AgentConfig:
     MAX_RETRIEVE: int = 5
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Observability Config (LangSmith tracing + trajectory logging)
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Observability Config (LangSmith tracing + trajectory logging) ─────────
 
 
 def _env_flag(name: str, default: bool = False) -> bool:
@@ -200,9 +184,7 @@ class LangSmithConfig:
     TRAJECTORY_FILENAME: str = "trajectory.txt"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Summarization Model Config
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Summarization Model Config ────────────────────────────────────────────
 
 class SummarizationConfig:
     """Tham số cho LLM dùng để tóm tắt node trong quá trình build tree."""

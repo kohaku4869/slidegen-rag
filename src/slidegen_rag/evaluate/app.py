@@ -343,9 +343,7 @@ def evaluate_all_topics_handler(
     return chart, summary_df, detail_table_df, kpi_html, status_msg
 
 
-# =============================================================================
-# 8. GIAO DIỆN GRADIO (THEME & BLOCKS)
-# =============================================================================
+# ── Giao diện Gradio (theme & blocks) ─────────────────────────────────────
 
 
 def build_gradio_app():
@@ -374,9 +372,7 @@ def build_gradio_app():
         )
 
         with gr.Tabs():
-            # ─────────────────────────────────────────────────────────────────
-            # TAB 1: Đánh giá theo chủ đề
-            # ─────────────────────────────────────────────────────────────────
+            # ── TAB 1: Đánh giá theo chủ đề ───────────────────────────────
             with gr.TabItem("🎯 Đánh giá theo chủ đề", id="tab_single"):
                 with gr.Row(variant="panel"):
                     with gr.Column(scale=2):
@@ -499,9 +495,7 @@ def build_gradio_app():
                     outputs=[inspect_col1, inspect_col2, inspect_col3, inspect_col4],
                 )
 
-            # ─────────────────────────────────────────────────────────────────
-            # TAB 2: Đánh giá tất cả chủ đề
-            # ─────────────────────────────────────────────────────────────────
+            # ── TAB 2: Đánh giá tất cả chủ đề ─────────────────────────────
             with gr.TabItem("📋 Đánh giá tất cả chủ đề", id="tab_all"):
                 with gr.Row(variant="panel"):
                     with gr.Column(scale=3):
@@ -576,9 +570,7 @@ def find_available_port(start_port: int = 7860, max_search: int = 100) -> int:
     return start_port
 
 
-# =============================================================================
-# MAIN ENTRYPOINT
-# =============================================================================
+# ── MAIN ENTRYPOINT ───────────────────────────────────────────────────────
 
 
 def main():

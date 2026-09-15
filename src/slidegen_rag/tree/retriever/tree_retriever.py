@@ -104,6 +104,13 @@ class TreeRetrieverConfig:
 
 
 class TreeRetriever(BaseRetriever):
+    """Truy xuất node từ cây phân cấp theo độ tương đồng embedding.
+
+    Hai chế độ duyệt: `collapse_tree=True` gom toàn bộ node của mọi layer
+    thành một tập phẳng rồi xếp hạng một lượt; `collapse_tree=False` đi từ
+    layer cao xuống, mỗi tầng chỉ xét con của các node đã chọn ở tầng trên.
+    Kết quả bị chặn bởi `max_tokens` chứ không chỉ bởi `top_k`.
+    """
 
     def __init__(self, config, tree) -> None:
         if not isinstance(tree, Tree):
@@ -144,15 +151,7 @@ class TreeRetriever(BaseRetriever):
         )
 
     def create_embedding(self, text: str) -> List[float]:
-        """
-        Generates embeddings for the given text using the specified embedding model.
-
-        Args:
-            text (str): The text for which to generate embeddings.
-
-        Returns:
-            List[float]: The generated embeddings.
-        """
+        """Embedding của `text`, theo context_embedding_model đã cấu hình."""
         return self.embedding_model.create_embedding(text)
 
     def retrieve_information_collapse_tree(self, query: str, top_k: int, max_tokens: int):
@@ -267,7 +266,6 @@ class TreeRetriever(BaseRetriever):
                 for index in best_indices:
                     child_nodes.extend(node_list[index].children)
 
-                # take the unique values
                 child_nodes = list(dict.fromkeys(child_nodes))
                 node_list = [self.tree.all_nodes[i] for i in child_nodes]
 
@@ -307,7 +305,6 @@ class TreeRetriever(BaseRetriever):
         if not isinstance(collapse_tree, bool):
             raise ValueError("collapse_tree must be a boolean")
 
-        # Set defaults
         start_layer = self.start_layer if start_layer is None else start_layer
         num_layers = self.num_layers if num_layers is None else num_layers
 

@@ -41,6 +41,9 @@ from importlib.machinery import ModuleSpec
 
 _OLD_TO_NEW_PREFIX = {
     "tree": "slidegen_rag.tree",
+    # Vết tích: backend raptor_tree đã bị gỡ và slidegen_rag.raptor_tree KHÔNG
+    # còn tồn tại, nên .pkl thời đó không mở lại được (main.py bỏ qua *_raptor.pkl,
+    # scripts/migrate_index_v2.py cũng báo "no migration path").
     "raptor_tree": "slidegen_rag.raptor_tree",
 }
 

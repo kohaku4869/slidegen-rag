@@ -34,12 +34,10 @@ def split_text(
     Returns:
         List[str]: A list of text chunks.
     """
-    # Split the text into sentences using multiple delimiters
     delimiters = [".", "!", "?", "\n"]
     regex_pattern = "|".join(map(re.escape, delimiters))
     sentences = re.split(regex_pattern, text)
     
-    # Calculate the number of tokens for each sentence
     n_tokens = [len(tokenizer.encode(" " + sentence)) for sentence in sentences]
     
     chunks = []
@@ -47,7 +45,6 @@ def split_text(
     current_length = 0
     
     for sentence, token_count in zip(sentences, n_tokens):
-        # If the sentence is empty or consists only of whitespace, skip it
         if not sentence.strip():
             continue
         
@@ -93,7 +90,6 @@ def split_text(
             current_chunk.append(sentence)
             current_length += token_count
     
-    # Add the last chunk if it's not empty
     if current_chunk:
         chunks.append(" ".join(current_chunk))
     

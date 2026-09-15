@@ -60,7 +60,7 @@ def _make_label(i: int, sub_question: str) -> str:
     (ctx_by_facet, facet_retrieve_counts) và để map namespace_to_label theo
     đúng thứ tự Send được phát ra, nên key trùng sẽ làm mất dữ liệu 1 facet.
     Thay ","/"=" bằng khoảng trắng vì trajectory.py render dòng
-    "Vòng lặp theo facet: {label}={n}, ..." — không làm vỡ evaluate.py (parser
+    "Vòng lặp theo facet: {label}={n}, ..." — không làm vỡ evaluate (parser
     lấy nguyên đuôi dòng) nhưng ',' / '=' bên trong label sẽ khó đọc."""
     text = sub_question.replace(",", " ").replace("=", " ").strip()
     return f"{i + 1}. {text[:40]}…"

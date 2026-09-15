@@ -152,9 +152,6 @@ async def tool_node(state: AgentState, config: RunnableConfig) -> dict:
     chunk mới trong pending_documents rồi cộng phần đậu vào documents), để
     tránh chấm lại chunk đã từng đậu ở vòng trước.
 
-    Luồng:
-        retrieve_node → tool_node → grade_documents_node
-
     Args:
         state (AgentState): Cần có 'tool_calls'.
         config (RunnableConfig): LangGraph tự truyền vào (annotation phải

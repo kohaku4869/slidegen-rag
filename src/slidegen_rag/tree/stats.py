@@ -108,7 +108,6 @@ def format_ingest_report(stats: BuildStats) -> str:
     )
     lines.append(sub_border)
 
-    # Layer breakdown table
     lines.append(" LAYER BREAKDOWN:")
     lines.append(" +-------+---------------------+---------+-----------+----------------+----------------+----------------+")
     lines.append(" | Layer | Role / Description  |   Nodes | LLM Calls | Summarize (s)  | Embedding (s)  | Total Time (s) |")
@@ -130,7 +129,6 @@ def format_ingest_report(stats: BuildStats) -> str:
 
     lines.append(" +-------+---------------------+---------+-----------+----------------+----------------+----------------+")
 
-    # Total row
     total_sum_pct = (stats.total_summarize_time / total_time) * 100
     total_emb_pct = (stats.total_embedding_time / total_time) * 100
     all_layers_time = sum(l.total_time for l in stats.layers)
@@ -172,10 +170,8 @@ def format_ingest_report(stats: BuildStats) -> str:
     lines.append(f"   >> TOTAL INGESTION TIME      : {stats.total_time:6.2f}s (100.0%)")
     lines.append("")
 
-    # Bottleneck Analysis & Suggestions
     lines.append(" BOTTLENECK ANALYSIS & OPTIMIZATION INSIGHTS:")
     if stats.total_summarize_time > stats.total_embedding_time and stats.total_summarize_time > stats.parse_time:
-        # Find layer with max summarize time
         max_layer = max(stats.layers, key=lambda l: l.summarize_time) if stats.layers else None
         lines.append(f"   - Dominant Phase: LLM Summarization accounts for {sum_pct:.1f}% of total ingestion time.")
         if max_layer and max_layer.summarize_time > 0:

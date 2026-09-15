@@ -23,7 +23,7 @@ tavily_api_key = os.getenv("TAVILY_API_KEY")
 tavily_client = TavilyClient(api_key=tavily_api_key) if tavily_api_key else None
 
 # Cờ bật/tắt web_search ở tầng retrieve_node.bind_tools — mặc định BẬT nếu có
-# TAVILY_API_KEY. evaluate.py chủ động TẮT khi chạy benchmark PLDC (đóng
+# TAVILY_API_KEY. evaluate/runner.py chủ động TẮT khi chạy benchmark PLDC (đóng
 # tài liệu = closed-book) vì reference của bộ câu hỏi này được viết trên giả
 # định agent CHỈ dùng data/src/pldc.md; nếu agent tra được web thì câu trả
 # lời sẽ mâu thuẫn với reference dù có thể "đúng" hơn trong thực tế.
@@ -59,9 +59,9 @@ SOFT_FAILURE_PREFIXES = (
     "Node not found",
     "Node has no parent",
     "Node has no siblings",
-    "Node has no children",  # expand_node(children) trên node lá — tools.py:327, :353
-    "No parent content found for node",  # tools.py:354, direction="parent"
-    "No siblings content found for node",  # tools.py:354, direction="siblings"
+    "Node has no children",  # expand_node(direction="children") trên node lá
+    "No parent content found for node",
+    "No siblings content found for node",
     "No matches found in subtree",
     "No children to search",
 )

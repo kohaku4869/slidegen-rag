@@ -16,10 +16,9 @@ class FacetState(TypedDict):
     build facet_sufficiency, và bởi TrajectoryRecorder để gắn nhãn facet vào
     từng NodeStep.
 
-    Các field còn lại giữ Y HỆT ý nghĩa/single-writer như AgentState gốc
-    trước khi tách facet (xem lịch sử agent/graph/state.py) — chỉ khác là giờ
-    có N bản độc lập chạy song song (mỗi Send một bản riêng) thay vì 1 bản
-    duy nhất, nên KHÔNG cần reducer: các nhánh không ghi đè lẫn nhau.
+    Các field còn lại single-writer và KHÔNG cần reducer: mỗi Send tạo một
+    bản FacetState riêng nên các nhánh song song không ghi đè lẫn nhau (quy
+    tắc reducer đầy đủ: xem docstring AgentState ở agent/graph/state.py).
     """
 
     query: str
@@ -50,11 +49,8 @@ def make_initial_facet_state(
         label: facet_label — nhãn khía cạnh (từ decompose_facets_node).
         query: câu hỏi con của facet này.
         seed_drill_candidates: copy NGUYÊN VẸN từ
-            AgentState["seed_drill_candidates"] (xem builder.py::fan_out_facets)
-            — không chia theo facet vì không có cách xác định đáng tin cậy
-            node cũ (trích dẫn ở lượt hội thoại trước) thuộc facet mới nào;
-            trùng lặp vô hại vì grade_documents_node._prune_drilled tự loại
-            khi đã đào.
+            AgentState["seed_drill_candidates"] — xem docstring field đó ở
+            agent/graph/state.py để biết vì sao không chia theo facet.
     """
     return {
         "query": query,

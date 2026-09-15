@@ -1,4 +1,4 @@
-"""Unit tests for FIX B (plan2.md): 3 soft-failure prefixes that were missing
+"""Unit tests: 3 soft-failure prefixes that were missing
 from `SOFT_FAILURE_PREFIXES` — dead-end `expand_node` outputs ("no children",
 "no parent content", "no siblings content") must be filtered out of
 `_extract_chunks` and reported as `soft_failed=True` in search_history,

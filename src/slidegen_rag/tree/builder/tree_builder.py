@@ -151,7 +151,6 @@ class TreeBuilder:
         self.summarization_model = config.summarization_model
         self.embedding_models = config.embedding_models
         self.cluster_embedding_model = config.cluster_embedding_model
-        # self.split_threshold = config.split_threshold
         self.last_build_stats: Optional[BuildStats] = None
 
         logging.info(
@@ -388,15 +387,7 @@ class TreeBuilder:
         node_obj.kind = "leaf" if layer == 0 else "summary"
 
     def create_embedding(self, text) -> List[float]:
-        """
-        Generates embeddings for the given text using the specified embedding model.
-
-        Args:
-            text (str): The text for which to generate embeddings.
-
-        Returns:
-            List[float]: The generated embeddings.
-        """
+        """Embedding của `text`, theo model dùng cho clustering."""
         return self.embedding_models[self.cluster_embedding_model].create_embedding(text)
 
     def summarize(self, context, max_tokens=2048) -> str:

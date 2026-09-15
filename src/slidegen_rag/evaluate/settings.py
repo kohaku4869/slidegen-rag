@@ -23,7 +23,7 @@ if sys.platform == "win32":
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # ── Đường dẫn & Cấu hình ─────────────────────────────────────────────────────
-# repo root — 4 cấp trên: evaluate.py -> evaluate -> slidegen_rag -> src -> root
+# repo root — 4 cấp trên: settings.py -> evaluate -> slidegen_rag -> src -> root
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))

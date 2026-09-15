@@ -1,4 +1,4 @@
-"""Unit tests for FIX A (plan2.md): `retrieve_node._digest_hint` picks the
+"""Unit tests: `retrieve_node._digest_hint` picks the
 right tool/direction from a node_digest entry's child/sibling counts, and
 `_format_drill_candidates` renders the new "need_siblings" reason."""
 

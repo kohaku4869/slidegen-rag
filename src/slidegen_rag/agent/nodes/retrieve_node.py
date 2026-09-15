@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 # LLM bound với retrieval tools — temperature=0 để output tool_calls ổn định.
 # web_search chỉ được bind khi web_search_enabled() (mặc định = có
-# TAVILY_API_KEY và evaluate.py không chủ động tắt cho benchmark closed-book).
+# TAVILY_API_KEY và evaluate/runner.py không chủ động tắt cho benchmark closed-book).
 # Cache theo trạng thái enabled để không build lại LLMModel mỗi lần gọi node,
-# nhưng vẫn cho phép evaluate.py đổi cờ giữa các topic trong cùng 1 process.
+# nhưng vẫn cho phép evaluate/runner.py đổi cờ giữa các topic trong cùng 1 process.
 _llm_cache: dict[bool, LLMModel] = {}
 
 
@@ -169,10 +169,6 @@ async def retrieve_node(state: AgentState) -> dict:
     lời, retrieve_node LỌC TRÙNG bằng code (không chỉ dựa vào prompt): bỏ mọi
     tool call trùng (tool, query) đã có trong search_history — đảm bảo cứng
     để vòng lặp không lặp lại chính nó dù LLM có bỏ qua chỉ dẫn trong prompt.
-
-    Luồng:
-        retrieve_node → [tool_node] → grade_documents_node
-                ↑ (loop nếu context chưa đủ, kèm feedback)
 
     Args:
         state (AgentState): Cần có 'query'. 'feedback', 'search_history',

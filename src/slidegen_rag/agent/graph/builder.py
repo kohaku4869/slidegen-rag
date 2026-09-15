@@ -77,22 +77,19 @@ def build_graph():
         CompiledGraph: Graph sẵn sàng để invoke / ainvoke / stream.
     """
     # Bật LangSmith tracing (nếu .env cấu hình) — điểm khởi tạo duy nhất, tự
-    # phủ mọi entry point (main.py, evaluate.py). Fail-soft: không API key
+    # phủ mọi entry point (main.py, dashboard đánh giá). Fail-soft: không API key
     # thì tự tắt, không raise.
     init_langsmith()
 
     workflow = StateGraph(AgentState)
 
-    # ── Đăng ký nodes ─────────────────────────────────────────────────────
     workflow.add_node("decompose_facets", decompose_facets_node)
     workflow.add_node("facet_subgraph", facet_branch_node, input_schema=FacetState)
     workflow.add_node("collect_facets", collect_facets_node)
     workflow.add_node("generate", generate_node)
 
-    # ── Entry point ────────────────────────────────────────────────────────
     workflow.set_entry_point("decompose_facets")
 
-    # ── Edges ─────────────────────────────────────────────────────────────
     # decompose_facets → fan-out Send theo facet (chạy song song)
     workflow.add_conditional_edges("decompose_facets", fan_out_facets)
 
@@ -102,7 +99,6 @@ def build_graph():
     # collect_facets → generate (1 lần, trên pool documents đã gộp)
     workflow.add_edge("collect_facets", "generate")
 
-    # generate → END
     workflow.add_edge("generate", END)
 
     graph = workflow.compile()

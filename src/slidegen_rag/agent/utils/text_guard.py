@@ -1,7 +1,7 @@
 """
 Guard chống output sinh văn bản hỏng (degenerate) — dùng chung bởi
 `agent/nodes/generate_node.py` (chặn TẠI NGUỒN, trước khi trả về cho người
-dùng) và `evaluate/evaluate.py` (lớp phòng thủ thứ hai cho answer.txt cache
+dùng) và `evaluate/judge.py` (lớp phòng thủ thứ hai cho answer.txt cache
 cũ đã sinh trước khi có guard này).
 
 Bối cảnh: đã gặp 2 lần LLM rơi vào trạng thái lặp vô hạn — một câu trả lời
