@@ -225,6 +225,50 @@ reproduce is worth more than a number you can't.
 
 ---
 
+## ⏱️ Latency
+
+Measured from `trajectory.txt`, which records wall-clock time per node on every run.
+
+### Per question
+
+| | Run 8.54 (self-hosted generation) | Run 8.56 (Gemini generation) |
+| :--- | :---: | :---: |
+| Mean | **63.0s** | **19.1s** |
+| Median | 62.6s | 20.1s |
+| Fastest | 22.5s | 5.6s |
+| Slowest | 100.8s | 56.0s |
+| 30 questions total | 31.5 min | 9.6 min |
+
+### Where the time goes
+
+Same 30 questions, same retrieval model, only the generation provider differs:
+
+| Node | Calls | Run 8.54 total | Run 8.56 total |
+| :--- | :---: | :---: | :---: |
+| `generate` | 30 | **1440.7s** (48.0s each) | **139.5s** (4.7s each) |
+| `context_evaluator` | ~200 | 156.0s (0.76s each) | 140.4s (0.71s each) |
+| `retrieve` | ~200 | 115.4s (0.56s each) | 111.1s (0.56s each) |
+| `tool` | ~200 | 96.6s (0.47s each) | 99.1s (0.50s each) |
+| `grade_documents` | ~200 | 48.6s (0.24s each) | 53.8s (0.27s each) |
+| `decompose_facets` | 30 | 32.2s (1.07s each) | 28.9s (0.96s each) |
+
+Two things fall out of this:
+
+- **The corrective loop is cheap.** All ~200 rounds of retrieve + tool + grade + evaluate
+  cost about **14 seconds per question** combined, and that number barely moves between runs.
+  Searching the tree, filtering chunks and deciding whether to retry is not where the time
+  goes — the tools themselves average under half a second.
+- **Generation decides everything else.** It is 76% of total time in the self-hosted run and
+  the single reason 9.6 minutes became 31.5. Swapping that one provider changes latency 3×
+  while total score moves 0.02 (inside the ±0.06 judge noise) — so latency and quality are
+  independent dials here, and the generation model is the lever.
+
+Loop behaviour on this benchmark: **3.9 of 5 rounds** used on average, with 20/30 questions
+spending the full budget — meaning the loop cap, not the sufficiency check, is what usually
+ends retrieval.
+
+---
+
 ## 🌟 Other Features
 
 - **Tree index from the document's own headings** (`tree/`): numeric depth detection
