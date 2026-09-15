@@ -6,8 +6,9 @@ class Node:
     Represents a node in the hierarchical tree structure.
 
     v2 adds source-provenance metadata (heading path, depth, line spans, token
-    counts, ...) needed by the agentic harness's `find`/`open` tools — see the
-    restructuring plan. Declared as class-level defaults (below `__init__`)
+    counts, ...) — `describe_node` in `agent/tools/tools.py` reads it to tell
+    the retrieve node which direction to expand. Declared as class-level
+    defaults (below `__init__`)
     so a v1 pickle, whose `__dict__` lacks these keys, still exposes every v2
     field via normal attribute lookup instead of raising AttributeError.
     """

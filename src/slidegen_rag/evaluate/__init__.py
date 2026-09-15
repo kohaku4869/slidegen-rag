@@ -1,5 +1,4 @@
 """
-Package evaluate:
-- evaluate.py: LLM-as-a-Judge Evaluation Dashboard (Thang 10)
-- evaluate_ragas.py: RAGAS Evaluation Dashboard (Thang 10)
+Package evaluate: dashboard chấm chất lượng CRAG Agent bằng LLM-as-a-Judge
+(thang điểm 10). Điểm vào: `python -m slidegen_rag.evaluate.evaluate`.
 """

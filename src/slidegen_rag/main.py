@@ -171,55 +171,17 @@ async def ask_agent(graph, query: str, verbose: bool = False, drill_candidates: 
     return answer, report, traj
 
 
-async def ask_agentic(store, query: str, verbose: bool = False):
-    """
-    Same shape as ask_agent() (answer, token report, extra) but running the
-    new agentic harness (search/find/open/summarize + bounded loop) instead
-    of the CRAG graph. A fresh graph+registry is built per call — the
-    ReferenceRegistry is per-run state (see harness/refs.py), never shared
-    across questions.
+async def interactive_loop(ask_fn, verbose: bool, conv=None):
+    """Vòng lặp hỏi đáp tương tác trong terminal. `ask_fn(query, verbose)` là
+    `ask_agent` đã bind sẵn graph CRAG đã compile — xem main().
 
-    Not yet wrapped in TrajectoryRecorder (that integration — reinterpreting
-    a CRAG "node boundary" as an agentic "iteration boundary" — is separate
-    future work); this returns the compiled result state itself as the third
-    element instead of a Trajectory, and token/cost still comes from the same
-    LLMModel.get_usage_report() the CRAG path uses (the harness manually
-    tracks usage from its bind_tools() calls — see harness/nodes.py:_track_usage).
-    """
-    from slidegen_rag.agent.harness.config import AgenticConfig
-    from slidegen_rag.agent.harness.graph import build_agentic_graph, make_initial_state
-    from slidegen_rag.agent.models.llm import LLMModel
-
-    graph, registry = build_agentic_graph(store, AgenticConfig())
-    result = await graph.ainvoke(make_initial_state(query), config={"recursion_limit": 60})
-    answer = result.get("generation") or "Không có câu trả lời."
-
-    if verbose:
-        from langchain_core.messages import AIMessage
-        tool_calls = [
-            tc["name"] for m in result["messages"] if isinstance(m, AIMessage) for tc in (m.tool_calls or [])
-        ]
-        print(f"\n🔍 --- Agentic harness: {result.get('iteration')} vòng lặp, tool calls: {tool_calls} ---")
-        if result.get("forced_completion"):
-            print("⚠️ Đã chạm giới hạn vòng lặp — câu trả lời là best-effort.")
-        print()
-
-    report = LLMModel.get_usage_report()
-    return answer, report, result
-
-
-async def interactive_loop(ask_fn, verbose: bool, agentic: bool = False, conv=None):
-    """Vòng lặp hỏi đáp tương tác trong terminal. `ask_fn(query, verbose)` is
-    either `ask_agent` (bound to a compiled CRAG graph) or `ask_agentic`
-    (bound to a DocStore) via functools.partial — see main().
-
-    `conv` (ConversationManager, chỉ truyền khi `agentic=False`) quản lý
-    hội thoại nhiều lượt: viết lại câu hỏi follow-up thành câu độc lập, seed
-    drill_candidates từ node đã trích dẫn ở lượt trước, và nén lịch sử khi
-    quá dài — xem agent/graph/conversation.py."""
+    `conv` (ConversationManager) quản lý hội thoại nhiều lượt: viết lại câu
+    hỏi follow-up thành câu độc lập, seed drill_candidates từ node đã trích
+    dẫn ở lượt trước, và nén lịch sử khi quá dài — xem
+    agent/graph/conversation.py."""
     print("=" * 65)
     print(" 🤖 HỆ THỐNG HỎI ĐÁP THÔNG MINH (SLIDEGEN-RAG AGENT)")
-    print(f"    - Chế độ: {'AGENTIC HARNESS' if agentic else 'CRAG (5-node)'}")
+    print("    - Chế độ: CRAG (5-node)")
     print("    - Nhập câu hỏi và nhấn Enter để nhận câu trả lời.")
     print("    - Gõ 'exit', 'quit' hoặc 'q' để thoát.")
     print("    - Gõ 'verbose' để bật/tắt hiển thị chi tiết các bước Agent.")
@@ -294,18 +256,8 @@ def main():
         default=None,
         metavar="PATH",
         help=(
-            "Chỉ dùng cùng --query, và chỉ ở chế độ CRAG (không --agentic): ghi "
-            "trajectory (quỹ đạo thực thi Agent — tool calls, số vòng retrieve, "
-            "feedback, token/chi phí) ra file PATH."
-        ),
-    )
-    parser.add_argument(
-        "--agentic",
-        action="store_true",
-        help=(
-            "Dùng harness agentic mới (search/find/open/summarize + vòng lặp có "
-            "biên, theo AgenticRAG) thay vì graph CRAG 5-node mặc định. Yêu cầu "
-            "index schema_version >= 2 (xem scripts/migrate_index_v2.py)."
+            "Chỉ dùng cùng --query: ghi trajectory (quỹ đạo thực thi Agent — tool "
+            "calls, số vòng retrieve, feedback, token/chi phí) ra file PATH."
         ),
     )
 
@@ -330,33 +282,18 @@ def main():
         logger.error(f"Không thể khởi tạo RetrievalAugmentation: {e}", exc_info=True)
         sys.exit(1)
 
-    if args.agentic:
-        from slidegen_rag.agent.harness.doc_store import DocStore, DocStoreError
+    from slidegen_rag.agent.graph.builder import build_graph
+    from slidegen_rag.agent.graph.conversation import ConversationManager
+    from slidegen_rag.agent.tools.tools import set_retrieval_augmentation
 
-        try:
-            store = DocStore.from_ra(ra)
-        except DocStoreError as e:
-            logger.error(
-                f"Index chưa hỗ trợ harness agentic: {e} "
-                f"Chạy 'uv run python scripts/migrate_index_v2.py --file {index_path}' trước."
-            )
-            sys.exit(1)
-        logger.info("Agentic harness đã sẵn sàng!\n")
-        ask_fn = lambda q, verbose: ask_agentic(store, q, verbose=verbose)  # noqa: E731
-        conv = None
-    else:
-        from slidegen_rag.agent.graph.builder import build_graph
-        from slidegen_rag.agent.graph.conversation import ConversationManager
-        from slidegen_rag.agent.tools.tools import set_retrieval_augmentation
-
-        set_retrieval_augmentation(ra)
-        logger.info("Đang khởi tạo Agent Graph...")
-        graph = build_graph()
-        logger.info("Agent đã sẵn sàng!\n")
-        ask_fn = lambda q, verbose=False, drill_candidates=None: ask_agent(  # noqa: E731
-            graph, q, verbose=verbose, drill_candidates=drill_candidates
-        )
-        conv = ConversationManager()
+    set_retrieval_augmentation(ra)
+    logger.info("Đang khởi tạo Agent Graph...")
+    graph = build_graph()
+    logger.info("Agent đã sẵn sàng!\n")
+    ask_fn = lambda q, verbose=False, drill_candidates=None: ask_agent(  # noqa: E731
+        graph, q, verbose=verbose, drill_candidates=drill_candidates
+    )
+    conv = ConversationManager()
 
     # 3. Thực thi câu hỏi hoặc mở interactive chat
     if args.query:
@@ -364,15 +301,12 @@ def main():
         print(f"\n💡 Trợ lý:\n{answer}\n")
         print(f"{report}")
         if args.trajectory:
-            if args.agentic:
-                logger.warning("--trajectory chưa được hỗ trợ ở chế độ --agentic, bỏ qua.")
-            else:
-                traj_path = Path(args.trajectory)
-                traj_path.parent.mkdir(parents=True, exist_ok=True)
-                traj_path.write_text(extra.render_text(), encoding="utf-8")
-                logger.info(f"Đã ghi trajectory vào {traj_path}")
+            traj_path = Path(args.trajectory)
+            traj_path.parent.mkdir(parents=True, exist_ok=True)
+            traj_path.write_text(extra.render_text(), encoding="utf-8")
+            logger.info(f"Đã ghi trajectory vào {traj_path}")
     else:
-        asyncio.run(interactive_loop(ask_fn, verbose=args.verbose, agentic=args.agentic, conv=conv))
+        asyncio.run(interactive_loop(ask_fn, verbose=args.verbose, conv=conv))
 
 
 if __name__ == "__main__":

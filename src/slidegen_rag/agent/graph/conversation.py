@@ -1,6 +1,5 @@
 """
-Quản lý hội thoại nhiều lượt cho CRAG agent GỐC (main.py, nhánh không
-`--agentic`) — theo plan.md §6.
+Quản lý hội thoại nhiều lượt cho CRAG agent ở CLI (main.py) — theo plan.md §6.
 
 Tách biệt 2 tầng state theo đúng thiết kế trong plan.md:
     - CRAG AgentState (agent/graph/state.py): ephemeral, reset hoàn toàn mỗi

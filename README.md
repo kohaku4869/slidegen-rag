@@ -198,13 +198,6 @@ uv run python -m slidegen_rag.evaluate.evaluate
 ```
 Open your browser at `http://localhost:7860` to view the KPI cards, evaluation radar charts, keyword coverage, and per-question breakdowns. Each evaluation run also writes `data/test/<topic>/trajectory.txt` (one `=== CÂU HỎI N ===` block per question — tools called, retrieve loop count, grading before/after, feedback, latency, token/cost, LangSmith link), viewable per question in the dashboard's Question Inspector.
 
-There is also a RAGAS-metric variant of the dashboard (context recall/precision,
-answer relevancy, faithfulness) on a separate port:
-
-```bash
-uv run python -m slidegen_rag.evaluate.evaluate_ragas
-```
-
 ---
 
 ## 📈 Evaluation & Benchmarking
