@@ -58,6 +58,14 @@ def topic_dir(tmp_path, monkeypatch):
         "=== CÂU HỎI 2 ===\n\n[CHUNK 1]\nNội dung chunk C\n\n",
         encoding="utf-8",
     )
+    # Bắt buộc phải có, nếu không regenerate_answers_for_topic từ chối chạy.
+    ev.save_generate_state(
+        topic / ev.GENERATE_STATE_FILENAME,
+        {
+            1: {"facet_sufficiency": [], "document_priorities": []},
+            2: {"facet_sufficiency": [], "document_priorities": []},
+        },
+    )
     monkeypatch.setattr(ev, "DATA_TEST_DIR", tmp_path)
     return topic
 
@@ -120,16 +128,20 @@ def test_regenerate_reuses_chunks_and_replays_generate_state(topic_dir, monkeypa
     assert (topic_dir / "chunks.txt").read_text(encoding="utf-8") == chunks_before
 
 
-def test_regenerate_without_generate_state_still_runs(topic_dir, monkeypatch):
-    """Thiếu generate_state.json (cache cũ) thì vẫn chạy, chỉ mất phần rào đón."""
+def test_regenerate_without_generate_state_refuses_to_run(topic_dir, monkeypatch):
+    """Thiếu generate_state.json thì DỪNG, không chạy ra điểm gây hiểu nhầm.
+
+    Không có file này thì mọi câu đều nhận note "ngữ cảnh ĐẦY ĐỦ" — điểm trông
+    như so sánh được với run đầy đủ nhưng thực chất đo điều kiện khác hẳn.
+    """
+    (topic_dir / ev.GENERATE_STATE_FILENAME).unlink()
     seen: list[dict] = []
     _stub_generate(monkeypatch, seen)
 
-    results = ev.regenerate_answers_for_topic("chu_de_test")
+    with pytest.raises(FileNotFoundError, match=ev.GENERATE_STATE_FILENAME):
+        ev.regenerate_answers_for_topic("chu_de_test")
 
-    assert len(results) == 2
-    assert all(s["facet_sufficiency"] == [] for s in seen)
-    assert all(s["document_priorities"] == [] for s in seen)
+    assert seen == []  # dừng TRƯỚC khi tốn bất kỳ lượt gọi LLM nào
 
 
 def test_regenerate_requires_existing_chunks(topic_dir, monkeypatch):

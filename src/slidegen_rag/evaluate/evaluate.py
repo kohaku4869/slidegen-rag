@@ -690,21 +690,21 @@ def regenerate_answers_for_topic(
         )
 
     if not cached_states:
-        # Thiếu facet_sufficiency → _format_sufficiency_note báo "ngữ cảnh ĐẦY
-        # ĐỦ, không cần rào đón", tức là KHÔNG tái hiện được hành vi rào đón/
-        # từ chối của lần chạy đầy đủ. Cảnh báo to vì đây đúng là thứ đang cần
-        # đo khi sửa prompt chống từ chối sai.
-        logger.warning(
-            f"[{topic}] Thiếu {GENERATE_STATE_FILENAME} (lần chạy đầy đủ gần nhất "
-            f"có trước khi file này được thêm). generate sẽ chạy như thể ngữ cảnh "
-            f"LUÔN ĐẦY ĐỦ — điểm số về rào đón/từ chối sẽ KHÔNG so sánh được với "
-            f"run đầy đủ. Chạy đầy đủ 1 lần để sinh file này."
+        # DỪNG HẲN thay vì chỉ cảnh báo: thiếu facet_sufficiency thì
+        # _format_sufficiency_note báo "ngữ cảnh ĐẦY ĐỦ, không cần rào đón" cho
+        # MỌI câu, trong khi run đầy đủ gần nhất có 20/30 câu context_sufficient
+        # =False. Điểm chấm ra vẫn trông như so sánh được nhưng thực chất đo hai
+        # điều kiện khác nhau — đã thực sự dẫn tới kết luận sai một lần (run
+        # 20260915_162029: Q11 rơi 9.75 -> 2.0 vì được bảo ngữ cảnh đã đầy đủ
+        # nên bịa Điều 124/126, trong khi bản 8.56 rào đón đúng và đạt 9.75).
+        # Số liệu gây hiểu nhầm nguy hiểm hơn là không có số liệu.
+        raise FileNotFoundError(
+            f"[{topic}] Thiếu {GENERATE_STATE_FILENAME} — chế độ 'chỉ chạy lại "
+            f"generate' sẽ chạy như thể MỌI câu đều có ngữ cảnh đầy đủ, nên điểm "
+            f"không so sánh được với run đầy đủ (đặc biệt là các câu mà đáp án "
+            f"đúng chính là 'tài liệu không đề cập'). Hãy chạy đầy đủ 1 lần — nó "
+            f"sinh ra file này — rồi mới dùng chế độ này để lặp nhanh."
         )
-        if progress_callback:
-            progress_callback(
-                f"[{topic}] ⚠️ Thiếu {GENERATE_STATE_FILENAME} — generate chạy ở chế "
-                f"độ 'ngữ cảnh luôn đầy đủ', không tái hiện được hành vi rào đón"
-            )
 
     set_generate_provider("local" if lowcost else "gemini")
     LLMModel.reset_usage()
