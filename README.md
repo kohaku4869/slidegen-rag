@@ -82,18 +82,19 @@ For the benchmark document (534K characters, 5,491 lines → 320 nodes):
 
 | Stage | Work | Time |
 | :--- | :--- | :--- |
-| Parse headings → hierarchy | 5,491 lines → 319 nodes | **7 ms** |
+| Parse headings → hierarchy | 5,491 lines → 319 nodes | 7 ms |
 | Embed | 320 nodes (1024-dim each) | endpoint-dependent |
 | Summarize | 103 LLM calls, batched per layer | endpoint-dependent |
+| **End-to-end** | | **~5+ minutes** |
 
-Parsing is free — it is pure text processing and never the bottleneck. The wall-clock of an
-ingest is essentially *your embedding and summarizer endpoints*, which is why the counts are
-given instead of a single number: 320 embeddings and 103 summarization calls is what the
-work actually is, and what it costs depends on where you point `EMBEDDING_BASE_URL` and
-`LLM_BASE_URL`.
+Parsing is free — it is pure text processing and never the bottleneck. Practically all of
+the ~5 minutes is the 103 summarization calls and 320 embeddings, so the figure moves with
+wherever you point `EMBEDDING_BASE_URL` and `LLM_BASE_URL`; the counts are given alongside
+it because those stay true on any setup.
 
 Ingestion is a **one-off**: the index is reused by every query and every benchmark run, so
-this cost is paid once per document version, not per question.
+those 5 minutes are paid once per document version, not per question. For scale, a single
+full 30-question benchmark run takes 6× longer than building the index it reads.
 
 > Worth knowing before you run it: with `EMBEDDING_BASE_URL` unset or unreachable the
 > embedder falls back to a local `BAAI/bge-m3`, and on a CPU-only box that fallback needs
