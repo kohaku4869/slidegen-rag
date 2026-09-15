@@ -58,6 +58,7 @@ def _get_generate_llm() -> LLMModel:
         _llm_cache[_provider] = llm
     return llm
 
+
 # finish_reason báo output bị cắt vì chạm trần token (tên khác nhau tuỳ
 # provider: Gemini dùng "MAX_TOKENS", OpenAI-compatible dùng "length").
 _TRUNCATED_FINISH_REASONS = {"MAX_TOKENS", "LENGTH"}
@@ -102,20 +103,29 @@ def _format_sufficiency_note(facet_sufficiency: list[dict]) -> str:
     for f in facet_sufficiency:
         shown = f.get("query") or f.get("label") or "?"
         if f.get("sufficient", False):
-            lines.append(f'- Khía cạnh "{shown}": ĐẦY ĐỦ.')
+            lines.append(f'- Khía cạnh "{shown}": không cần tìm thêm.')
         else:
             missing = f.get("missing_aspects") or []
             missing_str = "; ".join(missing) if missing else "(không rõ chi tiết)"
+            # Cố ý KHÔNG viết "CHƯA ĐẦY ĐỦ"/"thiếu": đó là khẳng định về ngữ
+            # cảnh, và model hay bám vào chính chữ đó để tuyên bố "tài liệu
+            # không đề cập" mà không quét lại (đo được ở pldc_v2 Q24: ngữ cảnh
+            # CÓ nguyên tắc hiến định cần tìm nhưng câu trả lời vẫn từ chối,
+            # accuracy 9.0 -> 2.0). Diễn đạt theo đúng bản chất tín hiệu: đây
+            # là gợi ý cho bước TÌM KIẾM, không phải kết luận về ngữ cảnh.
             lines.append(
-                f'- Khía cạnh "{shown}": CHƯA ĐẦY ĐỦ — nghi ngờ thiếu: {missing_str}.'
+                f'- Khía cạnh "{shown}": CÒN ĐÁNG TÌM THÊM — gợi ý hướng tìm: {missing_str}.'
             )
 
     return (
-        "Nhận định sơ bộ theo từng khía cạnh của câu hỏi (một hoặc nhiều khía cạnh, mỗi "
-        "khía cạnh ứng với 1 phần câu hỏi gốc) — đây chỉ là nghi ngờ, hãy tự đọc lại ngữ "
-        "cảnh bên dưới để xác minh từng khía cạnh (chỉ dựa trên dữ kiện CÓ TRONG ngữ cảnh, "
-        "không dùng kiến thức ngoài tài liệu để lấp chỗ trống) trước khi quyết định có rào "
-        "đón phần nào hay không:\n" + "\n".join(lines)
+        "Gợi ý ĐIỀU HƯỚNG TÌM KIẾM theo từng khía cạnh của câu hỏi (một hoặc nhiều khía "
+        "cạnh, mỗi khía cạnh ứng với 1 phần câu hỏi gốc). Đây KHÔNG phải kết luận về ngữ "
+        "cảnh bạn đang đọc: mỗi dòng chỉ nói 'khía cạnh này còn đáng tìm thêm', và được "
+        "đưa ra khi chỉ nhìn phần ngữ cảnh của RIÊNG khía cạnh đó — trong khi bạn đang đọc "
+        "ngữ cảnh GỘP của mọi khía cạnh. Hãy tự quét lại toàn bộ ngữ cảnh bên dưới theo "
+        "đúng 3 bước ở mục 3 trước khi quyết định có rào đón phần nào hay không (chỉ dựa "
+        "trên dữ kiện CÓ TRONG ngữ cảnh, không dùng kiến thức ngoài tài liệu để lấp chỗ "
+        "trống):\n" + "\n".join(lines)
     )
 
 

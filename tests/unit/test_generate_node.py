@@ -8,7 +8,7 @@ from slidegen_rag.agent.nodes.generate_node import _format_sufficiency_note
 def test_empty_facet_sufficiency_is_treated_as_fully_sufficient():
     note = _format_sufficiency_note([])
     assert "ĐẦY ĐỦ" in note
-    assert "CHƯA ĐẦY ĐỦ" not in note
+    assert "CÒN ĐÁNG TÌM THÊM" not in note
 
 
 def test_all_facets_sufficient():
@@ -29,7 +29,7 @@ def test_all_facets_sufficient():
     note = _format_sufficiency_note(facet_sufficiency)
     assert "ĐẦY ĐỦ" in note
     assert "mọi khía cạnh" in note
-    assert "CHƯA ĐẦY ĐỦ" not in note
+    assert "CÒN ĐÁNG TÌM THÊM" not in note
 
 
 def test_mixed_sufficiency_lists_each_facet_separately():
@@ -49,8 +49,8 @@ def test_mixed_sufficiency_lists_each_facet_separately():
     ]
     note = _format_sufficiency_note(facet_sufficiency)
 
-    assert 'Khía cạnh "Facet A": ĐẦY ĐỦ' in note
-    assert 'Khía cạnh "Facet B": CHƯA ĐẦY ĐỦ' in note
+    assert 'Khía cạnh "Facet A": không cần tìm thêm' in note
+    assert 'Khía cạnh "Facet B": CÒN ĐÁNG TÌM THÊM' in note
     assert "chi tiết X" in note
 
 
@@ -71,8 +71,8 @@ def test_all_facets_insufficient():
     ]
     note = _format_sufficiency_note(facet_sufficiency)
 
-    assert 'Khía cạnh "Facet A": CHƯA ĐẦY ĐỦ' in note
-    assert 'Khía cạnh "Facet B": CHƯA ĐẦY ĐỦ' in note
+    assert 'Khía cạnh "Facet A": CÒN ĐÁNG TÌM THÊM' in note
+    assert 'Khía cạnh "Facet B": CÒN ĐÁNG TÌM THÊM' in note
 
 
 def test_query_shown_instead_of_label_when_both_present():

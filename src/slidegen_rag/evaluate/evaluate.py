@@ -59,6 +59,9 @@ if str(ROOT_DIR) not in sys.path:
 DATA_TEST_DIR = ROOT_DIR / "data" / "test"
 DATA_INDEX_DIR = ROOT_DIR / "data" / "index"
 
+# Cache phụ trợ cho chế độ "chỉ chạy lại generate" — xem load_generate_state.
+GENERATE_STATE_FILENAME = "generate_state.json"
+
 load_dotenv(ROOT_DIR / ".env", override=True)
 
 logging.basicConfig(
@@ -279,6 +282,41 @@ def save_chunks(file_path: Path, chunks: dict[int, list[str]]):
                     f.write(f"[CHUNK {idx}]\n{doc.strip()}\n\n")
 
 
+def load_generate_state(file_path: Path) -> dict[int, dict]:
+    """
+    Đọc generate_state.json — phần state cấp cha mà generate_node đọc NGOÀI
+    `documents` (đã nằm trong chunks.txt): `facet_sufficiency` và
+    `document_priorities`.
+
+    Tồn tại để chế độ "chỉ chạy lại generate" (regenerate_answers_for_topic)
+    dựng lại ĐÚNG input mà generate_node từng nhận, thay vì đoán. Thiếu 2
+    field này thì generate chạy lại sẽ lệch so với lần chạy đầy đủ:
+    facet_sufficiency rỗng khiến _format_sufficiency_note báo "ngữ cảnh ĐẦY
+    ĐỦ, không cần rào đón" — che mất đúng hành vi rào đón/từ chối đang cần đo.
+    """
+    if not file_path.exists() or file_path.stat().st_size == 0:
+        return {}
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning(f"Không đọc được {file_path.name}: {e} — bỏ qua cache này")
+        return {}
+    return {int(num): payload for num, payload in raw.items()}
+
+
+def save_generate_state(file_path: Path, states: dict[int, dict]):
+    """Ghi generate_state.json (xem load_generate_state)."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {str(num): states[num] for num in sorted(states)},
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+
 def load_trajectory_texts(file_path: Path) -> dict[int, str]:
     """
     Đọc lại nội dung trajectory.txt (text thô, đã render sẵn) theo từng câu
@@ -393,6 +431,7 @@ def get_answers_and_chunks_for_topic(
     answer_file = DATA_TEST_DIR / topic / "answer.txt"
     chunks_file = DATA_TEST_DIR / topic / "chunks.txt"
     trajectory_file = DATA_TEST_DIR / topic / LangSmithConfig.TRAJECTORY_FILENAME
+    generate_state_file = DATA_TEST_DIR / topic / GENERATE_STATE_FILENAME
     v2_path = DATA_INDEX_DIR / f"{topic}_v2.pkl"
     index_path = v2_path if v2_path.exists() else DATA_INDEX_DIR / f"{topic}.pkl"
 
@@ -480,6 +519,7 @@ def get_answers_and_chunks_for_topic(
     results = []
     new_answers = {}
     new_chunks = {}
+    new_generate_states: dict[int, dict] = {}
     new_trajectories: dict[int, Trajectory] = {}
     total = len(questions)
 
@@ -517,14 +557,20 @@ def get_answers_and_chunks_for_topic(
             )
             answer = (state_res.get("generation") or "").strip()
             used_docs = state_res.get("documents", [])
+            generate_state = {
+                "facet_sufficiency": state_res.get("facet_sufficiency") or [],
+                "document_priorities": state_res.get("document_priorities") or [],
+            }
         except Exception as e:
             logger.error(f"[{topic}] Lỗi khi chạy Agent câu {num}: {e}")
             answer = f"[LỖI AGENT] {e}"
             used_docs = []
+            generate_state = {"facet_sufficiency": [], "document_priorities": []}
             traj = Trajectory(query=q_text, started_at=datetime.now(), error=str(e))
 
         new_answers[num] = answer
         new_chunks[num] = used_docs
+        new_generate_states[num] = generate_state
         new_trajectories[num] = traj
 
         q_usage = traj.token_usage or {}
@@ -563,10 +609,11 @@ def get_answers_and_chunks_for_topic(
 
     save_answers(answer_file, new_answers)
     save_chunks(chunks_file, new_chunks)
+    save_generate_state(generate_state_file, new_generate_states)
     save_trajectories(trajectory_file, new_trajectories, topic)
     logger.info(
         f"[{topic}] Đã lưu câu trả lời vào {answer_file}, chunks vào {chunks_file}, "
-        f"trajectory vào {trajectory_file}"
+        f"generate state vào {generate_state_file}, trajectory vào {trajectory_file}"
     )
     logger.info(
         f"[{topic}] Tổng Gemini token cả lần chạy: "
@@ -577,6 +624,159 @@ def get_answers_and_chunks_for_topic(
     )
 
     return results, False
+
+
+def regenerate_answers_for_topic(
+    topic: str,
+    progress_callback=None,
+    lowcost: bool = False,
+) -> list[dict]:
+    """
+    Chạy lại DUY NHẤT generate_node trên bộ chunk đã có sẵn trong chunks.txt,
+    KHÔNG chạy retrieve/grade/context_evaluator và không cần nạp index.
+
+    Dùng để lặp nhanh khi sửa GENERATE_SYSTEM_PROMPT hoặc đổi model/provider
+    của riêng bước tổng hợp: một lần chạy đầy đủ tốn ~10 phút và tiêu tốn
+    ~2/3 chi phí cho các node retrieval, trong khi phần thực sự cần đo lại
+    chỉ là bước generate (~1/4 thời gian, ~1/3 chi phí của run đầy đủ). Giữ
+    nguyên chunk cũng làm phép so sánh SẠCH hơn: mọi khác biệt điểm số đến từ
+    prompt/model của generate chứ không lẫn nhiễu do retrieval khác đi giữa
+    hai lần chạy.
+
+    Ghi đè answer.txt (câu trả lời mới) nhưng KHÔNG đụng chunks.txt hay
+    trajectory.txt — chunk là đầu vào cố định, còn trajectory cũ vẫn mô tả
+    đúng cách bộ chunk đó được tìm ra.
+
+    Args:
+        lowcost: True → generate_node dùng model tự host thay Gemini.
+
+    Returns:
+        results: cùng shape với get_answers_and_chunks_for_topic (để
+            run_evaluation_for_topic dùng lại nguyên si đường chấm điểm).
+    """
+    from slidegen_rag.agent.models.llm import LLMModel
+    from slidegen_rag.agent.nodes.generate_node import (
+        generate_node,
+        set_generate_provider,
+    )
+    from slidegen_rag.config import LangSmithConfig
+
+    question_file = DATA_TEST_DIR / topic / "question.txt"
+    reference_file = DATA_TEST_DIR / topic / "reference.txt"
+    answer_file = DATA_TEST_DIR / topic / "answer.txt"
+    chunks_file = DATA_TEST_DIR / topic / "chunks.txt"
+    trajectory_file = DATA_TEST_DIR / topic / LangSmithConfig.TRAJECTORY_FILENAME
+    generate_state_file = DATA_TEST_DIR / topic / GENERATE_STATE_FILENAME
+
+    questions = load_questions(question_file)
+    references = load_references(reference_file)
+    cached_chunks = load_chunks(chunks_file)
+    cached_states = load_generate_state(generate_state_file)
+    cached_trajectories = load_trajectory_texts(trajectory_file)
+
+    if not questions:
+        raise ValueError(f"Không tìm thấy câu hỏi nào trong {question_file}")
+
+    missing = [q["num"] for q in questions if not cached_chunks.get(q["num"])]
+    if len(missing) == len(questions):
+        raise FileNotFoundError(
+            f"[{topic}] chunks.txt không có chunk nào — chế độ 'chỉ chạy lại "
+            f"generate' cần một lần chạy đầy đủ trước đó để có sẵn chunk."
+        )
+    if missing:
+        logger.warning(
+            f"[{topic}] {len(missing)} câu không có chunk trong chunks.txt "
+            f"({missing[:10]}) — vẫn chạy generate với ngữ cảnh rỗng cho các câu này"
+        )
+
+    if not cached_states:
+        # Thiếu facet_sufficiency → _format_sufficiency_note báo "ngữ cảnh ĐẦY
+        # ĐỦ, không cần rào đón", tức là KHÔNG tái hiện được hành vi rào đón/
+        # từ chối của lần chạy đầy đủ. Cảnh báo to vì đây đúng là thứ đang cần
+        # đo khi sửa prompt chống từ chối sai.
+        logger.warning(
+            f"[{topic}] Thiếu {GENERATE_STATE_FILENAME} (lần chạy đầy đủ gần nhất "
+            f"có trước khi file này được thêm). generate sẽ chạy như thể ngữ cảnh "
+            f"LUÔN ĐẦY ĐỦ — điểm số về rào đón/từ chối sẽ KHÔNG so sánh được với "
+            f"run đầy đủ. Chạy đầy đủ 1 lần để sinh file này."
+        )
+        if progress_callback:
+            progress_callback(
+                f"[{topic}] ⚠️ Thiếu {GENERATE_STATE_FILENAME} — generate chạy ở chế "
+                f"độ 'ngữ cảnh luôn đầy đủ', không tái hiện được hành vi rào đón"
+            )
+
+    set_generate_provider("local" if lowcost else "gemini")
+    LLMModel.reset_usage()
+
+    results = []
+    new_answers = {}
+    total = len(questions)
+
+    for idx, q in enumerate(questions, 1):
+        num = q["num"]
+        q_text = q["text"]
+        docs = cached_chunks.get(num, [])
+        state = cached_states.get(num, {})
+        priorities = state.get("document_priorities") or []
+
+        if progress_callback:
+            progress_callback(
+                f"[{topic}] Đang sinh lại câu trả lời {idx}/{total} "
+                f"({len(docs)} chunk có sẵn)..."
+            )
+
+        try:
+            out = asyncio.run(
+                generate_node(
+                    {
+                        "query": q_text,
+                        "documents": docs,
+                        # Lệch độ dài so với documents (chunks.txt sửa tay, hoặc
+                        # cache cũ) sẽ khiến build_context bỏ qua priority và
+                        # quay về cắt theo thứ tự — chấp nhận được, nhưng ghi log
+                        # để không âm thầm so sánh nhầm 2 chế độ cắt khác nhau.
+                        "document_priorities": priorities,
+                        "facet_sufficiency": state.get("facet_sufficiency") or [],
+                    }
+                )
+            )
+            answer = (out.get("generation") or "").strip()
+        except Exception as e:
+            logger.error(f"[{topic}] Lỗi khi sinh lại câu {num}: {e}")
+            answer = f"[LỖI GENERATE] {e}"
+
+        if priorities and len(priorities) != len(docs):
+            logger.warning(
+                f"[{topic}] Câu {num}: document_priorities ({len(priorities)}) lệch "
+                f"số chunk ({len(docs)}) — build_context bỏ qua priority, cắt theo "
+                f"thứ tự chunk thay vì theo chất lượng"
+            )
+
+        new_answers[num] = answer
+        results.append(
+            {
+                "num": num,
+                "question": q_text,
+                "response": answer,
+                "reference": references.get(num, ""),
+                "used_chunks": docs,
+                "trajectory": cached_trajectories.get(num),
+            }
+        )
+
+    save_answers(answer_file, new_answers)
+
+    usage = LLMModel.get_usage_summary()
+    cost = usage.get("total_cost_usd", 0.0)
+    logger.info(
+        f"[{topic}] Đã sinh lại {total} câu trả lời (chỉ generate) và ghi vào "
+        f"{answer_file} | Gemini token: in={usage.get('gemini_input_tokens', 0):,} "
+        f"out={usage.get('gemini_output_tokens', 0):,} | Chi phí ước tính: "
+        f"${cost:.4f} USD (~{cost * 25400:.0f} VNĐ)"
+    )
+
+    return results
 
 
 # =============================================================================
@@ -1016,6 +1216,7 @@ def run_evaluation_for_topic(
     force_rerun: bool = False,
     progress_callback=None,
     lowcost: bool = False,
+    regenerate_only: bool = False,
 ) -> tuple[pd.DataFrame, dict, bool]:
     """
     Thực hiện đánh giá toàn diện một chủ đề.
@@ -1026,16 +1227,25 @@ def run_evaluation_for_topic(
         lowcost: True → generate_node dùng model tự host thay Gemini (xem
             get_answers_and_chunks_for_topic). Ghi lại vào summary["generate_provider"]
             để về sau biết file summary/score nào ứng với provider nào.
+        regenerate_only: True → KHÔNG chạy agent, chỉ chạy lại generate_node
+            trên chunk có sẵn rồi chấm (xem regenerate_answers_for_topic).
+            Bỏ qua `force_rerun` vì chế độ này luôn sinh lại câu trả lời.
 
     Returns:
         (detail_df, summary_dict, was_cached)
     """
-    results, was_cached = get_answers_and_chunks_for_topic(
-        topic,
-        force_rerun=force_rerun,
-        progress_callback=progress_callback,
-        lowcost=lowcost,
-    )
+    if regenerate_only:
+        results = regenerate_answers_for_topic(
+            topic, progress_callback=progress_callback, lowcost=lowcost
+        )
+        was_cached = False
+    else:
+        results, was_cached = get_answers_and_chunks_for_topic(
+            topic,
+            force_rerun=force_rerun,
+            progress_callback=progress_callback,
+            lowcost=lowcost,
+        )
 
     primary_llm, fallback_llm = create_evaluator_llm()
     if not primary_llm and not fallback_llm:
@@ -1151,6 +1361,11 @@ def run_evaluation_for_topic(
             "success_count": success_count,
             "failed_count": failed_count,
             "generate_provider": "local" if lowcost else "gemini",
+            # Chunk tái dùng từ lần chạy đầy đủ trước → coverage_pct/
+            # coverage_pct_strict/avg_chunks KHÔNG phải số đo mới, chỉ
+            # accuracy/completeness/relevance/faithfulness/answer_coverage_pct
+            # mới phản ánh thay đổi ở bước generate.
+            "regenerate_only": regenerate_only,
         }
     else:
         summary = {
@@ -1168,6 +1383,7 @@ def run_evaluation_for_topic(
             "success_count": 0,
             "failed_count": failed_count,
             "generate_provider": "local" if lowcost else "gemini",
+            "regenerate_only": regenerate_only,
         }
 
     return detail_df, summary, was_cached
@@ -1466,7 +1682,11 @@ def export_evaluation_results(
 
 
 def evaluate_single_topic_handler(
-    topic: str, force_rerun: bool, lowcost: bool = False, progress=gr.Progress()
+    topic: str,
+    force_rerun: bool,
+    lowcost: bool = False,
+    regenerate_only: bool = False,
+    progress=gr.Progress(),
 ):
     """Handler đánh giá một chủ đề."""
     global _current_detail_df
@@ -1487,7 +1707,11 @@ def evaluate_single_topic_handler(
             progress(0.4, desc=msg)
 
         detail_df, summary, was_cached = run_evaluation_for_topic(
-            topic, force_rerun=force_rerun, progress_callback=cb, lowcost=lowcost
+            topic,
+            force_rerun=force_rerun,
+            progress_callback=cb,
+            lowcost=lowcost,
+            regenerate_only=regenerate_only,
         )
 
         _current_detail_df = detail_df
@@ -1528,7 +1752,16 @@ def evaluate_single_topic_handler(
         tot = summary.get("total_questions", 0)
         fail = summary.get("failed_count", 0)
         fail_msg = f" (⚠️ {fail} câu lỗi không tính vào điểm tổng)" if fail > 0 else ""
-        status_msg = f"✅ Hoàn tất đánh giá chủ đề **{topic}** (Thành công {succ}/{tot} câu{fail_msg})!"
+        mode_msg = (
+            " — ♻️ chế độ CHỈ GENERATE: chunk giữ nguyên từ lần chạy đầy đủ trước, "
+            "nên coverage/avg_chunks không phải số đo mới"
+            if regenerate_only
+            else ""
+        )
+        status_msg = (
+            f"✅ Hoàn tất đánh giá chủ đề **{topic}** "
+            f"(Thành công {succ}/{tot} câu{fail_msg}){mode_msg}!"
+        )
 
         progress(1.0, desc="Hoàn tất!")
 
@@ -1823,6 +2056,20 @@ def build_gradio_app():
                             variant="primary",
                             size="lg",
                         )
+                        btn_regen_single = gr.Button(
+                            "♻️ Chỉ chạy lại Generate",
+                            variant="secondary",
+                            size="lg",
+                        )
+
+                gr.Markdown(
+                    "*♻️ **Chỉ chạy lại Generate**: bỏ qua retrieve/grade, sinh lại câu "
+                    "trả lời trên đúng bộ chunk trong `chunks.txt` rồi chấm — dùng khi "
+                    "sửa prompt/model của riêng bước tổng hợp. Nhanh và rẻ hơn hẳn chạy "
+                    "đầy đủ, và do chunk không đổi nên chênh lệch điểm là do bước "
+                    "generate chứ không lẫn nhiễu retrieval. Ghi đè `answer.txt`, giữ "
+                    "nguyên `chunks.txt`.*"
+                )
 
                 status_single = gr.Markdown("", label="Trạng thái")
 
@@ -1865,16 +2112,39 @@ def build_gradio_app():
                             label="Trajectory (quỹ đạo thực thi Agent)",
                         )
 
+                # Hằng số truyền cho tham số regenerate_only của handler — 2 nút
+                # dùng chung 1 handler, chỉ khác giá trị cờ này.
+                state_full_run = gr.State(False)
+                state_regen_only = gr.State(True)
+
+                single_outputs = [
+                    chart_single,
+                    table_single,
+                    kpi_single,
+                    inspect_dropdown,
+                    status_single,
+                ]
+
                 btn_eval_single.click(
                     fn=evaluate_single_topic_handler,
-                    inputs=[topic_dropdown, chk_force_single, chk_lowcost_single],
-                    outputs=[
-                        chart_single,
-                        table_single,
-                        kpi_single,
-                        inspect_dropdown,
-                        status_single,
+                    inputs=[
+                        topic_dropdown,
+                        chk_force_single,
+                        chk_lowcost_single,
+                        state_full_run,
                     ],
+                    outputs=single_outputs,
+                )
+
+                btn_regen_single.click(
+                    fn=evaluate_single_topic_handler,
+                    inputs=[
+                        topic_dropdown,
+                        chk_force_single,
+                        chk_lowcost_single,
+                        state_regen_only,
+                    ],
+                    outputs=single_outputs,
                 )
 
                 inspect_dropdown.change(
