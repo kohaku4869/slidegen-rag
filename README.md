@@ -16,6 +16,68 @@ benchmark, and the score/trajectory history of each run under `data/test/<topic>
 
 ---
 
+## 🌳 Indexing
+
+Retrieval quality is capped by the index, so this runs first and offline. One command turns
+a Markdown file into a serialized tree:
+
+```bash
+uv run slidegen-ingest --file data/src/pldc.md
+```
+
+### 1. Parse headings into a hierarchy
+
+The tree mirrors the document's **own** structure rather than a fixed-size chunker. Four
+rules, each derived from failures on a real OCR'd textbook (`tree_builder.py`):
+
+| Rule | Why |
+| :--- | :--- |
+| Numeric depth wins (`1.1.2.1` → level 4) | The `#` count is unreliable in converted documents |
+| Chapter keywords (`CHƯƠNG`, `PHẦN`, …) force level 1 | OCR frequently demotes chapter titles |
+| Strip `*`, `_`, `` ` ``, `~` before matching | Inline formatting otherwise breaks title matching |
+| A line starting with `-`, `+`, `•`, `*` after a `#` is **content**, not a heading | OCR tools tag list items as headings |
+
+Each node records where it came from: `heading_path` (breadcrumb of ancestors),
+`line_start`/`line_end` for its whole subtree, and `body_line_start`/`body_line_end` for its
+own text. That line-span provenance is what makes the `expand_node` / `find_in_subtree`
+drill-down tools possible later.
+
+### 2. Summarize bottom-up, one layer at a time
+
+Layer 0 is the document's own text — leaves are **never** rewritten, only embedded. Each
+layer above is built by concatenating a node's children and summarizing them with an LLM
+(`SUMMARIZATION_LENGTH` = 2000 tokens), batched per layer. Embeddings are `BAAI/bge-m3`
+(1024-dim), remote endpoint first with local fallback.
+
+The result for the benchmark document (`data/index/pldc_v2.pkl`):
+
+```
+layer 4 ──   1 node    root (whole-document summary)
+layer 3 ──  16 nodes   ↑ summaries
+layer 2 ──  26 nodes   ↑ summaries
+layer 1 ──  61 nodes   ↑ summaries
+layer 0 ── 216 nodes   leaves = original text, no LLM rewriting
+           ─────────
+           320 nodes total, 5 layers
+```
+
+Having both levels matters at query time: a broad question matches a summary node, a
+specific one matches a leaf, and the agent can move between them instead of hoping a single
+flat chunk size fits both.
+
+### 3. Serialize
+
+The tree is pickled to `data/index/<name>.pkl` with `schema_version`, `source_sha1`, the
+stripped `source_text`, and a `parent_of` reverse map. Keeping `source_text` in the index is
+what lets the retrieval tools resolve a node back to exact source lines. Ingestion prints a
+per-layer report (node counts, LLM calls, summarize vs embed time, bottleneck analysis).
+
+> `.pkl` indices built before the v2 schema still load — `Node`/`Tree` declare every v2
+> field as a class-level default, so old pickles read back without `AttributeError`. They
+> just lack provenance, so drill-down is degraded; `scripts/migrate_index_v2.py` backfills.
+
+---
+
 ## 🔭 System Flow
 
 Two levels. The parent graph splits the question and fans out; each facet runs its own
