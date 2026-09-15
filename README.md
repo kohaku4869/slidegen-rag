@@ -17,12 +17,12 @@ The system seamlessly combines **RAPTOR-inspired Hierarchical Tree Indexing** wi
 - **Smart Markdown AST Parsing**: Custom parser with numeric depth detection (`1.1.2.1`), chapter keyword normalization, and OCR bullet noise stripping.
 - **Multi-Layer Abstraction Tree**: Bottom-up hierarchical clustering and parallel LLM summarization preserving both high-level thematic context and fine-grained section details.
 - **Flexible Retrieval Modes**: Supports search across collapsed tree layers or layer-by-layer traversal.
-- Builds the hierarchy from the document's own Markdown heading structure (`tree/` package). An earlier `raptor_tree/` backend faithfully implementing the original RAPTOR paper's GMM+UMAP clustering was dropped as part of the AgenticRAG restructuring — it duplicated ~1,700 lines against `tree/` for a chunking strategy that discards line-span provenance, which the agentic harness's `find`/`open` tools depend on.
+- Builds the hierarchy from the document's own Markdown heading structure (`tree/` package). An earlier `raptor_tree/` backend faithfully implementing the original RAPTOR paper's GMM+UMAP clustering was dropped during the restructuring — it duplicated ~1,700 lines against `tree/` for a chunking strategy that discards line-span provenance, which the drill-down tools (`expand_node`, `find_in_subtree`) depend on.
 
 ### 🤖 2. Corrective RAG (CRAG) Agent Architecture (LangGraph)
 - **Dynamic Retrieval Node**: LLM analyzes queries and decides optimal search strategy (Dense Semantic Search, BM25 Keyword Search, or Tavily Web Search).
 - **Parallel Document Grading Node**: Fast asynchronous document relevance grading (`asyncio.Semaphore(16)`) using lightweight LLMs to filter out irrelevant chunks.
-- **Context-Sufficiency Evaluator**: Evaluates whether retrieved context is sufficient to answer the prompt; triggers adaptive feedback loops if incomplete (up to 3 iterations).
+- **Context-Sufficiency Evaluator**: Evaluates whether retrieved context is sufficient to answer the prompt; triggers adaptive feedback loops if incomplete (up to `AgentConfig.MAX_RETRIEVE` = 5 iterations per facet).
 - **Grounded Generation Node**: Synthesizes clean, comprehensive, and citation-backed responses.
 
 ```mermaid
@@ -31,21 +31,21 @@ flowchart TD
     RetrieveNode --> ToolNode[2. Tool Node\nSemantic / BM25 / Web Search]
     ToolNode --> GradeNode[3. Grade Documents Node\nAsync Parallel Relevance Filter]
     GradeNode --> EvalNode{4. Context Evaluator\nContext Sufficient?}
-    EvalNode -- No & Retries < 3 --> RetrieveNode
+    EvalNode -- No & Retries < MAX_RETRIEVE --> RetrieveNode
     EvalNode -- Yes or Max Retries --> GenNode[5. Generate Node\nGrounded Synthesis]
     GenNode --> EndNode([Final Answer])
 ```
 
 ### ⚡ 3. Resilient Multi-Provider LLM & Embedding Infrastructure
-- **Hybrid LLM Routing**: Primary support for local OpenAI-compatible endpoints (vLLM / NVIDIA NIM / DeepSeek) with automatic context-overflow fallback to **Google Gemini (Gemini 2.5 Flash / Pro)**.
+- **Hybrid LLM Routing**: Primary support for local OpenAI-compatible endpoints (vLLM / NVIDIA NIM / DeepSeek) with automatic context-overflow fallback to **Google Gemini** (`LLMConfig.MODEL`, currently `gemini-3.5-flash-lite`).
 - **Remote-First Embeddings**: `BAAI/bge-m3` embedding with remote HTTP/ngrok endpoint support and automatic local fallback.
 - **Token & Cost Observability**: Built-in real-time tracking of input, output, reasoning tokens, and USD/VND cost estimation.
 
 ### 🔭 4. Agent Observability: LangSmith Tracing & Trajectory Logging
-- **LangSmith Tracing**: Every graph run (interactive `main.py` and `evaluate/evaluate.py`) is traced end-to-end — nodes, tool spans, and LLM calls nest correctly under one run — when `LANGSMITH_*` env vars are set. Fail-soft: missing API key just disables tracing, never crashes a run.
+- **LangSmith Tracing**: Every graph run (interactive `main.py` and the evaluation dashboard) is traced end-to-end — nodes, tool spans, and LLM calls nest correctly under one run — when `LANGSMITH_*` env vars are set. Fail-soft: missing API key just disables tracing, never crashes a run.
 - **Trajectory Recorder** (`agent/observability/`): Runs the graph once via `astream(stream_mode=["updates","values"])` (guaranteed equivalent to `ainvoke`) and reconstructs a full execution trajectory — which tools were called with what args, how many `retrieve` loop iterations (vs `MAX_RETRIEVE`), document counts before/after grading, `context_evaluator` feedback per iteration, per-node latency, and per-question token/cost.
 - **`--verbose` CLI**: `main.py --verbose` streams live per-node progress and prints the full trajectory after the answer (single graph run — no duplicated LLM calls).
-- **`trajectory.txt` per evaluation topic**: `evaluate/evaluate.py` writes `data/test/<topic>/trajectory.txt` alongside `answer.txt`/`chunks.txt`, one `=== CÂU HỎI N ===` block per question, plus a "Question Inspector" panel on the dashboard to view it per question.
+- **`trajectory.txt` per evaluation topic**: the evaluation dashboard writes `data/test/<topic>/trajectory.txt` alongside `answer.txt`/`chunks.txt`, one `=== CÂU HỎI N ===` block per question, plus a "Question Inspector" panel on the dashboard to view it per question.
 
 ### 📊 5. Comprehensive Evaluation Suite & Gradio Dashboard
 - **LLM-as-a-Judge (bias-reduced)**: Evaluates 4 core quality dimensions on a 10-point scale, each scored by its **own independent prompt** (run concurrently, so total judging latency per question stays the same) instead of one combined prompt — this avoids the "halo effect" where a single prompt's scores for unrelated dimensions drift together:
@@ -81,13 +81,24 @@ slidegen-rag/
 │   ├── tools/
 │   │   └── tools.py           # Semantic search, BM25, and Tavily web search
 │   └── utils/
-│       └── prompts.py         # Structured system & user prompts
+│       ├── context_budget.py  # Context trimming under a char budget
+│       ├── documents.py       # Document merge/dedup shared by the nodes
+│       ├── prompts.py         # Structured system & user prompts
+│       └── text_guard.py      # Degenerate-output (runaway repetition) guard
 ├── config.py                  # Central configuration (models, thresholds, paths)
 ├── data/
 │   ├── src/                   # Raw Markdown source documents (e.g. pldc.md)
 │   ├── index/                 # Serialized tree indices (.pkl)
 │   └── test/                  # Evaluation benchmarks (questions, references, cache)
-├── evaluate.py                # Gradio LLM-as-a-Judge Evaluation Dashboard
+├── evaluate/                  # Gradio LLM-as-a-Judge Evaluation Dashboard
+│   ├── settings.py            # Paths, display thresholds, process-wide setup
+│   ├── io.py                  # Read/write question, answer, chunks, state files
+│   ├── metrics.py             # Deterministic keyword-coverage metrics
+│   ├── judge.py               # LLM-as-a-Judge (4 independent per-criterion prompts)
+│   ├── runner.py              # Run agent / reuse cache / regenerate, then score
+│   ├── report.py              # KPI cards, charts, summary table, CSV+JSON export
+│   ├── app.py                 # Gradio layout & handlers (entry point)
+│   └── evaluate.py            # Back-compat re-export shim
 ├── ingest.py                  # CLI tool to build & serialize hierarchical trees
 ├── main.py                    # Interactive Q&A CLI / Single query execution
 ├── pyproject.toml             # Project dependencies & package metadata
