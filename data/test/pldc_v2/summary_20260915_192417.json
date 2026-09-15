@@ -1,0 +1,19 @@
+{
+  "topic": "pldc_v2",
+  "timestamp": "20260915_192417",
+  "accuracy": 8.216666666666667,
+  "completeness": 8.383333333333333,
+  "relevance": 8.416666666666666,
+  "faithfulness": 9.15,
+  "total_score": 8.541666666666666,
+  "coverage_pct": 81.12333333333335,
+  "coverage_pct_strict": 79.03,
+  "answer_coverage_pct": 73.54333333333331,
+  "utilization_pct": 94.00666666666667,
+  "avg_chunks": 10.0,
+  "total_questions": 30,
+  "success_count": 30,
+  "failed_count": 0,
+  "generate_provider": "local",
+  "regenerate_only": false
+}

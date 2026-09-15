@@ -1,0 +1,970 @@
+{
+  "1": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Năng lực hành vi dân sự đầy đủ của cá nh…",
+        "query": "Năng lực hành vi dân sự đầy đủ của cá nhân theo pháp luật Việt Nam được xác lập từ độ tuổi nào?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      2
+    ]
+  },
+  "2": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Văn bản quy phạm pháp luật có hiệu lực p…",
+        "query": "Văn bản quy phạm pháp luật có hiệu lực pháp lý cao nhất trong hệ thống pháp luật Việt Nam là văn bản nào?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      1
+    ]
+  },
+  "3": {
+    "facet_sufficiency": [
+      {
+        "label": "1. \"Quan hệ pháp luật\" gồm mấy yếu tố cấu t…",
+        "query": "\"Quan hệ pháp luật\" gồm mấy yếu tố cấu thành, và tên gọi của từng yếu tố đó là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      1
+    ]
+  },
+  "4": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Thời hiệu khởi kiện vụ án dân sự thông t…",
+        "query": "Thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự là bao nhiêu năm?",
+        "sufficient": false,
+        "missing_aspects": [
+          "thời hiệu khởi kiện vụ án dân sự thông thường theo Bộ luật Dân sự (thường là 3 năm theo Điều 429 BLDS 2015 hoặc quy định chung)"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "5": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Hình thức xử phạt hành chính nhẹ nhất đư…",
+        "query": "Hình thức xử phạt hành chính nhẹ nhất được quy định trong Luật Xử lý vi phạm hành chính là hình thức nào?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      1
+    ]
+  },
+  "6": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Năng lực pháp luật của chủ thể pháp luật…",
+        "query": "Năng lực pháp luật của chủ thể pháp luật là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Năng lực hành vi của chủ thể pháp luật l…",
+        "query": "Năng lực hành vi của chủ thể pháp luật là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "3. Tại sao một người mất năng lực hành vi v…",
+        "query": "Tại sao một người mất năng lực hành vi vẫn có thể là chủ thể trong quan hệ pháp luật dân sự?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      2,
+      2
+    ]
+  },
+  "7": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Vi phạm pháp luật là gì và điểm cơ bản c…",
+        "query": "Vi phạm pháp luật là gì và điểm cơ bản của vi phạm pháp luật dẫn đến trách nhiệm pháp lý?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Vi phạm đạo đức là gì và tại sao vi phạm…",
+        "query": "Vi phạm đạo đức là gì và tại sao vi phạm đạo đức không dẫn đến trách nhiệm pháp lý?",
+        "sufficient": false,
+        "missing_aspects": [
+          "giải thích tại sao vi phạm đạo đức không dẫn đến trách nhiệm pháp lý"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      2,
+      0,
+      0,
+      0,
+      1,
+      1,
+      2,
+      1
+    ]
+  },
+  "8": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Tại sao \"tập quán pháp\" được xem là nguồ…",
+        "query": "Tại sao \"tập quán pháp\" được xem là nguồn của pháp luật dù không do nhà nước ban hành?",
+        "sufficient": false,
+        "missing_aspects": [
+          "cơ sở lý luận/lý do cụ thể tại sao tập quán pháp (dù không do nhà nước ban hành trực tiếp) vẫn được công nhận là nguồn của pháp luật"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Điều kiện nào để tập quán trở thành tập …",
+        "query": "Điều kiện nào để tập quán trở thành tập quán pháp?",
+        "sufficient": false,
+        "missing_aspects": [
+          "điều kiện cụ thể để một tập quán được nhà nước thừa nhận trở thành tập quán pháp"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "9": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Hiệu lực hồi tố của văn bản pháp luật là…",
+        "query": "Hiệu lực hồi tố của văn bản pháp luật là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Hiệu lực không hồi tố của văn bản pháp l…",
+        "query": "Hiệu lực không hồi tố của văn bản pháp luật là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "3. Trường hợp nào văn bản pháp luật được áp…",
+        "query": "Trường hợp nào văn bản pháp luật được áp dụng hồi tố theo quy định hiện hành?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      2
+    ]
+  },
+  "10": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Trách nhiệm hình sự khác với trách nhiệm…",
+        "query": "Trách nhiệm hình sự khác với trách nhiệm hành chính như thế nào về bản chất?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      },
+      {
+        "label": "2. Trách nhiệm hình sự khác với trách nhiệm…",
+        "query": "Trách nhiệm hình sự khác với trách nhiệm hành chính như thế nào về thẩm quyền xử lý?",
+        "sufficient": false,
+        "missing_aspects": [
+          "thẩm quyền xử lý trách nhiệm hình sự"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      1,
+      1,
+      2,
+      1,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1
+    ]
+  },
+  "11": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Hợp đồng dân sự vô hiệu do giả tạo là gì…",
+        "query": "Hợp đồng dân sự vô hiệu do giả tạo là gì và có hậu quả pháp lý thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Khái niệm hợp đồng dân sự vô hiệu do giả tạo",
+          "Hậu quả pháp lý của hợp đồng dân sự vô hiệu do giả tạo"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Hợp đồng dân sự vô hiệu do nhầm lẫn là g…",
+        "query": "Hợp đồng dân sự vô hiệu do nhầm lẫn là gì và có hậu quả pháp lý thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "khái niệm hợp đồng dân sự vô hiệu do nhầm lẫn",
+          "hậu quả pháp lý của hợp đồng dân sự vô hiệu do nhầm lẫn"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ]
+  },
+  "12": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Các yếu tố cấu thành tội phạm trong luật…",
+        "query": "Các yếu tố cấu thành tội phạm trong luật hình sự là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Thiếu một trong các yếu tố cấu thành tội…",
+        "query": "Thiếu một trong các yếu tố cấu thành tội phạm thì hành vi có bị coi là tội phạm không?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      2
+    ]
+  },
+  "13": {
+    "facet_sufficiency": [
+      {
+        "label": "1. (Luật Hành chính) Nguyên tắc \"pháp chế\" …",
+        "query": "(Luật Hành chính) Nguyên tắc \"pháp chế\" trong hoạt động hành chính nhà nước đòi hỏi cơ quan hành chính phải tuân thủ những điều kiện gì khi ban hành quyết định hành chính?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Các điều kiện cụ thể (về thẩm quyền, hình thức, nội dung, trình tự thủ tục) mà cơ quan hành chính phải tuân thủ khi ban hành quyết định hành chính dưới góc độ nguyên tắc pháp chế."
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      1,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1
+    ]
+  },
+  "14": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Thế nào là hợp đồng lao động xác định th…",
+        "query": "Thế nào là hợp đồng lao động xác định thời hạn theo Luật Lao động?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Thế nào là hợp đồng lao động không xác đ…",
+        "query": "Thế nào là hợp đồng lao động không xác định thời hạn theo Luật Lao động?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "3. Trường hợp nào người lao động đương nhiê…",
+        "query": "Trường hợp nào người lao động đương nhiên được chuyển sang hợp đồng không xác định thời hạn?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Các trường hợp cụ thể theo quy định pháp luật (Điều 20 Bộ luật Lao động 2019) về việc người lao động đương nhiên được chuyển sang hợp đồng lao động không xác định thời hạn."
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0
+    ]
+  },
+  "15": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Điều kiện kết hôn theo pháp luật Việt Na…",
+        "query": "Điều kiện kết hôn theo pháp luật Việt Nam gồm những gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "điều kiện kết hôn theo pháp luật Việt Nam (độ tuổi, sự tự nguyện, không thuộc các trường hợp cấm kết hôn)"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Các trường hợp vi phạm điều kiện kết hôn…",
+        "query": "Các trường hợp vi phạm điều kiện kết hôn dẫn đến hôn nhân bị hủy là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Các trường hợp vi phạm điều kiện kết hôn dẫn đến hôn nhân bị hủy theo quy định pháp luật."
+        ],
+        "retrieve_count": 4
+      }
+    ],
+    "document_priorities": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "16": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Mục đích  chủ thể áp dụng và hậu quả phá…",
+        "query": "Mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật dân sự là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      },
+      {
+        "label": "2. Mục đích  chủ thể áp dụng và hậu quả phá…",
+        "query": "Mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật hình sự là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 5
+      },
+      {
+        "label": "3. Mục đích  chủ thể áp dụng và hậu quả phá…",
+        "query": "Mục đích, chủ thể áp dụng và hậu quả pháp lý của trách nhiệm pháp lý trong luật hành chính là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      }
+    ],
+    "document_priorities": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2
+    ]
+  },
+  "17": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Cấu trúc của một quy phạm pháp luật (giả…",
+        "query": "Cấu trúc của một quy phạm pháp luật (giả định – quy định – chế tài) là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Ba bộ phận giả định  quy định và chế tài…",
+        "query": "Ba bộ phận giả định, quy định và chế tài liên kết với nhau như thế nào qua một ví dụ từ luật hình sự?",
+        "sufficient": false,
+        "missing_aspects": [
+          "mối quan hệ liên kết giữa ba bộ phận giả định, quy định và chế tài thông qua một ví dụ thống nhất duy nhất từ luật hình sự"
+        ],
+        "retrieve_count": 3
+      }
+    ],
+    "document_priorities": [
+      2
+    ]
+  },
+  "18": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Nhà nước tạo ra pháp luật như thế nào?…",
+        "query": "Nhà nước tạo ra pháp luật như thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "các bước cụ thể của quy trình xây dựng, ban hành luật và văn bản quy phạm pháp luật"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Pháp luật ràng buộc ngược lại nhà nước n…",
+        "query": "Pháp luật ràng buộc ngược lại nhà nước như thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "cách thức cụ thể pháp luật kiểm soát, giới hạn và quy định trách nhiệm pháp lý của nhà nước khi ban hành quyết định hành chính trái pháp luật hoặc vi phạm quyền lợi công dân",
+          "các cơ chế ràng buộc quyền lực nhà nước (như tố tụng hành chính, nguyên tắc ultra vires, trách nhiệm bồi thường nhà nước)"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      2,
+      2,
+      1,
+      2,
+      2,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      2
+    ]
+  },
+  "19": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Chủ thể trong quan hệ pháp luật dân sự l…",
+        "query": "Chủ thể trong quan hệ pháp luật dân sự là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 1
+      },
+      {
+        "label": "2. Chủ thể trong quan hệ pháp luật hành chí…",
+        "query": "Chủ thể trong quan hệ pháp luật hành chính là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "định nghĩa và phân loại cụ thể các chủ thể trong ngành luật hành chính (cơ quan nhà nước, cán bộ công chức, tổ chức xã hội được trao quyền, v.v.)"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "3. Chủ thể trong quan hệ pháp luật hình sự …",
+        "query": "Chủ thể trong quan hệ pháp luật hình sự là gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 2
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      2
+    ]
+  },
+  "20": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Tại sao \"áp dụng pháp luật\" là hình thức…",
+        "query": "Tại sao \"áp dụng pháp luật\" là hình thức thực hiện pháp luật đặc biệt nhất?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Các đặc điểm và lý do cụ thể khiến áp dụng pháp luật trở thành hình thức thực hiện pháp luật đặc biệt nhất so với các hình thức khác (tuân thủ, chấp hành, sử dụng pháp luật)."
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Áp dụng pháp luật liên quan thế nào đến …",
+        "query": "Áp dụng pháp luật liên quan thế nào đến hoạt động của cơ quan tư pháp?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      }
+    ],
+    "document_priorities": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "21": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Khái quát cấu trúc hệ thống pháp luật Vi…",
+        "query": "Khái quát cấu trúc hệ thống pháp luật Việt Nam từ Hiến pháp đến các ngành luật như thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "cấu trúc bên trong hệ thống pháp luật gồm quy phạm pháp luật và chế định pháp luật"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Nguyên tắc nào đảm bảo sự thống nhất và …",
+        "query": "Nguyên tắc nào đảm bảo sự thống nhất và không mâu thuẫn trong toàn bộ hệ thống pháp luật Việt Nam?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Nguyên tắc cụ thể đảm bảo sự thống nhất và không mâu thuẫn trong toàn bộ hệ thống pháp luật Việt Nam (thường quy định trong Luật Ban hành văn bản quy phạm pháp luật như nguyên tắc Hiến pháp có hiệu lực cao nhất, văn bản cấp dưới không trái văn bản cấp trên, v.v.)."
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      2,
+      1,
+      2,
+      1,
+      2,
+      1
+    ]
+  },
+  "22": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Mối quan hệ liên hệ giữa \"lý luận về nhà…",
+        "query": "Mối quan hệ liên hệ giữa \"lý luận về nhà nước\" và \"lý luận về pháp luật\" trong môn Pháp luật đại cương là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Nội dung chi tiết về mối quan hệ tác động qua lại giữa lý luận về nhà nước và lý luận về pháp luật trong môn Pháp luật đại cương."
+        ],
+        "retrieve_count": 3
+      },
+      {
+        "label": "2. Tại sao cần phải học cả hai trụ cột \"lý …",
+        "query": "Tại sao cần phải học cả hai trụ cột \"lý luận về nhà nước\" và \"lý luận về pháp luật\" trong môn Pháp luật đại cương?",
+        "sufficient": false,
+        "missing_aspects": [
+          "lý do, mục đích cụ thể hoặc tầm quan trọng của việc phải học song song cả hai trụ cột lý luận nhà nước và lý luận pháp luật trong môn Pháp luật đại cương."
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "23": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Sự phân chia pháp luật thành luật công v…",
+        "query": "Sự phân chia pháp luật thành luật công và luật tư phản ánh triết lý gì về quan hệ giữa nhà nước và cá nhân?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Triết lý đằng sau sự phân chia pháp luật thành luật công và luật tư về quan hệ giữa nhà nước và cá nhân"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Các ngành luật trong giáo trình được phâ…",
+        "query": "Các ngành luật trong giáo trình được phân bổ vào hai nhóm luật công và luật tư như thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "nội dung chi tiết phân bổ các ngành luật cụ thể vào hai nhóm luật công và luật tư theo giáo trình"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "24": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Nhìn toàn bộ các ngành luật được giới th…",
+        "query": "Nhìn toàn bộ các ngành luật được giới thiệu trong giáo trình (dân sự, hình sự, hành chính, lao động, hôn nhân–gia đình...), nguyên tắc chung nào xuyên suốt tất cả các ngành về việc bảo vệ quyền và lợi ích hợp pháp của công dân?",
+        "sufficient": false,
+        "missing_aspects": [
+          "nguyên tắc chung xuyên suốt tất cả các ngành luật về bảo vệ quyền và lợi ích hợp pháp của công dân"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      1,
+      1,
+      0,
+      2,
+      1,
+      1,
+      0
+    ]
+  },
+  "25": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Giáo trình Pháp luật đại cương trang bị …",
+        "query": "Giáo trình Pháp luật đại cương trang bị cho sinh viên không chuyên luật những gì — hãy tổng hợp các năng lực pháp lý cơ bản mà một công dân cần có để sống và làm việc trong xã hội pháp quyền?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 4
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "26": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Quy trình một vụ án dân sự từ khi phát s…",
+        "query": "Quy trình một vụ án dân sự từ khi phát sinh tranh chấp đến khi có bản án có hiệu lực bao gồm những giai đoạn nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Các giai đoạn tiếp theo sau khi thụ lý vụ án dân sự (chuẩn bị xét xử, xét xử sơ thẩm vụ án dân sự, xét xử phúc thẩm, thi hành án)."
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Các cơ quan có thẩm quyền giải quyết vụ …",
+        "query": "Các cơ quan có thẩm quyền giải quyết vụ án dân sự trong từng giai đoạn là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Chi tiết toàn bộ các cơ quan có thẩm quyền giải quyết vụ án dân sự theo từng giai đoạn tố tụng cụ thể (như giai đoạn chuẩn bị xét xử, xét xử sơ thẩm, xét xử phúc thẩm, giám đốc thẩm/tái thẩm, và thi hành án)"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "3. Quyền của các bên tham gia trong quá trì…",
+        "query": "Quyền của các bên tham gia trong quá trình giải quyết vụ án dân sự là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "cụ thể các quyền của nguyên đơn, bị đơn và các đương sự khác trong quá trình giải quyết vụ án dân sự"
+        ],
+        "retrieve_count": 3
+      }
+    ],
+    "document_priorities": [
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "27": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Hãy soạn nội dung một buổi tư vấn pháp l…",
+        "query": "Hãy soạn nội dung một buổi tư vấn pháp lý ngắn (5 phút) giải thích cho người lao động phổ thông hiểu những quyền cơ bản của họ trong quan hệ lao động mà họ cần biết để tự bảo vệ mình.",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      }
+    ],
+    "document_priorities": [
+      1,
+      1,
+      2,
+      2,
+      1,
+      2
+    ]
+  },
+  "28": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Hệ thống pháp luật Việt Nam có những đặc…",
+        "query": "Hệ thống pháp luật Việt Nam có những đặc điểm nổi bật nào?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      },
+      {
+        "label": "2. Đặc điểm nổi bật của hệ thống Civil Law …",
+        "query": "Đặc điểm nổi bật của hệ thống Civil Law (hệ thống luật thành văn lục địa châu Âu) mà Việt Nam chịu ảnh hưởng là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "đặc điểm nổi bật của hệ thống Civil Law (luật thành văn) và sự ảnh hưởng của nó đến pháp luật Việt Nam"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "3. So sánh hệ thống pháp luật Việt Nam với …",
+        "query": "So sánh hệ thống pháp luật Việt Nam với đặc điểm nổi bật của hệ thống Civil Law dành cho sinh viên kinh tế như thế nào?",
+        "sufficient": false,
+        "missing_aspects": [
+          "đặc điểm của hệ thống Civil Law",
+          "nội dung so sánh cụ thể giữa hệ thống pháp luật Việt Nam và Civil Law cho sinh viên kinh tế"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "29": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Tại sao vi phạm hợp đồng không phải lúc …",
+        "query": "Tại sao vi phạm hợp đồng không phải lúc nào cũng là vi phạm pháp luật?",
+        "sufficient": false,
+        "missing_aspects": [
+          "lý do tại sao vi phạm hợp đồng (trách nhiệm dân sự/thỏa thuận giữa các bên) không đồng nghĩa với vi phạm pháp luật (hoặc tội phạm/vi phạm hành chính)"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "2. Ví dụ tình huống thực tế về vi phạm hợp …",
+        "query": "Ví dụ tình huống thực tế về vi phạm hợp đồng nhưng không vi phạm pháp luật là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "Ví dụ thực tế về trường hợp vi phạm hợp đồng nhưng không vi phạm pháp luật"
+        ],
+        "retrieve_count": 5
+      },
+      {
+        "label": "3. Ví dụ tình huống thực tế về vi phạm hợp …",
+        "query": "Ví dụ tình huống thực tế về vi phạm hợp đồng đồng thời là vi phạm pháp luật là gì?",
+        "sufficient": false,
+        "missing_aspects": [
+          "ví dụ tình huống thực tế cụ thể về vi phạm hợp đồng đồng thời là vi phạm pháp luật"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      2,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1
+    ]
+  },
+  "30": {
+    "facet_sufficiency": [
+      {
+        "label": "1. Lý luận nền tảng của môn Pháp luật đại c…",
+        "query": "Lý luận nền tảng của môn Pháp luật đại cương gồm những nội dung gì?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 4
+      },
+      {
+        "label": "2. Các ngành luật chính trong hệ thống pháp…",
+        "query": "Các ngành luật chính trong hệ thống pháp luật Việt Nam bao gồm những ngành nào và nội dung cốt lõi ra sao?",
+        "sufficient": true,
+        "missing_aspects": [],
+        "retrieve_count": 3
+      },
+      {
+        "label": "3. Kỹ năng áp dụng pháp luật trong đời sống…",
+        "query": "Kỹ năng áp dụng pháp luật trong đời sống được thực hiện như thế nào đối với sinh viên?",
+        "sufficient": false,
+        "missing_aspects": [
+          "cách thức, phương pháp và quy trình cụ thể mà sinh viên áp dụng pháp luật trong đời sống hằng ngày"
+        ],
+        "retrieve_count": 5
+      }
+    ],
+    "document_priorities": [
+      1,
+      1,
+      1,
+      1,
+      2,
+      1,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}
