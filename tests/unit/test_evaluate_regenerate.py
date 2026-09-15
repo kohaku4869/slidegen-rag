@@ -1,15 +1,16 @@
-"""Chế độ "chỉ chạy lại generate" của evaluate.py — xem
-evaluate.regenerate_answers_for_topic."""
+"""Chế độ "chỉ chạy lại generate" — xem runner.regenerate_answers_for_topic."""
 
 import json
 
 import pytest
 
-from slidegen_rag.evaluate import evaluate as ev
+from slidegen_rag.evaluate import io as ev
+from slidegen_rag.evaluate import runner
+from slidegen_rag.evaluate.settings import GENERATE_STATE_FILENAME
 
 
 def test_generate_state_round_trip(tmp_path):
-    path = tmp_path / ev.GENERATE_STATE_FILENAME
+    path = tmp_path / GENERATE_STATE_FILENAME
     states = {
         2: {
             "facet_sufficiency": [{"query": "b?", "sufficient": True}],
@@ -60,13 +61,13 @@ def topic_dir(tmp_path, monkeypatch):
     )
     # Bắt buộc phải có, nếu không regenerate_answers_for_topic từ chối chạy.
     ev.save_generate_state(
-        topic / ev.GENERATE_STATE_FILENAME,
+        topic / GENERATE_STATE_FILENAME,
         {
             1: {"facet_sufficiency": [], "document_priorities": []},
             2: {"facet_sufficiency": [], "document_priorities": []},
         },
     )
-    monkeypatch.setattr(ev, "DATA_TEST_DIR", tmp_path)
+    monkeypatch.setattr(runner, "DATA_TEST_DIR", tmp_path)
     return topic
 
 
@@ -82,7 +83,7 @@ def _stub_generate(monkeypatch, recorder):
 
 
 def test_regenerate_reuses_chunks_and_replays_generate_state(topic_dir, monkeypatch):
-    (topic_dir / ev.GENERATE_STATE_FILENAME).write_text(
+    (topic_dir / GENERATE_STATE_FILENAME).write_text(
         json.dumps(
             {
                 "1": {
@@ -100,7 +101,7 @@ def test_regenerate_reuses_chunks_and_replays_generate_state(topic_dir, monkeypa
     _stub_generate(monkeypatch, seen)
 
     chunks_before = (topic_dir / "chunks.txt").read_text(encoding="utf-8")
-    results = ev.regenerate_answers_for_topic("chu_de_test")
+    results = runner.regenerate_answers_for_topic("chu_de_test")
 
     # Chunk từ chunks.txt được nạp lại nguyên vẹn làm documents cho generate.
     assert [s["documents"] for s in seen] == [
@@ -134,12 +135,12 @@ def test_regenerate_without_generate_state_refuses_to_run(topic_dir, monkeypatch
     Không có file này thì mọi câu đều nhận note "ngữ cảnh ĐẦY ĐỦ" — điểm trông
     như so sánh được với run đầy đủ nhưng thực chất đo điều kiện khác hẳn.
     """
-    (topic_dir / ev.GENERATE_STATE_FILENAME).unlink()
+    (topic_dir / GENERATE_STATE_FILENAME).unlink()
     seen: list[dict] = []
     _stub_generate(monkeypatch, seen)
 
-    with pytest.raises(FileNotFoundError, match=ev.GENERATE_STATE_FILENAME):
-        ev.regenerate_answers_for_topic("chu_de_test")
+    with pytest.raises(FileNotFoundError, match=GENERATE_STATE_FILENAME):
+        runner.regenerate_answers_for_topic("chu_de_test")
 
     assert seen == []  # dừng TRƯỚC khi tốn bất kỳ lượt gọi LLM nào
 
@@ -149,7 +150,7 @@ def test_regenerate_requires_existing_chunks(topic_dir, monkeypatch):
     _stub_generate(monkeypatch, [])
 
     with pytest.raises(FileNotFoundError, match="chunks.txt"):
-        ev.regenerate_answers_for_topic("chu_de_test")
+        runner.regenerate_answers_for_topic("chu_de_test")
 
 
 def test_regenerate_survives_one_failing_question(topic_dir, monkeypatch):
@@ -163,7 +164,7 @@ def test_regenerate_survives_one_failing_question(topic_dir, monkeypatch):
 
     monkeypatch.setattr(gn, "generate_node", flaky_generate_node)
 
-    results = ev.regenerate_answers_for_topic("chu_de_test")
+    results = runner.regenerate_answers_for_topic("chu_de_test")
 
     assert results[0]["response"] == "OK"
     assert results[1]["response"].startswith("[LỖI GENERATE]")

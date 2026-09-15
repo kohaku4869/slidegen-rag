@@ -5,7 +5,7 @@ xuất hiện trong CÂU TRẢ LỜI (deterministic, không LLM). Đặt cạnh
 judge — xem docstring của hàm.
 """
 
-from slidegen_rag.evaluate.evaluate import (
+from slidegen_rag.evaluate.metrics import (
     calculate_answer_coverage,
     calculate_keyword_coverage_strict,
 )

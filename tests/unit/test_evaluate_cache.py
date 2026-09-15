@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from slidegen_rag.evaluate.evaluate import load_answers, load_references
+from slidegen_rag.evaluate.io import load_answers, load_references
 
 
 def test_load_answers_normal():
