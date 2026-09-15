@@ -37,3 +37,42 @@ def test_build_context_default_uses_shared_budget_constant():
     docs = ["x"]
     assert build_context(docs) == "x"
     assert CONTEXT_BUDGET_CHARS == 32_000
+
+
+def test_build_context_priorities_keep_high_priority_over_newer_low_priority():
+    # "a" là chunk CŨ nhưng ưu tiên cao (vd 'relevant'); "b"/"c" mới hơn
+    # nhưng ưu tiên thấp (vd 'relevant_incomplete') — phải giữ "a" trước.
+    docs = ["a" * 40, "b" * 40, "c" * 40]
+    priorities = [2, 1, 1]
+    result = build_context(docs, max_chars=90, priorities=priorities)
+    assert "a" * 40 in result
+    assert "b" * 40 not in result  # bị bỏ dù mới hơn "a"
+
+
+def test_build_context_priorities_keeps_original_order_when_both_selected():
+    docs = ["a" * 40, "b" * 40, "c" * 40]
+    priorities = [2, 0, 2]  # giữ "a" và "c" (bỏ "b" điểm thấp nhất)
+    result = build_context(docs, max_chars=90, priorities=priorities)
+    assert result.index("a" * 40) < result.index("c" * 40)
+    assert "b" * 40 not in result
+
+
+def test_build_context_priorities_tie_break_by_recency():
+    docs = ["a" * 40, "b" * 40, "c" * 40]
+    priorities = [1, 1, 1]  # cùng ưu tiên -> hành vi như không có priorities
+    result = build_context(docs, max_chars=90, priorities=priorities)
+    assert result.index("b" * 40) < result.index("c" * 40)
+    assert "a" * 40 not in result
+
+
+def test_build_context_mismatched_priorities_length_falls_back_to_recency():
+    docs = ["a" * 40, "b" * 40, "c" * 40]
+    result = build_context(docs, max_chars=90, priorities=[2])  # lệch kích thước
+    assert result.index("b" * 40) < result.index("c" * 40)
+    assert "a" * 40 not in result
+
+
+def test_build_context_priorities_drop_note_says_lower_relevance():
+    docs = ["a" * 40, "b" * 40, "c" * 40]
+    result = build_context(docs, max_chars=90, priorities=[0, 2, 2])
+    assert "lower-relevance chunk(s) omitted for length" in result

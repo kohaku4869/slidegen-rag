@@ -96,8 +96,14 @@ class RetrieverConfig:
 class LLMConfig:
     """Tham số cho LLM sử dụng trong Agent (Google Gemini)."""
 
-    # Model ID Gemini (ví dụ: "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.0")
-    MODEL: str = "gemini-2.5-flash"
+    # Model ID Gemini (ví dụ: "gemini-3.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash")
+    # Đổi từ gemini-2.5-flash sang gemini-3.5-flash-lite: cùng bảng giá
+    # $0.30/$2.50 per 1M token input/output (xem GEMINI_PRICING trong
+    # agent/models/llm.py — không đổi cost/token), "flash-lite" nhắm tới
+    # latency thấp hơn cho tác vụ high-throughput/agentic — CHƯA đo lại
+    # benchmark pldc_v2 với model này, cần chạy lại để xác nhận latency/
+    # chất lượng thực tế trước khi kết luận.
+    MODEL: str = "gemini-3.5-flash-lite"
 
     # Nhiệt độ sampling (0.0 = deterministic, 1.0 = creative)
     TEMPERATURE: float = 0.3

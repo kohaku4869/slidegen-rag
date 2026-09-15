@@ -75,6 +75,7 @@ async def context_evaluator_node(state: AgentState) -> dict:
     """
     query = state["query"]
     documents = state.get("documents", [])
+    document_priorities = state.get("document_priorities", [])
     history = state.get("search_history", [])
     tried = format_history(history) or "(chưa có)"
 
@@ -95,7 +96,7 @@ async def context_evaluator_node(state: AgentState) -> dict:
             ),
         }
 
-    context = build_context(documents, CONTEXT_BUDGET_CHARS)
+    context = build_context(documents, CONTEXT_BUDGET_CHARS, priorities=document_priorities)
 
     messages = [
         SystemMessage(content=CONTEXT_EVAL_SYSTEM_PROMPT),

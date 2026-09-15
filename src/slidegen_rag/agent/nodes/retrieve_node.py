@@ -78,6 +78,17 @@ def _fallback_tool_call(query: str, tried: set[tuple[str, str]]) -> dict | None:
 _DIGEST_MANY_CHILDREN = 5
 _DIGEST_MIN_SIBLINGS = 2
 
+# Trần cứng số tool call MỚI mỗi lượt gọi LLM của retrieve_node — chặn
+# degenerate repetition: đo được trên benchmark pldc_v2 (run 20260914_171758,
+# câu 22, facet "Lý luận về nhà nước") 1 lượt retrieve sinh ra 517 tool_calls
+# (biến thể query gần như trùng nhau: "lý luận nhà nước", "lý luận về nhà
+# nước", "lý luận nhà nước là gì", ...), out=16,371 token — chạm sát trần
+# LLMConfig.MAX_TOKENS=16,384 — tốn ~189K token Gemini và 221s chỉ cho 1
+# facet/1 câu (~11% token cả run 30 câu). Lọc trùng ở dưới không cứu được vì
+# các query đều khác nhau từng chữ. Cắt cứng số lượng NGAY khi nhận response,
+# trước khi đưa vào bước lọc trùng — không dựa vào model tự kiềm chế.
+_MAX_TOOL_CALLS_PER_STEP = 6
+
 
 def _digest_hint(d: dict) -> str:
     """Gợi ý tool/direction nên dùng cho 1 entry của node_digest, theo thứ tự
@@ -210,6 +221,14 @@ async def retrieve_node(state: AgentState) -> dict:
         logger.error(f"[retrieve_node] LLM error: {e} — using fallback tool call")
         tool_calls = []
 
+    if len(tool_calls) > _MAX_TOOL_CALLS_PER_STEP:
+        logger.warning(
+            f"[retrieve_node] LLM trả về {len(tool_calls)} tool call trong 1 lượt "
+            f"(> trần {_MAX_TOOL_CALLS_PER_STEP}) — nghi degenerate repetition, "
+            f"cắt còn {_MAX_TOOL_CALLS_PER_STEP} call đầu tiên"
+        )
+        tool_calls = tool_calls[:_MAX_TOOL_CALLS_PER_STEP]
+
     # Lọc trùng bằng code: bảo đảm cứng, không phụ thuộc việc LLM có tuân thủ
     # chỉ dẫn "đừng lặp lại" trong prompt hay không.
     already_tried = tried_keys(history)
@@ -243,6 +262,13 @@ async def retrieve_node(state: AgentState) -> dict:
         except Exception as e:
             logger.error(f"[retrieve_node] Retry LLM error: {e}")
             retry_calls = []
+
+        if len(retry_calls) > _MAX_TOOL_CALLS_PER_STEP:
+            logger.warning(
+                f"[retrieve_node] Retry LLM trả về {len(retry_calls)} tool call "
+                f"— cắt còn {_MAX_TOOL_CALLS_PER_STEP} call đầu tiên"
+            )
+            retry_calls = retry_calls[:_MAX_TOOL_CALLS_PER_STEP]
 
         for tc in retry_calls:
             key = call_key(tc)

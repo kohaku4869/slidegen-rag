@@ -46,6 +46,15 @@ class AgentState(TypedDict):
                                  ConversationManager để seed drill_candidates
                                  cho lượt hỏi tiếp theo. Single-writer:
                                  collect_facets_node.
+        document_priorities:    Độ ưu tiên giữ lại (int, càng cao càng ưu
+                                 tiên — xem grade_documents_node._PRIORITY_*)
+                                 cho từng phần tử trong `documents`, CÙNG THỨ
+                                 TỰ (1:1) — build_context dùng để chọn chunk
+                                 giữ lại khi vượt CONTEXT_BUDGET_CHARS THEO
+                                 CHẤT LƯỢNG thay vì chỉ theo thời gian (chunk
+                                 'relevant' vòng 1 được ưu tiên hơn
+                                 'relevant_incomplete' vòng 5). Single-writer:
+                                 collect_facets_node.
         generation:             Câu trả lời tổng hợp từ generate_node.
                                  Single-writer: generate_node.
         seed_drill_candidates:  Seed ban đầu (từ ConversationManager khi câu
@@ -72,5 +81,6 @@ class AgentState(TypedDict):
     facet_sufficiency: list[dict]
     documents: list[str]
     document_node_ids: list[Optional[int]]
+    document_priorities: list[int]
     generation: str
     seed_drill_candidates: list[dict]

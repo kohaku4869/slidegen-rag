@@ -23,6 +23,7 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 # Bảng giá ước tính Google Gemini (USD / 1,000,000 tokens)
 GEMINI_PRICING = {
     "default": {"input_per_m": 0.30, "output_per_m": 2.50},
+    "gemini-3.5-flash-lite": {"input_per_m": 0.30, "output_per_m": 2.50},
     "gemini-2.5-flash": {"input_per_m": 0.30, "output_per_m": 2.50},
     "gemini-2.0-flash": {"input_per_m": 0.10, "output_per_m": 0.40},
     "gemini-1.5-flash": {"input_per_m": 0.075, "output_per_m": 0.30},
@@ -80,7 +81,7 @@ class TokenTracker:
             self.gemini_reasoning_tokens += reasoning
             self.gemini_total_tokens += tot
 
-    def get_summary(self, model_name: str = "gemini-2.5-flash") -> dict:
+    def get_summary(self, model_name: str = "gemini-3.5-flash-lite") -> dict:
         pricing = GEMINI_PRICING.get(model_name, GEMINI_PRICING["gemini-2.5-flash"])
         input_cost = (self.gemini_input_tokens / 1_000_000) * pricing["input_per_m"]
         output_cost = (self.gemini_output_tokens / 1_000_000) * pricing["output_per_m"]
@@ -111,7 +112,7 @@ class TokenTracker:
             "total_cost_vnd": vnd_cost,
         }
 
-    def format_report(self, model_name: str = "gemini-2.5-flash") -> str:
+    def format_report(self, model_name: str = "gemini-3.5-flash-lite") -> str:
         summary = self.get_summary(model_name)
         reasoning_str = (
             f" (gồm {summary['gemini_reasoning_tokens']:,} reasoning)"
@@ -280,6 +281,22 @@ class LLMModel:
         logging.info(f"[LLMModel] Bound {len(tools)} tools: {[t.name for t in tools]}")
         return bound
 
+    @staticmethod
+    def _normalize_response(response: BaseMessage) -> BaseMessage:
+        if isinstance(response.content, list):
+            parts = []
+            for item in response.content:
+                if isinstance(item, str):
+                    parts.append(item)
+                elif isinstance(item, dict) and "text" in item:
+                    parts.append(item["text"])
+                elif hasattr(item, "text"):
+                    parts.append(str(item.text))
+                else:
+                    parts.append(str(item))
+            response.content = "".join(parts)
+        return response
+
     # ------------------------------------------------------------------
     # Synchronous
     # ------------------------------------------------------------------
@@ -293,7 +310,7 @@ class LLMModel:
             logging.info(
                 f"[LLMModel] invoke ({self.provider}) | tokens_used={usage or {}}"
             )
-            return response
+            return self._normalize_response(response)
         except Exception as e:
             if self._fallback_client is not None:
                 logging.warning(
@@ -303,7 +320,7 @@ class LLMModel:
                 usage = getattr(response, "usage_metadata", None)
                 if usage:
                     LLMModel.tracker.add_usage(usage, is_local=False)
-                return response
+                return self._normalize_response(response)
             logging.error(f"[LLMModel] invoke error: {e}")
             raise
 
@@ -317,7 +334,7 @@ class LLMModel:
                     LLMModel.tracker.add_usage(
                         usage, is_local=(self.provider == "local")
                     )
-                yield chunk
+                yield self._normalize_response(chunk)
         except Exception as e:
             if self._fallback_client is not None:
                 logging.warning(
@@ -327,7 +344,7 @@ class LLMModel:
                     usage = getattr(chunk, "usage_metadata", None)
                     if usage:
                         LLMModel.tracker.add_usage(usage, is_local=False)
-                    yield chunk
+                    yield self._normalize_response(chunk)
                 return
             logging.error(f"[LLMModel] stream error: {e}")
             raise
@@ -345,7 +362,7 @@ class LLMModel:
             logging.info(
                 f"[LLMModel] ainvoke ({self.provider}) | tokens_used={usage or {}}"
             )
-            return response
+            return self._normalize_response(response)
         except Exception as e:
             if self._fallback_client is not None:
                 logging.warning(
@@ -355,7 +372,7 @@ class LLMModel:
                 usage = getattr(response, "usage_metadata", None)
                 if usage:
                     LLMModel.tracker.add_usage(usage, is_local=False)
-                return response
+                return self._normalize_response(response)
             logging.error(f"[LLMModel] ainvoke error: {e}")
             raise
 
@@ -367,7 +384,7 @@ class LLMModel:
                     LLMModel.tracker.add_usage(
                         usage, is_local=(self.provider == "local")
                     )
-                yield chunk
+                yield self._normalize_response(chunk)
         except Exception as e:
             if self._fallback_client is not None:
                 logging.warning(
@@ -377,7 +394,7 @@ class LLMModel:
                     usage = getattr(chunk, "usage_metadata", None)
                     if usage:
                         LLMModel.tracker.add_usage(usage, is_local=False)
-                    yield chunk
+                    yield self._normalize_response(chunk)
                 return
             logging.error(f"[LLMModel] astream error: {e}")
             raise

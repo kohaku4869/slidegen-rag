@@ -131,13 +131,17 @@ async def generate_node(state: AgentState) -> dict:
     """
     query = state["query"]
     documents = state.get("documents", [])
+    document_priorities = state.get("document_priorities", [])
     facet_sufficiency = state.get("facet_sufficiency", [])
 
     # CONTEXT_BUDGET_CHARS dùng KHÔNG ĐỔI ở đây dù có N facet — KHÔNG chia
     # CONTEXT_BUDGET_CHARS / N: generate chỉ chạy đúng 1 lần bất kể N facet,
     # nên ngân sách cuối cùng cho LLM tổng hợp câu trả lời phải giữ nguyên.
+    # document_priorities (từ grade_documents_node) cho build_context ưu
+    # tiên giữ chunk CHẤT LƯỢNG CAO khi vượt ngân sách, thay vì chỉ giữ chunk
+    # MỚI NHẤT — xem docstring context_budget.build_context.
     context = (
-        build_context(documents, CONTEXT_BUDGET_CHARS)
+        build_context(documents, CONTEXT_BUDGET_CHARS, priorities=document_priorities)
         if documents
         else "No context was retrieved."
     )

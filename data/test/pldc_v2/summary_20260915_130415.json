@@ -1,0 +1,18 @@
+{
+  "topic": "pldc_v2",
+  "timestamp": "20260915_130415",
+  "accuracy": 8.3,
+  "completeness": 7.683333333333334,
+  "relevance": 8.983333333333333,
+  "faithfulness": 9.266666666666667,
+  "total_score": 8.559,
+  "coverage_pct": 83.37333333333335,
+  "coverage_pct_strict": 81.29333333333334,
+  "answer_coverage_pct": 64.76333333333334,
+  "utilization_pct": 80.45666666666666,
+  "avg_chunks": 10.666666666666666,
+  "total_questions": 30,
+  "success_count": 30,
+  "failed_count": 0,
+  "generate_provider": "gemini"
+}

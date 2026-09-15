@@ -93,6 +93,7 @@ def make_initial_state(
         "facet_sufficiency": [],
         "documents": [],
         "document_node_ids": [],
+        "document_priorities": [],
         "generation": "",
         "seed_drill_candidates": list(drill_candidates) if drill_candidates else [],
     }

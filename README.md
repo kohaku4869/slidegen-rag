@@ -127,7 +127,7 @@ Create a `.env` file in the root directory:
 ```env
 # Google Gemini API
 GEMINI_API_KEY="your-gemini-api-key"
-GEMINI_MODEL="gemini-2.5-flash"
+GEMINI_MODEL="gemini-3.5-flash-lite"
 
 # Tavily Web Search API (Optional for web search tool)
 TAVILY_API_KEY="your-tavily-api-key"

@@ -198,7 +198,7 @@ def load_references(file_path: Path) -> dict[int, str]:
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    blocks = re.split(r"(?:^|\n)-(\d+)\.\s*", content.strip())
+    blocks = re.split(r"(?:^|\n)-(\d+)\.[ \t]*", content.strip())
     references = {}
     i = 1
     while i < len(blocks) - 1:
@@ -216,7 +216,7 @@ def load_answers(file_path: Path) -> dict[int, str]:
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    blocks = re.split(r"(?:^|\n)-(\d+)\.\s*", content.strip())
+    blocks = re.split(r"(?:^|\n)-(\d+)\.[ \t]*", content.strip())
     answers = {}
     if len(blocks) > 1:
         i = 1
@@ -226,7 +226,7 @@ def load_answers(file_path: Path) -> dict[int, str]:
             answers[num] = text
             i += 2
     else:
-        blocks = re.split(r"(?:^|\n)(\d+)\.\s*", content.strip())
+        blocks = re.split(r"(?:^|\n)(\d+)\.[ \t]*", content.strip())
         i = 1
         while i < len(blocks) - 1:
             num = int(blocks[i])
@@ -290,7 +290,9 @@ def load_trajectory_texts(file_path: Path) -> dict[int, str]:
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    q_blocks = re.split(r"(?:^|\n)===\s*(?:CÂU HỎI|QUESTION)\s*(\d+)\s*===\n*", content)
+    q_blocks = re.split(
+        r"(?:^|\n)===\s*(?:CÂU HỎI|QUESTION)\s*(\d+)\s*===[ \t]*", content
+    )
     texts: dict[int, str] = {}
     i = 1
     while i < len(q_blocks) - 1:
@@ -334,7 +336,7 @@ def create_evaluator_llm():
             from langchain_google_genai import ChatGoogleGenerativeAI
 
             llm_fallback = ChatGoogleGenerativeAI(
-                model="gemini-2.5-flash",
+                model="gemini-3.5-flash-lite",
                 google_api_key=gemini_key,
                 temperature=0,
                 max_output_tokens=8192,
@@ -443,7 +445,21 @@ def get_answers_and_chunks_for_topic(
     if not index_path.exists():
         raise FileNotFoundError(f"Không tìm thấy index: {index_path}")
 
-    if progress_callback:
+    if not force_rerun:
+        missing_nums = [q["num"] for q in questions if q["num"] not in cached_answers]
+        reason = (
+            f"thiếu {len(missing_nums)}/{len(questions)} câu trong cache ({missing_nums[:10]})"
+            if missing_nums
+            else f"số lượng câu trong cache ({len(cached_answers)}) < tổng số câu hỏi ({len(questions)})"
+        )
+        logger.warning(
+            f"[{topic}] Không dùng được cache do: {reason} (dù không tick 'Buộc chạy lại'). Bắt đầu chạy lại Agent..."
+        )
+        if progress_callback:
+            progress_callback(
+                f"[{topic}] ⚠️ Không dùng được cache ({reason}) — Đang khởi tạo CRAG Agent..."
+            )
+    elif progress_callback:
         progress_callback(f"[{topic}] Đang khởi tạo CRAG Agent...")
 
     ra = load_ra(index_path)
@@ -1015,7 +1031,10 @@ def run_evaluation_for_topic(
         (detail_df, summary_dict, was_cached)
     """
     results, was_cached = get_answers_and_chunks_for_topic(
-        topic, force_rerun=force_rerun, progress_callback=progress_callback, lowcost=lowcost
+        topic,
+        force_rerun=force_rerun,
+        progress_callback=progress_callback,
+        lowcost=lowcost,
     )
 
     primary_llm, fallback_llm = create_evaluator_llm()

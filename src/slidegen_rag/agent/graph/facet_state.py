@@ -36,6 +36,7 @@ class FacetState(TypedDict):
     context_sufficient: bool
     retrieve_count: int
     document_node_ids: list[Optional[int]]
+    document_priorities: list[int]
     drill_candidates: list[dict]
 
 
@@ -70,6 +71,7 @@ def make_initial_facet_state(
         "context_sufficient": False,
         "retrieve_count": 0,
         "document_node_ids": [],
+        "document_priorities": [],
         "drill_candidates": list(seed_drill_candidates)
         if seed_drill_candidates
         else [],

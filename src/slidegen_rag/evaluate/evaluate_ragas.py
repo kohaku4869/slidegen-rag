@@ -37,8 +37,10 @@ for mod in [
     if mod not in sys.modules:
         sys.modules[mod] = types.ModuleType(mod)
 
+
 class _DummyVertex:
     pass
+
 
 if not hasattr(sys.modules["langchain_community.chat_models.vertexai"], "ChatVertexAI"):
     sys.modules["langchain_community.chat_models.vertexai"].ChatVertexAI = _DummyVertex
@@ -48,6 +50,7 @@ if not hasattr(sys.modules["langchain_community.llms.vertexai"], "VertexAI"):
     sys.modules["langchain_community.llms.vertexai"].VertexAI = _DummyVertex
 
 import nest_asyncio
+
 
 def _safe_nest_run(main, *, debug=False, loop_factory=None, **kwargs):
     if loop_factory is not None:
@@ -64,6 +67,7 @@ def _safe_nest_run(main, *, debug=False, loop_factory=None, **kwargs):
             task.cancel()
             with suppress(asyncio.CancelledError):
                 loop.run_until_complete(task)
+
 
 nest_asyncio.apply()
 asyncio.run = _safe_nest_run
@@ -118,8 +122,8 @@ matplotlib.use("Agg")
 plt.rcParams["font.family"] = ["DejaVu Sans", "Arial", "sans-serif"]
 
 # ── Ngưỡng màu hiển thị Dashboard (Thang điểm 10) ───────────────────────────
-SCORE_GREEN = 8.5    # Xuất sắc
-SCORE_AMBER = 7.0    # Đạt / Khá
+SCORE_GREEN = 8.5  # Xuất sắc
+SCORE_AMBER = 7.0  # Đạt / Khá
 COVERAGE_GREEN = 85.0
 COVERAGE_AMBER = 70.0
 
@@ -128,8 +132,10 @@ COVERAGE_AMBER = 70.0
 # 1. DATA MODELS & SCHEMA (THANG ĐIỂM 10)
 # =============================================================================
 
+
 class RagasEvalResult(BaseModel):
     """Kết quả đánh giá Ragas cho 1 câu hỏi trên thang điểm 10."""
+
     faithfulness: Optional[float] = Field(
         default=None, description="Tính trung thực / Chống ảo giác (0.0 đến 10.0)."
     )
@@ -143,16 +149,16 @@ class RagasEvalResult(BaseModel):
         default=None, description="Độ chính xác và thứ hạng ngữ cảnh (0.0 đến 10.0)."
     )
     total_score: Optional[float] = Field(
-        default=None, description="Tổng điểm trung bình của 4 tiêu chí Ragas (0.0 đến 10.0)."
+        default=None,
+        description="Tổng điểm trung bình của 4 tiêu chí Ragas (0.0 đến 10.0).",
     )
-    feedback: str = Field(
-        default="", description="Chi tiết phân tích chỉ số Ragas."
-    )
+    feedback: str = Field(default="", description="Chi tiết phân tích chỉ số Ragas.")
 
 
 # =============================================================================
 # 2. HÀM ĐỌC & LƯU TRỮ DỮ LIỆU TEST (QUESTION, REFERENCE, ANSWER, CHUNKS)
 # =============================================================================
+
 
 def get_available_topics() -> list[str]:
     """Tìm tất cả thư mục chủ đề trong data/test/."""
@@ -160,7 +166,11 @@ def get_available_topics() -> list[str]:
         return []
     topics = []
     for d in sorted(DATA_TEST_DIR.iterdir()):
-        if d.is_dir() and (d / "question.txt").exists() and (d / "reference.txt").exists():
+        if (
+            d.is_dir()
+            and (d / "question.txt").exists()
+            and (d / "reference.txt").exists()
+        ):
             topics.append(d.name)
     return topics
 
@@ -181,10 +191,12 @@ def load_questions(file_path: Path) -> list[dict]:
         match = re.match(r"^(\d+)\.\s*(.+)$", block, re.DOTALL)
         if match:
             q_num = int(match.group(1))
-            questions.append({
-                "num": q_num,
-                "text": match.group(2).strip(),
-            })
+            questions.append(
+                {
+                    "num": q_num,
+                    "text": match.group(2).strip(),
+                }
+            )
     return questions
 
 
@@ -195,7 +207,7 @@ def load_references(file_path: Path) -> dict[int, str]:
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    blocks = re.split(r"(?:^|\n)-(\d+)\.\s*", content.strip())
+    blocks = re.split(r"(?:^|\n)-(\d+)\.[ \t]*", content.strip())
     references = {}
     i = 1
     while i < len(blocks) - 1:
@@ -213,7 +225,7 @@ def load_answers(file_path: Path) -> dict[int, str]:
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    blocks = re.split(r"(?:^|\n)-(\d+)\.\s*", content.strip())
+    blocks = re.split(r"(?:^|\n)-(\d+)\.[ \t]*", content.strip())
     answers = {}
     if len(blocks) > 1:
         i = 1
@@ -223,7 +235,7 @@ def load_answers(file_path: Path) -> dict[int, str]:
             answers[num] = text
             i += 2
     else:
-        blocks = re.split(r"(?:^|\n)(\d+)\.\s*", content.strip())
+        blocks = re.split(r"(?:^|\n)(\d+)\.[ \t]*", content.strip())
         i = 1
         while i < len(blocks) - 1:
             num = int(blocks[i])
@@ -280,10 +292,13 @@ def save_chunks(file_path: Path, chunks: dict[int, list[str]]):
 # 3. KHỞI TẠO RAGAS EVALUATOR (LLM & EMBEDDINGS)
 # =============================================================================
 
+
 class CustomTreeEmbeddings(Embeddings):
     """Adapter tích hợp EmbeddingModel của slidegen-rag vào Langchain/Ragas."""
+
     def __init__(self):
         from slidegen_rag.tree.models.EmbeddingModels import EmbeddingModel
+
         self.model = EmbeddingModel(
             cache_folder=ROOT_DIR / "models_cache",
         )
@@ -307,6 +322,7 @@ def create_ragas_llm_and_embeddings():
     if base_url and api_key:
         try:
             from langchain_openai import ChatOpenAI
+
             llm_primary = ChatOpenAI(
                 base_url=base_url,
                 api_key=api_key,
@@ -322,6 +338,7 @@ def create_ragas_llm_and_embeddings():
     if gemini_key:
         try:
             from langchain_google_genai import ChatGoogleGenerativeAI
+
             llm_fallback = ChatGoogleGenerativeAI(
                 model="gemini-2.5-flash",
                 google_api_key=gemini_key,
@@ -370,7 +387,10 @@ def get_answers_and_chunks_for_topic(
     """
     from slidegen_rag.main import load_ra
     from slidegen_rag.agent.graph.builder import build_graph
-    from slidegen_rag.agent.tools.tools import set_retrieval_augmentation, set_web_search_enabled
+    from slidegen_rag.agent.tools.tools import (
+        set_retrieval_augmentation,
+        set_web_search_enabled,
+    )
     from slidegen_rag.agent.observability.trajectory import make_initial_state
 
     question_file = DATA_TEST_DIR / topic / "question.txt"
@@ -397,24 +417,42 @@ def get_answers_and_chunks_for_topic(
 
     if all_cached:
         if progress_callback:
-            progress_callback(f"[{topic}] Đã nạp {len(questions)} câu từ cache (answer.txt & chunks.txt)")
+            progress_callback(
+                f"[{topic}] Đã nạp {len(questions)} câu từ cache (answer.txt & chunks.txt)"
+            )
         logger.info(f"[{topic}] Sử dụng kết quả có sẵn từ answer.txt & chunks.txt")
         results = []
         for q in questions:
             num = q["num"]
-            results.append({
-                "num": num,
-                "question": q["text"],
-                "response": cached_answers.get(num, ""),
-                "reference": references.get(num, ""),
-                "used_chunks": cached_chunks.get(num, []),
-            })
+            results.append(
+                {
+                    "num": num,
+                    "question": q["text"],
+                    "response": cached_answers.get(num, ""),
+                    "reference": references.get(num, ""),
+                    "used_chunks": cached_chunks.get(num, []),
+                }
+            )
         return results, True
 
     if not index_path.exists():
         raise FileNotFoundError(f"Không tìm thấy index: {index_path}")
 
-    if progress_callback:
+    if not force_rerun:
+        missing_nums = [q["num"] for q in questions if q["num"] not in cached_answers]
+        reason = (
+            f"thiếu {len(missing_nums)}/{len(questions)} câu trong cache ({missing_nums[:10]})"
+            if missing_nums
+            else f"số lượng câu trong cache ({len(cached_answers)}) < tổng số câu hỏi ({len(questions)})"
+        )
+        logger.warning(
+            f"[{topic}] Không dùng được cache do: {reason} (dù không tick 'Buộc chạy lại'). Bắt đầu chạy lại Agent..."
+        )
+        if progress_callback:
+            progress_callback(
+                f"[{topic}] ⚠️ Không dùng được cache ({reason}) — Đang khởi tạo CRAG Agent..."
+            )
+    elif progress_callback:
         progress_callback(f"[{topic}] Đang khởi tạo CRAG Agent...")
 
     results = []
@@ -441,9 +479,13 @@ def get_answers_and_chunks_for_topic(
             ref = references.get(num, "")
 
             if progress_callback:
-                progress_callback(f"[{topic}] Đang chạy Agent sinh câu trả lời {num}/{total}...")
+                progress_callback(
+                    f"[{topic}] Đang chạy Agent sinh câu trả lời {num}/{total}..."
+                )
 
-            logger.info(f"[{topic}] Agent đang trả lời câu {num}/{total}: {q_text[:70]}...")
+            logger.info(
+                f"[{topic}] Agent đang trả lời câu {num}/{total}: {q_text[:70]}..."
+            )
 
             initial_state = make_initial_state(q_text)
 
@@ -459,19 +501,23 @@ def get_answers_and_chunks_for_topic(
             new_answers[num] = answer
             new_chunks[num] = used_docs
 
-            results.append({
-                "num": num,
-                "question": q_text,
-                "response": answer,
-                "reference": ref,
-                "used_chunks": used_docs,
-            })
+            results.append(
+                {
+                    "num": num,
+                    "question": q_text,
+                    "response": answer,
+                    "reference": ref,
+                    "used_chunks": used_docs,
+                }
+            )
 
             # Ghi ngay xuống đĩa sau MỖI câu thay vì đợi hết cả topic — trả
             # lời xong câu nào lưu câu đó.
             save_answers(answer_file, new_answers)
             save_chunks(chunks_file, new_chunks)
-            logger.info(f"[{topic}] Đã lưu câu {num}/{total} vào answer.txt & chunks.txt")
+            logger.info(
+                f"[{topic}] Đã lưu câu {num}/{total} vào answer.txt & chunks.txt"
+            )
 
     return results, False
 
@@ -479,6 +525,7 @@ def get_answers_and_chunks_for_topic(
 # =============================================================================
 # 5. ĐÁNH GIÁ VỚI RAGAS METRICS (QUY ĐỔI SANG THANG ĐIỂM 10)
 # =============================================================================
+
 
 def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
     """Tính tỷ lệ bao phủ từ khóa cơ bản từ Reference xuất hiện trong các chunks.
@@ -505,11 +552,54 @@ def calculate_keyword_coverage(reference: str, used_chunks: list[str]) -> float:
 
 
 _VN_STOPWORDS = {
-    "và", "của", "là", "có", "được", "cho", "các", "một", "những", "này",
-    "đó", "khi", "với", "để", "trong", "về", "theo", "như", "từ", "hay",
-    "hoặc", "thì", "nếu", "nên", "mà", "đã", "sẽ", "đang", "bị", "do",
-    "vì", "nhưng", "còn", "cũng", "chỉ", "rất", "vào", "ra", "trên",
-    "dưới", "giữa", "sau", "trước", "tại", "bởi", "cả", "mỗi", "tất",
+    "và",
+    "của",
+    "là",
+    "có",
+    "được",
+    "cho",
+    "các",
+    "một",
+    "những",
+    "này",
+    "đó",
+    "khi",
+    "với",
+    "để",
+    "trong",
+    "về",
+    "theo",
+    "như",
+    "từ",
+    "hay",
+    "hoặc",
+    "thì",
+    "nếu",
+    "nên",
+    "mà",
+    "đã",
+    "sẽ",
+    "đang",
+    "bị",
+    "do",
+    "vì",
+    "nhưng",
+    "còn",
+    "cũng",
+    "chỉ",
+    "rất",
+    "vào",
+    "ra",
+    "trên",
+    "dưới",
+    "giữa",
+    "sau",
+    "trước",
+    "tại",
+    "bởi",
+    "cả",
+    "mỗi",
+    "tất",
 }
 
 
@@ -526,7 +616,11 @@ def calculate_keyword_coverage_strict(reference: str, used_chunks: list[str]) ->
     for c in used_chunks:
         chunk_tokens.update(re.findall(r"\b\w{2,}\b", c.lower()))
 
-    ref_words = [w for w in re.findall(r"\b\w{2,}\b", reference.lower()) if w not in _VN_STOPWORDS]
+    ref_words = [
+        w
+        for w in re.findall(r"\b\w{2,}\b", reference.lower())
+        if w not in _VN_STOPWORDS
+    ]
     if not ref_words:
         return 100.0
 
@@ -558,12 +652,18 @@ async def _eval_one_metric_with_fallback(
             metric.llm = primary_llm
             if ragas_emb is not None and hasattr(metric, "embeddings"):
                 metric.embeddings = ragas_emb
-            score = await asyncio.wait_for(metric.single_turn_ascore(sample), timeout=90)
+            score = await asyncio.wait_for(
+                metric.single_turn_ascore(sample), timeout=90
+            )
             if score is not None and not np.isnan(score):
                 return float(score)
-            logger.warning(f"[{metric_name}] Primary LLM trả về None/NaN, đang chuyển Fallback sang Gemini...")
+            logger.warning(
+                f"[{metric_name}] Primary LLM trả về None/NaN, đang chuyển Fallback sang Gemini..."
+            )
         except Exception as e:
-            logger.warning(f"[{metric_name}] Primary LLM thất bại ({e}), đang chuyển Fallback sang Gemini...")
+            logger.warning(
+                f"[{metric_name}] Primary LLM thất bại ({e}), đang chuyển Fallback sang Gemini..."
+            )
 
     # 2. Fallback sang Gemini
     if fallback_llm is not None:
@@ -571,9 +671,13 @@ async def _eval_one_metric_with_fallback(
             metric.llm = fallback_llm
             if ragas_emb is not None and hasattr(metric, "embeddings"):
                 metric.embeddings = ragas_emb
-            score = await asyncio.wait_for(metric.single_turn_ascore(sample), timeout=90)
+            score = await asyncio.wait_for(
+                metric.single_turn_ascore(sample), timeout=90
+            )
             if score is not None and not np.isnan(score):
-                logger.info(f"[{metric_name}] Đánh giá thành công qua Fallback Gemini 2.5 Flash!")
+                logger.info(
+                    f"[{metric_name}] Đánh giá thành công qua Fallback Gemini 2.5 Flash!"
+                )
                 return float(score)
             logger.warning(f"[{metric_name}] Fallback Gemini trả về None/NaN.")
         except Exception as e:
@@ -593,13 +697,22 @@ async def _evaluate_all_metrics_with_fallback(
         faithfulness, sample, primary_llm, fallback_llm, metric_name="Faithfulness"
     )
     ar_raw = await _eval_one_metric_with_fallback(
-        answer_relevancy, sample, primary_llm, fallback_llm, ragas_emb=ragas_emb, metric_name="Answer Relevance"
+        answer_relevancy,
+        sample,
+        primary_llm,
+        fallback_llm,
+        ragas_emb=ragas_emb,
+        metric_name="Answer Relevance",
     )
     cr_raw = await _eval_one_metric_with_fallback(
         context_recall, sample, primary_llm, fallback_llm, metric_name="Context Recall"
     )
     cp_raw = await _eval_one_metric_with_fallback(
-        context_precision, sample, primary_llm, fallback_llm, metric_name="Context Precision"
+        context_precision,
+        sample,
+        primary_llm,
+        fallback_llm,
+        metric_name="Context Precision",
     )
     return f_raw, ar_raw, cr_raw, cp_raw
 
@@ -627,7 +740,9 @@ def evaluate_single_answer_with_ragas(
 
     try:
         f_raw, ar_raw, cr_raw, cp_raw = asyncio.run(
-            _evaluate_all_metrics_with_fallback(primary_llm, fallback_llm, ragas_emb, sample)
+            _evaluate_all_metrics_with_fallback(
+                primary_llm, fallback_llm, ragas_emb, sample
+            )
         )
     except Exception as e:
         logger.error(f"[Ragas Evaluator] Lỗi khi chạy đánh giá câu hỏi: {e}")
@@ -691,7 +806,9 @@ def run_evaluation_for_topic(
     else:
         primary_llm, fallback_llm, ragas_emb = create_ragas_llm_and_embeddings()
     if not primary_llm and not fallback_llm:
-        raise RuntimeError("Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env")
+        raise RuntimeError(
+            "Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env"
+        )
 
     rows = []
     total = len(results)
@@ -730,26 +847,30 @@ def run_evaluation_for_topic(
             ctx_rec_val = None
             ctx_prec_val = None
             total_score = None
-            feedback_val = "[LỖI ĐÁNH GIÁ] Không nhận được phản hồi hợp lệ từ Ragas Evaluator."
+            feedback_val = (
+                "[LỖI ĐÁNH GIÁ] Không nhận được phản hồi hợp lệ từ Ragas Evaluator."
+            )
 
-        rows.append({
-            "STT": num,
-            "topic": topic,
-            "question": q_text,
-            "response": resp,
-            "reference": ref,
-            "faithfulness": faith_val,
-            "answer_relevance": ans_rel_val,
-            "context_recall": ctx_rec_val,
-            "context_precision": ctx_prec_val,
-            "total_score": total_score,
-            "coverage_pct": round(coverage, 1),
-            "coverage_pct_strict": round(coverage_strict, 1),
-            "chunks_count": len(chunks),
-            "feedback": feedback_val,
-            "is_success": is_success,
-            "used_chunks": chunks,
-        })
+        rows.append(
+            {
+                "STT": num,
+                "topic": topic,
+                "question": q_text,
+                "response": resp,
+                "reference": ref,
+                "faithfulness": faith_val,
+                "answer_relevance": ans_rel_val,
+                "context_recall": ctx_rec_val,
+                "context_precision": ctx_prec_val,
+                "total_score": total_score,
+                "coverage_pct": round(coverage, 1),
+                "coverage_pct_strict": round(coverage_strict, 1),
+                "chunks_count": len(chunks),
+                "feedback": feedback_val,
+                "is_success": is_success,
+                "used_chunks": chunks,
+            }
+        )
 
     detail_df = pd.DataFrame(rows)
 
@@ -759,13 +880,33 @@ def run_evaluation_for_topic(
 
     if not valid_df.empty:
         summary = {
-            "faithfulness": float(valid_df["faithfulness"].dropna().astype(float).mean()) if not valid_df["faithfulness"].dropna().empty else 0.0,
-            "answer_relevance": float(valid_df["answer_relevance"].dropna().astype(float).mean()) if not valid_df["answer_relevance"].dropna().empty else 0.0,
-            "context_recall": float(valid_df["context_recall"].dropna().astype(float).mean()) if not valid_df["context_recall"].dropna().empty else 0.0,
-            "context_precision": float(valid_df["context_precision"].dropna().astype(float).mean()) if not valid_df["context_precision"].dropna().empty else 0.0,
-            "total_score": float(valid_df["total_score"].dropna().astype(float).mean()) if not valid_df["total_score"].dropna().empty else 0.0,
+            "faithfulness": float(
+                valid_df["faithfulness"].dropna().astype(float).mean()
+            )
+            if not valid_df["faithfulness"].dropna().empty
+            else 0.0,
+            "answer_relevance": float(
+                valid_df["answer_relevance"].dropna().astype(float).mean()
+            )
+            if not valid_df["answer_relevance"].dropna().empty
+            else 0.0,
+            "context_recall": float(
+                valid_df["context_recall"].dropna().astype(float).mean()
+            )
+            if not valid_df["context_recall"].dropna().empty
+            else 0.0,
+            "context_precision": float(
+                valid_df["context_precision"].dropna().astype(float).mean()
+            )
+            if not valid_df["context_precision"].dropna().empty
+            else 0.0,
+            "total_score": float(valid_df["total_score"].dropna().astype(float).mean())
+            if not valid_df["total_score"].dropna().empty
+            else 0.0,
             "coverage_pct": float(valid_df["coverage_pct"].astype(float).mean()),
-            "coverage_pct_strict": float(valid_df["coverage_pct_strict"].astype(float).mean()),
+            "coverage_pct_strict": float(
+                valid_df["coverage_pct_strict"].astype(float).mean()
+            ),
             "avg_chunks": float(detail_df["chunks_count"].mean()),
             "total_questions": len(detail_df),
             "success_count": success_count,
@@ -792,6 +933,7 @@ def run_evaluation_for_topic(
 # =============================================================================
 # 6. HTML KPI CARDS & VISUALIZATION (THANG ĐIỂM 10)
 # =============================================================================
+
 
 def get_color(value: Optional[float], is_percentage: bool = False) -> str:
     """Xác định màu sắc theo ngưỡng điểm (Thang 10 hoặc %)."""
@@ -841,7 +983,9 @@ def format_metric_html(
     """
 
 
-def generate_summary_kpi_html(summary: dict, topic_name: str = "", was_cached: bool = False) -> str:
+def generate_summary_kpi_html(
+    summary: dict, topic_name: str = "", was_cached: bool = False
+) -> str:
     """Tạo toàn bộ khối KPI metrics HTML cho RAGAS Dashboard."""
     cache_badge = (
         '<span style="background-color: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">⚡ Cache (answer.txt & chunks.txt)</span>'
@@ -871,7 +1015,7 @@ def generate_summary_kpi_html(summary: dict, topic_name: str = "", was_cached: b
             {format_metric_html("🔍 Phủ từ khóa (Keyword Coverage)", summary.get("coverage_pct"), is_percentage=True)}
         </div>
         <div style="margin-top: 10px; padding: 8px 12px; background-color: #f1f5f9; border-radius: 6px; font-size: 12px; color: #475569; text-align: center;">
-            Tổng số câu hỏi: <b>{summary.get('total_questions', 0)}</b> (Thành công: <b>{summary.get('success_count', 0)}</b>{failed_badge}) | Trung bình Context: <b>{summary.get('avg_chunks', 0.0):.1f} chunks/câu</b>
+            Tổng số câu hỏi: <b>{summary.get("total_questions", 0)}</b> (Thành công: <b>{summary.get("success_count", 0)}</b>{failed_badge}) | Trung bình Context: <b>{summary.get("avg_chunks", 0.0):.1f} chunks/câu</b>
         </div>
     </div>
     """
@@ -879,7 +1023,13 @@ def generate_summary_kpi_html(summary: dict, topic_name: str = "", was_cached: b
 
 def create_single_topic_chart(summary: dict, topic: str) -> plt.Figure:
     """Tạo biểu đồ cột thể hiện 4 chỉ số Ragas của một chủ đề trên Thang 10."""
-    metrics = ["Faithfulness", "Answer Relevance", "Context Recall", "Context Precision", "Total Score"]
+    metrics = [
+        "Faithfulness",
+        "Answer Relevance",
+        "Context Recall",
+        "Context Precision",
+        "Total Score",
+    ]
     scores = [
         summary.get("faithfulness", 0.0),
         summary.get("answer_relevance", 0.0),
@@ -891,7 +1041,9 @@ def create_single_topic_chart(summary: dict, topic: str) -> plt.Figure:
     colors = [get_color(s) for s in scores]
 
     fig, ax = plt.subplots(figsize=(7.5, 4.5), dpi=100)
-    bars = ax.bar(metrics, scores, color=colors, width=0.55, edgecolor="white", linewidth=1.5)
+    bars = ax.bar(
+        metrics, scores, color=colors, width=0.55, edgecolor="white", linewidth=1.5
+    )
 
     for bar, s in zip(bars, scores):
         ax.text(
@@ -907,9 +1059,26 @@ def create_single_topic_chart(summary: dict, topic: str) -> plt.Figure:
 
     ax.set_ylim(0, 11.5)
     ax.set_ylabel("Điểm RAGAS (Thang 10)", fontsize=11, fontweight="600")
-    ax.set_title(f"Phân tích RAGAS Metrics — Chủ đề: {topic}", fontsize=13, fontweight="bold", pad=12)
-    ax.axhline(y=SCORE_GREEN, color="#10b981", linestyle="--", alpha=0.6, label="Mục tiêu (>= 8.5)")
-    ax.axhline(y=SCORE_AMBER, color="#f59e0b", linestyle=":", alpha=0.6, label="Ngưỡng đạt (>= 7.0)")
+    ax.set_title(
+        f"Phân tích RAGAS Metrics — Chủ đề: {topic}",
+        fontsize=13,
+        fontweight="bold",
+        pad=12,
+    )
+    ax.axhline(
+        y=SCORE_GREEN,
+        color="#10b981",
+        linestyle="--",
+        alpha=0.6,
+        label="Mục tiêu (>= 8.5)",
+    )
+    ax.axhline(
+        y=SCORE_AMBER,
+        color="#f59e0b",
+        linestyle=":",
+        alpha=0.6,
+        label="Ngưỡng đạt (>= 7.0)",
+    )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.legend(fontsize=9, loc="upper right")
@@ -935,17 +1104,56 @@ def create_all_topics_chart(all_summaries: dict[str, dict]) -> plt.Figure:
     ctx_rec = [all_summaries[t].get("context_recall", 0.0) for t in topics]
     ctx_prec = [all_summaries[t].get("context_precision", 0.0) for t in topics]
 
-    ax.bar(x - 1.5 * width, faith, width, label="Faithfulness", color="#10b981", edgecolor="white")
-    ax.bar(x - 0.5 * width, ans_rel, width, label="Answer Relevance", color="#3b82f6", edgecolor="white")
-    ax.bar(x + 0.5 * width, ctx_rec, width, label="Context Recall", color="#8b5cf6", edgecolor="white")
-    ax.bar(x + 1.5 * width, ctx_prec, width, label="Context Precision", color="#06b6d4", edgecolor="white")
+    ax.bar(
+        x - 1.5 * width,
+        faith,
+        width,
+        label="Faithfulness",
+        color="#10b981",
+        edgecolor="white",
+    )
+    ax.bar(
+        x - 0.5 * width,
+        ans_rel,
+        width,
+        label="Answer Relevance",
+        color="#3b82f6",
+        edgecolor="white",
+    )
+    ax.bar(
+        x + 0.5 * width,
+        ctx_rec,
+        width,
+        label="Context Recall",
+        color="#8b5cf6",
+        edgecolor="white",
+    )
+    ax.bar(
+        x + 1.5 * width,
+        ctx_prec,
+        width,
+        label="Context Precision",
+        color="#06b6d4",
+        edgecolor="white",
+    )
 
     ax.set_ylim(0, 11.5)
     ax.set_ylabel("Điểm RAGAS (Thang 10)", fontsize=11, fontweight="600")
     ax.set_xticks(x)
     ax.set_xticklabels(topics, fontsize=11, fontweight="600")
-    ax.set_title("So sánh các chỉ số RAGAS giữa các chủ đề (Thang 10)", fontsize=14, fontweight="bold", pad=12)
-    ax.axhline(y=SCORE_GREEN, color="#10b981", linestyle="--", alpha=0.5, label="Mục tiêu (8.5)")
+    ax.set_title(
+        "So sánh các chỉ số RAGAS giữa các chủ đề (Thang 10)",
+        fontsize=14,
+        fontweight="bold",
+        pad=12,
+    )
+    ax.axhline(
+        y=SCORE_GREEN,
+        color="#10b981",
+        linestyle="--",
+        alpha=0.5,
+        label="Mục tiêu (8.5)",
+    )
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.legend(fontsize=9, loc="upper right")
@@ -957,17 +1165,19 @@ def create_summary_table(all_summaries: dict[str, dict]) -> pd.DataFrame:
     """Tạo bảng tổng hợp điểm RAGAS cho các chủ đề."""
     rows = []
     for topic, summary in all_summaries.items():
-        rows.append({
-            "Chủ đề (Topic)": topic,
-            "Faithfulness": round(summary.get("faithfulness", 0.0), 2),
-            "Answer Relevance": round(summary.get("answer_relevance", 0.0), 2),
-            "Context Recall": round(summary.get("context_recall", 0.0), 2),
-            "Context Precision": round(summary.get("context_precision", 0.0), 2),
-            "Total Score": round(summary.get("total_score", 0.0), 2),
-            "Keyword Coverage (%)": f"{summary.get('coverage_pct', 0.0):.1f}%",
-            "Avg Chunks": round(summary.get("avg_chunks", 0.0), 1),
-            "Số câu thành công": f"{summary.get('success_count', 0)}/{summary.get('total_questions', 0)}",
-        })
+        rows.append(
+            {
+                "Chủ đề (Topic)": topic,
+                "Faithfulness": round(summary.get("faithfulness", 0.0), 2),
+                "Answer Relevance": round(summary.get("answer_relevance", 0.0), 2),
+                "Context Recall": round(summary.get("context_recall", 0.0), 2),
+                "Context Precision": round(summary.get("context_precision", 0.0), 2),
+                "Total Score": round(summary.get("total_score", 0.0), 2),
+                "Keyword Coverage (%)": f"{summary.get('coverage_pct', 0.0):.1f}%",
+                "Avg Chunks": round(summary.get("avg_chunks", 0.0), 1),
+                "Số câu thành công": f"{summary.get('success_count', 0)}/{summary.get('total_questions', 0)}",
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -978,12 +1188,20 @@ def create_summary_table(all_summaries: dict[str, dict]) -> pd.DataFrame:
 _current_detail_df: Optional[pd.DataFrame] = None
 
 
-def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Progress()):
+def evaluate_single_topic_handler(
+    topic: str, force_rerun: bool, progress=gr.Progress()
+):
     """Handler đánh giá một chủ đề bằng RAGAS."""
     global _current_detail_df
 
     if not topic:
-        return None, None, "<p>⚠️ Vui lòng chọn một chủ đề!</p>", gr.Dropdown(choices=[]), "⚠️ Vui lòng chọn một chủ đề!"
+        return (
+            None,
+            None,
+            "<p>⚠️ Vui lòng chọn một chủ đề!</p>",
+            gr.Dropdown(choices=[]),
+            "⚠️ Vui lòng chọn một chủ đề!",
+        )
 
     try:
         progress(0.1, desc=f"Đang chuẩn bị dữ liệu cho chủ đề: {topic}...")
@@ -999,18 +1217,31 @@ def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Pro
 
         progress(0.85, desc="Đang tạo biểu đồ & báo cáo RAGAS...")
 
-        kpi_html = generate_summary_kpi_html(summary, topic_name=topic, was_cached=was_cached)
+        kpi_html = generate_summary_kpi_html(
+            summary, topic_name=topic, was_cached=was_cached
+        )
         chart = create_single_topic_chart(summary, topic)
 
         display_cols = [
-            "STT", "question", "response",
-            "faithfulness", "answer_relevance", "context_recall", "context_precision",
-            "total_score", "coverage_pct", "chunks_count", "feedback"
+            "STT",
+            "question",
+            "response",
+            "faithfulness",
+            "answer_relevance",
+            "context_recall",
+            "context_precision",
+            "total_score",
+            "coverage_pct",
+            "chunks_count",
+            "feedback",
         ]
         display_df = detail_df[display_cols].copy()
         display_df = display_df.fillna("-")
 
-        q_choices = [f"Câu {row['STT']}: {str(row['question'])[:60]}..." for _, row in detail_df.iterrows()]
+        q_choices = [
+            f"Câu {row['STT']}: {str(row['question'])[:60]}..."
+            for _, row in detail_df.iterrows()
+        ]
         first_choice = q_choices[0] if q_choices else None
 
         succ = summary.get("success_count", 0)
@@ -1021,12 +1252,24 @@ def evaluate_single_topic_handler(topic: str, force_rerun: bool, progress=gr.Pro
 
         progress(1.0, desc="Hoàn tất!")
 
-        return chart, display_df, kpi_html, gr.Dropdown(choices=q_choices, value=first_choice), status_msg
+        return (
+            chart,
+            display_df,
+            kpi_html,
+            gr.Dropdown(choices=q_choices, value=first_choice),
+            status_msg,
+        )
 
     except Exception as e:
         logger.error(f"Lỗi đánh giá {topic}: {e}", exc_info=True)
         err_msg = f"❌ Lỗi: {e}\n\n{traceback.format_exc()}"
-        return None, None, f"<div style='color: red;'>{err_msg}</div>", gr.Dropdown(choices=[]), err_msg
+        return (
+            None,
+            None,
+            f"<div style='color: red;'>{err_msg}</div>",
+            gr.Dropdown(choices=[]),
+            err_msg,
+        )
 
 
 def inspect_question_handler(selected_q_text: str):
@@ -1046,16 +1289,16 @@ def inspect_question_handler(selected_q_text: str):
 
     item = row.iloc[0]
 
-    col1_content = f"""### ❓ Câu hỏi #{item['STT']}
-**{item['question']}**
+    col1_content = f"""### ❓ Câu hỏi #{item["STT"]}
+**{item["question"]}**
 
 ---
 ### 📖 Đáp án mẫu (Reference Answer)
-{item['reference'] if item['reference'] else '*(Không có đáp án mẫu)*'}
+{item["reference"] if item["reference"] else "*(Không có đáp án mẫu)*"}
 
 ---
 ### 🤖 Câu trả lời của CRAG Agent
-{item['response']}
+{item["response"]}
 """
 
     chunks_list = item.get("used_chunks", [])
@@ -1071,11 +1314,23 @@ def inspect_question_handler(selected_q_text: str):
 {chunks_content}
 """
 
-    faith_str = f"{item['faithfulness']}/10" if pd.notna(item['faithfulness']) else "N/A"
-    ar_str = f"{item['answer_relevance']}/10" if pd.notna(item['answer_relevance']) else "N/A"
-    cr_str = f"{item['context_recall']}/10" if pd.notna(item['context_recall']) else "N/A"
-    cp_str = f"{item['context_precision']}/10" if pd.notna(item['context_precision']) else "N/A"
-    tot_str = f"{item['total_score']}/10" if pd.notna(item['total_score']) else "N/A"
+    faith_str = (
+        f"{item['faithfulness']}/10" if pd.notna(item["faithfulness"]) else "N/A"
+    )
+    ar_str = (
+        f"{item['answer_relevance']}/10"
+        if pd.notna(item["answer_relevance"])
+        else "N/A"
+    )
+    cr_str = (
+        f"{item['context_recall']}/10" if pd.notna(item["context_recall"]) else "N/A"
+    )
+    cp_str = (
+        f"{item['context_precision']}/10"
+        if pd.notna(item["context_precision"])
+        else "N/A"
+    )
+    tot_str = f"{item['total_score']}/10" if pd.notna(item["total_score"]) else "N/A"
 
     col3_content = f"""### ⚖️ Đánh giá từ RAGAS Metrics (Thang 10)
 - **Tính trung thực (Faithfulness)**: `{faith_str}`
@@ -1083,12 +1338,12 @@ def inspect_question_handler(selected_q_text: str):
 - **Thu hồi ngữ cảnh (Context Recall)**: `{cr_str}`
 - **Chính xác ngữ cảnh (Context Precision)**: `{cp_str}`
 - **🏆 Tổng điểm (Total Score)**: `{tot_str}`
-- **Độ phủ từ khóa (Keyword Coverage)**: `{item['coverage_pct']}%`
+- **Độ phủ từ khóa (Keyword Coverage)**: `{item["coverage_pct"]}%`
 
 ---
 ### 📝 Chi tiết RAGAS
 ```
-{item['feedback']}
+{item["feedback"]}
 ```
 """
 
@@ -1099,7 +1354,13 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
     """Handler đánh giá toàn bộ các chủ đề bằng RAGAS."""
     topics = get_available_topics()
     if not topics:
-        return None, None, None, "<p>⚠️ Không tìm thấy chủ đề nào trong data/test/</p>", "⚠️ Không có dữ liệu."
+        return (
+            None,
+            None,
+            None,
+            "<p>⚠️ Không tìm thấy chủ đề nào trong data/test/</p>",
+            "⚠️ Không có dữ liệu.",
+        )
 
     all_summaries = {}
     all_details = []
@@ -1113,18 +1374,29 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
     # khởi tạo lại EmbeddingModel N lần cho N chủ đề.
     ragas_judge = create_ragas_llm_and_embeddings()
     if not ragas_judge[0] and not ragas_judge[1]:
-        return None, None, None, "<p>⚠️ Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env</p>", "⚠️ Không có LLM Judge khả dụng."
+        return (
+            None,
+            None,
+            None,
+            "<p>⚠️ Không có LLM Judge nào khả dụng. Vui lòng kiểm tra LLM_BASE_URL hoặc GEMINI_API_KEY trong .env</p>",
+            "⚠️ Không có LLM Judge khả dụng.",
+        )
 
     for t_idx, topic in enumerate(topics):
         try:
             base_prog = t_idx / len(topics)
-            progress(base_prog, desc=f"[{t_idx+1}/{len(topics)}] Đang xử lý: {topic}...")
+            progress(
+                base_prog, desc=f"[{t_idx + 1}/{len(topics)}] Đang xử lý: {topic}..."
+            )
 
             def cb(msg):
                 progress(base_prog + 0.5 / len(topics), desc=msg)
 
             detail_df, summary, was_cached = run_evaluation_for_topic(
-                topic, force_rerun=force_rerun, progress_callback=cb, ragas_judge=ragas_judge
+                topic,
+                force_rerun=force_rerun,
+                progress_callback=cb,
+                ragas_judge=ragas_judge,
             )
 
             all_summaries[topic] = summary
@@ -1136,10 +1408,17 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
         except Exception as e:
             logger.error(f"Lỗi khi đánh giá chủ đề {topic}: {e}", exc_info=True)
             all_summaries[topic] = {
-                "faithfulness": 0.0, "answer_relevance": 0.0, "context_recall": 0.0,
-                "context_precision": 0.0, "total_score": 0.0, "coverage_pct": 0.0,
-                "avg_chunks": 0.0, "total_questions": 0, "success_count": 0,
-                "failed_count": 0, "error": str(e)
+                "faithfulness": 0.0,
+                "answer_relevance": 0.0,
+                "context_recall": 0.0,
+                "context_precision": 0.0,
+                "total_score": 0.0,
+                "coverage_pct": 0.0,
+                "avg_chunks": 0.0,
+                "total_questions": 0,
+                "success_count": 0,
+                "failed_count": 0,
+                "error": str(e),
             }
 
     progress(0.9, desc="Đang tạo biểu đồ tổng hợp RAGAS...")
@@ -1150,25 +1429,47 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
     if all_details:
         combined_df = pd.concat(all_details, ignore_index=True)
         display_cols = [
-            "STT", "topic", "question", "response",
-            "faithfulness", "answer_relevance", "context_recall", "context_precision",
-            "total_score", "coverage_pct", "chunks_count", "feedback"
+            "STT",
+            "topic",
+            "question",
+            "response",
+            "faithfulness",
+            "answer_relevance",
+            "context_recall",
+            "context_precision",
+            "total_score",
+            "coverage_pct",
+            "chunks_count",
+            "feedback",
         ]
-        detail_table_df = combined_df[[c for c in display_cols if c in combined_df.columns]].copy()
+        detail_table_df = combined_df[
+            [c for c in display_cols if c in combined_df.columns]
+        ].copy()
         detail_table_df = detail_table_df.fillna("-")
     else:
         detail_table_df = pd.DataFrame()
 
-    valid_summaries = [s for s in all_summaries.values() if "error" not in s and s.get("success_count", 0) > 0]
+    valid_summaries = [
+        s
+        for s in all_summaries.values()
+        if "error" not in s and s.get("success_count", 0) > 0
+    ]
     if valid_summaries:
         overall_summary = {
-            "total_score": sum(s["total_score"] for s in valid_summaries) / len(valid_summaries),
-            "faithfulness": sum(s["faithfulness"] for s in valid_summaries) / len(valid_summaries),
-            "answer_relevance": sum(s["answer_relevance"] for s in valid_summaries) / len(valid_summaries),
-            "context_recall": sum(s["context_recall"] for s in valid_summaries) / len(valid_summaries),
-            "context_precision": sum(s["context_precision"] for s in valid_summaries) / len(valid_summaries),
-            "coverage_pct": sum(s["coverage_pct"] for s in valid_summaries) / len(valid_summaries),
-            "avg_chunks": sum(s["avg_chunks"] for s in valid_summaries) / len(valid_summaries),
+            "total_score": sum(s["total_score"] for s in valid_summaries)
+            / len(valid_summaries),
+            "faithfulness": sum(s["faithfulness"] for s in valid_summaries)
+            / len(valid_summaries),
+            "answer_relevance": sum(s["answer_relevance"] for s in valid_summaries)
+            / len(valid_summaries),
+            "context_recall": sum(s["context_recall"] for s in valid_summaries)
+            / len(valid_summaries),
+            "context_precision": sum(s["context_precision"] for s in valid_summaries)
+            / len(valid_summaries),
+            "coverage_pct": sum(s["coverage_pct"] for s in valid_summaries)
+            / len(valid_summaries),
+            "avg_chunks": sum(s["avg_chunks"] for s in valid_summaries)
+            / len(valid_summaries),
             "total_questions": total_questions,
             "success_count": total_success,
             "failed_count": total_failed,
@@ -1176,9 +1477,17 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
     else:
         overall_summary = {}
 
-    kpi_html = generate_summary_kpi_html(overall_summary, topic_name="Toàn hệ thống (All Topics)", was_cached=not force_rerun)
+    kpi_html = generate_summary_kpi_html(
+        overall_summary,
+        topic_name="Toàn hệ thống (All Topics)",
+        was_cached=not force_rerun,
+    )
 
-    fail_msg = f" (⚠️ {total_failed} câu lỗi không tính vào điểm tổng)" if total_failed > 0 else ""
+    fail_msg = (
+        f" (⚠️ {total_failed} câu lỗi không tính vào điểm tổng)"
+        if total_failed > 0
+        else ""
+    )
     status_msg = f"✅ Đã hoàn tất đánh giá {len(valid_summaries)}/{len(topics)} chủ đề (Thành công {total_success}/{total_questions} câu{fail_msg})!"
 
     progress(1.0, desc="Hoàn tất!")
@@ -1189,6 +1498,7 @@ def evaluate_all_topics_handler(force_rerun: bool, progress=gr.Progress()):
 # =============================================================================
 # 8. GIAO DIỆN GRADIO (THEME & BLOCKS)
 # =============================================================================
+
 
 def build_gradio_app():
     """Khởi tạo giao diện Dashboard Gradio cho RAGAS."""
@@ -1268,7 +1578,9 @@ def build_gradio_app():
 
                 with gr.Row():
                     with gr.Column(scale=1):
-                        inspect_col1 = gr.Markdown("*(Chọn một câu hỏi ở trên để xem chi tiết)*")
+                        inspect_col1 = gr.Markdown(
+                            "*(Chọn một câu hỏi ở trên để xem chi tiết)*"
+                        )
                     with gr.Column(scale=1):
                         inspect_col2 = gr.Markdown("")
                     with gr.Column(scale=1):
@@ -1277,7 +1589,13 @@ def build_gradio_app():
                 btn_eval_single.click(
                     fn=evaluate_single_topic_handler,
                     inputs=[topic_dropdown, chk_force_single],
-                    outputs=[chart_single, table_single, kpi_single, inspect_dropdown, status_single],
+                    outputs=[
+                        chart_single,
+                        table_single,
+                        kpi_single,
+                        inspect_dropdown,
+                        status_single,
+                    ],
                 )
 
                 inspect_dropdown.change(
@@ -1292,7 +1610,9 @@ def build_gradio_app():
             with gr.TabItem("📋 Đánh giá tất cả chủ đề", id="tab_all"):
                 with gr.Row(variant="panel"):
                     with gr.Column(scale=3):
-                        gr.Markdown(f"Sẽ đánh giá tất cả **{len(topics)}** chủ đề trong `data/test/`: **{', '.join(topics) if topics else 'N/A'}**")
+                        gr.Markdown(
+                            f"Sẽ đánh giá tất cả **{len(topics)}** chủ đề trong `data/test/`: **{', '.join(topics) if topics else 'N/A'}**"
+                        )
                     with gr.Column(scale=2):
                         chk_force_all = gr.Checkbox(
                             label="🔄 Buộc chạy lại Agent cho tất cả (Bỏ qua cache)",
@@ -1313,7 +1633,9 @@ def build_gradio_app():
                             "<div style='padding: 30px; text-align: center; color: #94a3b8; font-size: 15px;'>Nhấn 'Đánh giá tất cả bằng RAGAS' để hiển thị tổng hợp</div>"
                         )
                     with gr.Column(scale=1):
-                        chart_all = gr.Plot(label="Biểu đồ so sánh RAGAS giữa các chủ đề")
+                        chart_all = gr.Plot(
+                            label="Biểu đồ so sánh RAGAS giữa các chủ đề"
+                        )
 
                 gr.Markdown("### 📊 Bảng tổng hợp điểm RAGAS các chủ đề")
                 summary_table_all = gr.Dataframe(
@@ -1331,7 +1653,13 @@ def build_gradio_app():
                 btn_eval_all.click(
                     fn=evaluate_all_topics_handler,
                     inputs=[chk_force_all],
-                    outputs=[chart_all, summary_table_all, detail_table_all, kpi_all, status_all],
+                    outputs=[
+                        chart_all,
+                        summary_table_all,
+                        detail_table_all,
+                        kpi_all,
+                        status_all,
+                    ],
                 )
 
     return app
@@ -1364,4 +1692,3 @@ if __name__ == "__main__":
         share=False,
         show_error=True,
     )
-

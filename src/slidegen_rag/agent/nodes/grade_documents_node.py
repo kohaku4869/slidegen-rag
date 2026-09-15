@@ -24,6 +24,14 @@ _grader_llm = LLMModel(
 # liệu liên quan bị grader từ chối oan (câu hỏi ghép nhiều vế dễ bị vậy).
 _HARD_FLOOR = 5
 
+# Độ ưu tiên giữ lại (dùng bởi context_budget.build_context khi documents
+# vượt CONTEXT_BUDGET_CHARS) — càng cao càng ưu tiên giữ, BẤT KỂ chunk đó
+# mới hay cũ. 'relevant' > 'relevant_incomplete' > sàn cứng (chunk không qua
+# được grader, chỉ giữ vì retrieval không rỗng — kém tin cậy nhất).
+_PRIORITY_RELEVANT = 2
+_PRIORITY_RELEVANT_INCOMPLETE = 1
+_PRIORITY_HARD_FLOOR = 0
+
 # Giới hạn số candidate tích luỹ trong drill_candidates — tránh phình prompt
 # của retrieve_node qua nhiều vòng nếu tài liệu có rất nhiều chỗ "incomplete".
 _MAX_DRILL_CANDIDATES = 10
@@ -147,11 +155,13 @@ async def grade_documents_node(state: AgentState) -> dict:
             'tool_calls', 'query'.
 
     Returns:
-        dict: {"documents", "document_node_ids", "drill_candidates"}.
+        dict: {"documents", "document_node_ids", "document_priorities",
+            "drill_candidates"}.
     """
     query = state["query"]
     documents = state.get("documents", [])
     document_node_ids = state.get("document_node_ids", [])
+    document_priorities = state.get("document_priorities", [])
     pending = state.get("pending_documents", [])
     pending_meta = state.get("pending_meta", [])
     tool_calls = state.get("tool_calls", [])
@@ -167,6 +177,7 @@ async def grade_documents_node(state: AgentState) -> dict:
         return {
             "documents": documents,
             "document_node_ids": document_node_ids,
+            "document_priorities": document_priorities,
             "drill_candidates": drill_candidates,
         }
 
@@ -198,6 +209,9 @@ async def grade_documents_node(state: AgentState) -> dict:
 
     kept_docs = relevant_docs + incomplete_docs
     kept_ids = relevant_ids + incomplete_ids
+    kept_priorities = [_PRIORITY_RELEVANT] * len(relevant_docs) + [
+        _PRIORITY_RELEVANT_INCOMPLETE
+    ] * len(incomplete_docs)
 
     if not kept_docs and pending:
         # Sàn cứng: grader loại sạch nhưng rõ ràng có tài liệu được retrieve
@@ -205,13 +219,21 @@ async def grade_documents_node(state: AgentState) -> dict:
         # nhiều vế không nên khiến agent trả lời "không có gì".
         kept_docs = pending[:_HARD_FLOOR]
         kept_ids = [m.get("node_id") for m in pending_meta[:_HARD_FLOOR]]
+        kept_priorities = [_PRIORITY_HARD_FLOOR] * len(kept_docs)
         logger.warning(
             f"[grade_documents_node] Grader loại sạch {len(pending)} chunk — "
             f"áp sàn cứng, giữ {len(kept_docs)} chunk đầu theo thứ tự retrieval"
         )
 
+    # 2 lượt merge tách biệt nhưng CÙNG dedup theo `documents`/`kept_docs`
+    # gốc (không dùng kết quả merge trước làm input cho merge sau) — đảm bảo
+    # document_priorities khớp 1:1 với documents/document_node_ids dù merge
+    # riêng, xem docstring _merge_documents_with_ids.
     merged_docs, merged_ids = _merge_documents_with_ids(
         documents, document_node_ids, kept_docs, kept_ids
+    )
+    _, merged_priorities = _merge_documents_with_ids(
+        documents, document_priorities, kept_docs, kept_priorities
     )
     drill_candidates = _build_drill_candidates(
         drill_candidates, incomplete_docs, incomplete_ids, drilled_ids
@@ -227,5 +249,6 @@ async def grade_documents_node(state: AgentState) -> dict:
     return {
         "documents": merged_docs,
         "document_node_ids": merged_ids,
+        "document_priorities": merged_priorities,
         "drill_candidates": drill_candidates,
     }
