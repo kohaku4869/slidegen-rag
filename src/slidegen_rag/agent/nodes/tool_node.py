@@ -74,44 +74,6 @@ def _extract_chunks(raw: str, tool_name: str) -> list[dict]:
     return chunks
 
 
-def _merge_documents(existing: list[str], new_chunks: list[str]) -> list[str]:
-    """Merge và dedup documents (dùng bởi grade_documents_node khi cộng chunk
-    mới đậu vào tập survivor tích luỹ)."""
-    seen = set(existing)
-    merged = list(existing)
-    for chunk in new_chunks:
-        if chunk not in seen:
-            seen.add(chunk)
-            merged.append(chunk)
-    return merged
-
-
-def _merge_documents_with_ids(
-    existing_docs: list[str],
-    existing_ids: list,
-    new_docs: list[str],
-    new_ids: list,
-) -> tuple[list[str], list]:
-    """Như _merge_documents nhưng giữ `node_id` đi kèm từng document (1:1),
-    để grade_documents_node duy trì `document_node_ids` song song với
-    `documents` qua các vòng — dùng bởi ConversationManager (mục 7 trong
-    plan) để biết node nào thực sự được trích dẫn ở lượt hỏi này.
-
-    Hoàn toàn generic trên tham số "id" (chỉ zip 1:1 và dedup theo doc) —
-    grade_documents_node và collect_facets_node gọi hàm này 2 LẦN với CÙNG
-    `existing_docs`/`new_docs` (1 lần cho document_node_ids, 1 lần cho
-    document_priorities) để giữ 2 danh sách metadata song song luôn khớp
-    index mà không cần viết lại logic merge/dedup riêng."""
-    seen = set(existing_docs)
-    merged_docs = list(existing_docs)
-    merged_ids = list(existing_ids)
-    for doc, node_id in zip(new_docs, new_ids):
-        if doc not in seen:
-            seen.add(doc)
-            merged_docs.append(doc)
-            merged_ids.append(node_id)
-    return merged_docs, merged_ids
-
 
 def _format_heading(heading_path) -> str:
     """Ghép 2 thành phần cuối của heading_path (mục gần node nhất), cắt

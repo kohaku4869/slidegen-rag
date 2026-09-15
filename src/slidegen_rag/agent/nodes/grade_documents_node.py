@@ -5,8 +5,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from slidegen_rag.agent.graph.state import AgentState
 from slidegen_rag.agent.models.llm import LLMModel
-from slidegen_rag.agent.nodes.tool_node import _merge_documents_with_ids
 from slidegen_rag.agent.tools.tools import describe_node
+from slidegen_rag.agent.utils.documents import merge_documents_with_ids
 from slidegen_rag.agent.utils.prompts import GRADER_SYSTEM_PROMPT, GRADER_USER_PROMPT
 
 logger = logging.getLogger(__name__)
@@ -228,11 +228,11 @@ async def grade_documents_node(state: AgentState) -> dict:
     # 2 lượt merge tách biệt nhưng CÙNG dedup theo `documents`/`kept_docs`
     # gốc (không dùng kết quả merge trước làm input cho merge sau) — đảm bảo
     # document_priorities khớp 1:1 với documents/document_node_ids dù merge
-    # riêng, xem docstring _merge_documents_with_ids.
-    merged_docs, merged_ids = _merge_documents_with_ids(
+    # riêng, xem docstring merge_documents_with_ids.
+    merged_docs, merged_ids = merge_documents_with_ids(
         documents, document_node_ids, kept_docs, kept_ids
     )
-    _, merged_priorities = _merge_documents_with_ids(
+    _, merged_priorities = merge_documents_with_ids(
         documents, document_priorities, kept_docs, kept_priorities
     )
     drill_candidates = _build_drill_candidates(

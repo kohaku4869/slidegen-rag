@@ -1,6 +1,6 @@
 import logging
 
-from slidegen_rag.agent.nodes.tool_node import _merge_documents_with_ids
+from slidegen_rag.agent.utils.documents import merge_documents_with_ids
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ async def collect_facets_node(state: dict) -> dict:
     generate_node, và build `facet_sufficiency` (thay thế hẳn cặp
     context_sufficient/missing_aspects toàn cục cũ).
 
-    Dùng đúng `_merge_documents_with_ids` đã có sẵn ở tool_node.py (dedup
+    Dùng đúng `merge_documents_with_ids` ở agent/utils/documents.py (dedup
     theo string y hệt logic dedup xuyên-vòng hiện tại, giờ dùng xuyên-facet —
     chunk trùng giữa 2 facet là chuyện bình thường, cần dedup).
 
@@ -47,13 +47,13 @@ async def collect_facets_node(state: dict) -> dict:
 
         # Snapshot TRƯỚC khi merge — dùng làm existing_docs cho CẢ 2 lượt
         # merge bên dưới, để 2 lượt dedup y hệt nhau (xem docstring
-        # _merge_documents_with_ids) và document_priorities không bị lệch
+        # merge_documents_with_ids) và document_priorities không bị lệch
         # index so với documents/document_node_ids.
         prev_documents = documents
-        documents, document_node_ids = _merge_documents_with_ids(
+        documents, document_node_ids = merge_documents_with_ids(
             prev_documents, document_node_ids, facet_docs, facet_ids
         )
-        _, document_priorities = _merge_documents_with_ids(
+        _, document_priorities = merge_documents_with_ids(
             prev_documents, document_priorities, facet_docs, facet_priorities
         )
         facet_sufficiency.append(

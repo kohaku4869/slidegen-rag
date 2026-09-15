@@ -61,6 +61,7 @@ def get_answers_and_chunks_for_topic(
     """
     from slidegen_rag.main import load_ra
     from slidegen_rag.agent.graph.builder import build_graph
+    from slidegen_rag.agent.graph.state import make_initial_state
     from slidegen_rag.agent.nodes.generate_node import set_generate_provider
     from slidegen_rag.agent.tools.tools import (
         set_retrieval_augmentation,
@@ -69,7 +70,6 @@ def get_answers_and_chunks_for_topic(
     from slidegen_rag.agent.observability.trajectory import (
         TrajectoryRecorder,
         Trajectory,
-        make_initial_state,
         save_trajectories,
     )
     from slidegen_rag.config import LangSmithConfig

@@ -14,16 +14,9 @@ from slidegen_rag.agent.utils.text_guard import (
     collapse_pathological_repetition,
     has_pathological_repetition,
 )
+from slidegen_rag.config import LLMConfig
 
 logger = logging.getLogger(__name__)
-
-# max_tokens RIÊNG, cao hơn hẳn LLMConfig.MAX_TOKENS (16,384) mà node này vốn
-# kế thừa: đã đo được một câu 3-facet dùng hết out=16,084/16,384 — chạm trần —
-# và bị cắt ngang giữa bảng so sánh, chỉ còn 1,327 ký tự nội dung thật (điểm
-# rơi từ 9.0 xuống 2.75). Phần lớn ngân sách bị reasoning token của Gemini 2.5
-# Flash ăn mất trước khi kịp sinh nội dung hiển thị, nên trần phải nới cho
-# riêng bước tổng hợp cuối — các node khác (output ngắn) giữ nguyên 16,384.
-_MAX_GENERATE_TOKENS = 32_768
 
 # Cờ chọn provider cho generate_node — mặc định "gemini". "lowcost" (giá trị
 # "local") chuyển sang model tự host qua LLM_BASE_URL (cùng server Qwen3.5 mà
@@ -53,7 +46,7 @@ def _get_generate_llm() -> LLMModel:
     llm = _llm_cache.get(_provider)
     if llm is None:
         llm = LLMModel(
-            provider=_provider, temperature=0.2, max_tokens=_MAX_GENERATE_TOKENS
+            provider=_provider, temperature=0.2, max_tokens=LLMConfig.GENERATE_MAX_TOKENS
         )
         _llm_cache[_provider] = llm
     return llm

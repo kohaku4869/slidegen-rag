@@ -313,31 +313,3 @@ Câu hỏi của người dùng:
 
 Hãy biên soạn câu trả lời toàn diện, chi tiết và được định dạng chuẩn xác theo các hướng dẫn trên:
 """
-
-# ---------------------------------------------------------------------------
-# Hallucination check — kiểm tra câu trả lời có bịa đặt không
-# ---------------------------------------------------------------------------
-
-HALLUCINATION_SYSTEM_PROMPT = """\
-You are a fact-checking grader that verifies whether an AI-generated answer is supported by the provided context.
-
-Rules:
-- Check if every factual claim in the answer is grounded in the context.
-- Ignore stylistic or formatting differences.
-- Answer with a single word: 'yes' (answer is grounded) or 'no' (answer contains hallucinations).
-- Do NOT explain your reasoning.
-"""
-
-HALLUCINATION_USER_PROMPT = """\
-Context:
-\"\"\"
-{context}
-\"\"\"
-
-AI Answer:
-\"\"\"
-{generation}
-\"\"\"
-
-Is the answer fully grounded in the context? Answer 'yes' or 'no'.\
-"""

@@ -6,9 +6,11 @@ from langgraph.graph import END
 
 from slidegen_rag.agent.graph.state import AgentState
 from slidegen_rag.agent.utils.search_history import new_chunks_in_round
+from slidegen_rag.config import AgentConfig
 
-# Số lần retrieve tối đa trước khi bắt buộc generate dù context chưa đủ
-MAX_RETRIEVE = 5
+# Re-export để router vẫn là nơi tra cứu tự nhiên cho logic dừng vòng lặp;
+# nguồn sự thật nằm ở config.AgentConfig (trajectory.py cũng đọc từ đó).
+MAX_RETRIEVE = AgentConfig.MAX_RETRIEVE
 
 # Số vòng tối thiểu trước khi bắt đầu xét no-progress guard — luôn cho phép
 # thử lại ít nhất 1 lần sau vòng đầu trước khi có thể bị dừng sớm.

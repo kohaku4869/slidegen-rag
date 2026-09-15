@@ -39,8 +39,8 @@ class AgentState(TypedDict):
                                  Single-writer: collect_facets_node.
         documents:              Pool document đã gộp + dedup xuyên-facet, do
                                  collect_facets_node build từ facet_results
-                                 (dùng _merge_documents_with_ids của
-                                 tool_node.py). Single-writer: collect_facets_node.
+                                 (dùng merge_documents_with_ids của
+                                 agent/utils/documents.py). Single-writer: collect_facets_node.
         document_node_ids:      node_id (hoặc None) cho từng phần tử trong
                                  `documents`, CÙNG THỨ TỰ (1:1) — dùng bởi
                                  ConversationManager để seed drill_candidates
@@ -84,3 +84,34 @@ class AgentState(TypedDict):
     document_priorities: list[int]
     generation: str
     seed_drill_candidates: list[dict]
+
+
+def make_initial_state(
+    query: str, drill_candidates: list[dict] | None = None
+) -> AgentState:
+    """State khởi tạo chuẩn cho graph CHA (AgentState) — thay dict lặp lại ở
+    main.py và evaluate/runner.py. Giữ NGUYÊN tên tham số `drill_candidates`
+    (không đổi thành seed_drill_candidates) để main.py/evaluate.py không cần
+    sửa lời gọi — chỉ đổi tên field bên trong dict trả về.
+
+    Args:
+        query: Câu hỏi (đã được ConversationManager.contextualize() viết lại
+            thành câu độc lập nếu là câu hỏi nối tiếp trong hội thoại).
+        drill_candidates: Seed ban đầu cho state["seed_drill_candidates"] —
+            dùng bởi ConversationManager khi câu hỏi mới là follow-up của
+            lượt trước (xem agent/graph/conversation.py) — builder.py::
+            fan_out_facets copy NGUYÊN VẸN list này vào drill_candidates của
+            MỌI facet khi fan-out. None/rỗng cho câu hỏi độc lập (hành vi
+            mặc định trước đây).
+    """
+    return {
+        "query": query,
+        "facet_queries": [],
+        "facet_results": [],
+        "facet_sufficiency": [],
+        "documents": [],
+        "document_node_ids": [],
+        "document_priorities": [],
+        "generation": "",
+        "seed_drill_candidates": list(drill_candidates) if drill_candidates else [],
+    }

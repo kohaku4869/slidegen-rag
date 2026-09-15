@@ -37,7 +37,8 @@ Cách hoạt động:
     cho việc này.
 
 Sử dụng:
-    from slidegen_rag.agent.observability.trajectory import TrajectoryRecorder, make_initial_state
+    from slidegen_rag.agent.graph.state import make_initial_state
+    from slidegen_rag.agent.observability.trajectory import TrajectoryRecorder
 
     recorder = TrajectoryRecorder(graph, tags=["evaluate", topic])
     final_state, traj = recorder.run(make_initial_state(query), run_name="pldc:Q3")
@@ -59,44 +60,11 @@ from uuid import UUID
 
 from langchain_core.callbacks.base import BaseCallbackHandler
 
-from slidegen_rag.agent.graph.router import MAX_RETRIEVE
-from slidegen_rag.agent.graph.state import AgentState
 from slidegen_rag.agent.observability.tracing import build_run_config, resolve_run_url
 from slidegen_rag.agent.tools.tools import SOFT_FAILURE_PREFIXES
-from slidegen_rag.config import LangSmithConfig
+from slidegen_rag.config import AgentConfig, LangSmithConfig
 
 logger = logging.getLogger(__name__)
-
-
-def make_initial_state(
-    query: str, drill_candidates: list[dict] | None = None
-) -> AgentState:
-    """State khởi tạo chuẩn cho graph CHA (AgentState) — thay dict lặp lại ở
-    main.py và evaluate/evaluate.py. Giữ NGUYÊN tên tham số `drill_candidates`
-    (không đổi thành seed_drill_candidates) để main.py/evaluate.py không cần
-    sửa lời gọi — chỉ đổi tên field bên trong dict trả về.
-
-    Args:
-        query: Câu hỏi (đã được ConversationManager.contextualize() viết lại
-            thành câu độc lập nếu là câu hỏi nối tiếp trong hội thoại).
-        drill_candidates: Seed ban đầu cho state["seed_drill_candidates"] —
-            dùng bởi ConversationManager khi câu hỏi mới là follow-up của
-            lượt trước (xem agent/graph/conversation.py) — builder.py::
-            fan_out_facets copy NGUYÊN VẸN list này vào drill_candidates của
-            MỌI facet khi fan-out. None/rỗng cho câu hỏi độc lập (hành vi
-            mặc định trước đây).
-    """
-    return {
-        "query": query,
-        "facet_queries": [],
-        "facet_results": [],
-        "facet_sufficiency": [],
-        "documents": [],
-        "document_node_ids": [],
-        "document_priorities": [],
-        "generation": "",
-        "seed_drill_candidates": list(drill_candidates) if drill_candidates else [],
-    }
 
 
 # =============================================================================
@@ -150,7 +118,7 @@ class Trajectory:
     steps: list[NodeStep] = field(default_factory=list)
     final_state: dict = field(default_factory=dict)
     retrieve_count: int = 0
-    max_retrieve: int = MAX_RETRIEVE
+    max_retrieve: int = AgentConfig.MAX_RETRIEVE
     hit_max_retrieve: bool = False
     context_sufficient: bool = False
     facet_retrieve_counts: dict[str, int] = field(default_factory=dict)
@@ -519,9 +487,9 @@ class TrajectoryRecorder:
             steps=steps,
             final_state=final_state,
             retrieve_count=final_retrieve_count,
-            max_retrieve=MAX_RETRIEVE,
+            max_retrieve=AgentConfig.MAX_RETRIEVE,
             hit_max_retrieve=(
-                final_retrieve_count >= MAX_RETRIEVE and not context_sufficient
+                final_retrieve_count >= AgentConfig.MAX_RETRIEVE and not context_sufficient
             ),
             context_sufficient=context_sufficient,
             facet_retrieve_counts=facet_retrieve_counts,
@@ -654,13 +622,13 @@ def _render_step(step: NodeStep, ctx: dict) -> list[str]:
         loop = ctx.get("retrieve_loop", 0)
         if suff:
             lines.append("    → định tuyến: generate")
-        elif loop >= MAX_RETRIEVE:
+        elif loop >= AgentConfig.MAX_RETRIEVE:
             lines.append(
-                f"    → định tuyến: generate  (hết lượt retrieve, best-effort {loop}/{MAX_RETRIEVE})"
+                f"    → định tuyến: generate  (hết lượt retrieve, best-effort {loop}/{AgentConfig.MAX_RETRIEVE})"
             )
         else:
             lines.append(
-                f"    → định tuyến: retrieve  (retrieve_count={loop} < MAX_RETRIEVE={MAX_RETRIEVE})"
+                f"    → định tuyến: retrieve  (retrieve_count={loop} < MAX_RETRIEVE={AgentConfig.MAX_RETRIEVE})"
             )
 
     if step.name == "retrieve" and "tool_calls" in upd:

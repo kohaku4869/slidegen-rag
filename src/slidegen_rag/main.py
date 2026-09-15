@@ -135,7 +135,8 @@ async def ask_agent(graph, query: str, verbose: bool = False, drill_candidates: 
         (answer: str, token_report: str, trajectory: Trajectory)
     """
     from slidegen_rag.agent.models.llm import LLMModel
-    from slidegen_rag.agent.observability.trajectory import TrajectoryRecorder, make_initial_state
+    from slidegen_rag.agent.graph.state import make_initial_state
+    from slidegen_rag.agent.observability.trajectory import TrajectoryRecorder
 
     def _print_step(step) -> None:
         upd = step.update_summary

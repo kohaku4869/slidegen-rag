@@ -114,6 +114,14 @@ class LLMConfig:
     # Số token tối đa LLM sinh ra trong một lần gọi
     MAX_TOKENS: int = 16384
 
+    # Trần RIÊNG cho generate_node, cố ý cao gấp đôi MAX_TOKENS ở trên — KHÔNG
+    # phải nhầm lẫn. Đã đo được một câu 3-facet dùng hết out=16.084/16.384
+    # (chạm trần) rồi bị cắt ngang giữa bảng so sánh, chỉ còn 1.327 ký tự nội
+    # dung thật, điểm rơi 9.0 -> 2.75. Phần lớn ngân sách bị reasoning token
+    # của Gemini ăn mất trước khi kịp sinh nội dung hiển thị, nên riêng bước
+    # tổng hợp cuối phải nới; các node khác (output ngắn) giữ nguyên MAX_TOKENS.
+    GENERATE_MAX_TOKENS: int = 32768
+
     # Timeout HTTP (giây)
     TIMEOUT: int = 180
 
@@ -125,8 +133,30 @@ class LLMConfig:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Agent Config (vòng lặp điều khiển của graph)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class AgentConfig:
+    """Hằng số điều khiển luồng của graph.
+
+    Chỉ đặt ở đây những hằng số có TỪ 2 NƠI TRỞ LÊN cùng đọc. Các knob chỉ một
+    node dùng (ngưỡng grader, trần tool call, kích thước digest...) cố ý nằm
+    lại ngay trong node đó, cạnh đoạn comment giải thích vì sao có giá trị đó —
+    đẩy chúng ra file này chỉ làm khó hiểu hơn.
+    """
+
+    # Số lần retrieve tối đa trước khi bắt buộc generate dù context chưa đủ.
+    # Hai nơi đọc: graph/router.py (quyết định dừng) và
+    # observability/trajectory.py (hiển thị "n/MAX"). Trước đây trajectory
+    # import ngược lên router — module quan sát phụ thuộc module điều khiển.
+    MAX_RETRIEVE: int = 5
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Observability Config (LangSmith tracing + trajectory logging)
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _env_flag(name: str, default: bool = False) -> bool:
     """Đọc biến môi trường dạng boolean ('true'/'1'/'yes'/'on')."""
