@@ -4,19 +4,23 @@ Quản lý hội thoại nhiều lượt cho CRAG agent ở CLI (main.py).
 Tách biệt 2 tầng state:
     - CRAG AgentState (agent/graph/state.py): ephemeral, reset hoàn toàn mỗi
       câu hỏi qua `make_initial_state()`.
-    - ConversationState (`ConversationManager` ở đây): persistent, chỉ giữ
-      chat_history + node đã trích dẫn lượt gần nhất + tóm tắt lịch sử cũ.
+    - ConversationState (`ConversationManager` ở đây): persistent trong tiến
+      trình, tuỳ chọn persist qua Postgres (`repo`) — chat_history + node đã
+      trích dẫn lượt gần nhất + tóm tắt lịch sử cũ.
 
 Quyết định kiến trúc: KHÔNG dùng LangGraph checkpointer (MemorySaver/
-SqliteSaver) — `main.py` hiện chạy 1
-process/phiên duy nhất và đã giữ state ngay trong Python, nên checkpointer
-(giải quyết bài toán persist qua nhiều tiến trình/API) là thừa máy móc so
-với nhu cầu thực tế. Nếu sau này có API server cần resume qua nhiều tiến
-trình, đó là một việc bổ sung tách biệt, không phải sửa lại class này.
+SqliteSaver) — checkpointer giải quyết bài toán resume state của LangGraph
+qua nhiều tiến trình, nhưng ConversationState ở đây KHÔNG phải AgentState:
+nó nằm ngoài graph, không cần checkpoint từng bước, chỉ cần persist đầu/cuối
+mỗi lượt. `repo` (SessionRepository, xem memory/repository.py) làm đúng việc
+đó mà không kéo theo toàn bộ máy móc checkpointer. API server sau này không
+chia sẻ instance `ConversationManager` giữa các request — mỗi request tạo
+một instance mới qua `ConversationManager.resume()`, nạp lại state từ
+Postgres; chính vì thế state phải nằm ở DB chứ không chỉ trong RAM.
 """
 
 import logging
-from typing import Optional
+from uuid import UUID
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -28,6 +32,8 @@ from slidegen_rag.agent.utils.prompts import (
     HISTORY_COMPACT_SYSTEM_PROMPT,
     HISTORY_COMPACT_USER_PROMPT,
 )
+from slidegen_rag.memory.dto import CitedNodeRef, DocumentRef
+from slidegen_rag.memory.repository import SessionRepository
 
 logger = logging.getLogger(__name__)
 
@@ -49,15 +55,73 @@ def _format_turns(turns: list[dict]) -> str:
 
 class ConversationManager:
     """1 instance / phiên chat tương tác (`main.py::interactive_loop`, chỉ
-    nhánh CRAG). Không thread-safe, không dùng chung giữa nhiều phiên."""
+    nhánh CRAG). Không thread-safe, không dùng chung giữa nhiều phiên.
 
-    def __init__(self, max_turns: int = 5):
+    `repo=None` (mặc định) giữ hành vi thuần in-memory hôm nay KHÔNG đổi một
+    byte — đây vừa là default vừa là guard hồi quy trong test. Truyền `repo`
+    (+ `session_id` sau `resume()`, hoặc để `arecord_turn` tự tạo) để mỗi
+    lượt được persist xuống Postgres."""
+
+    def __init__(
+        self,
+        max_turns: int = 5,
+        *,
+        repo: SessionRepository | None = None,
+        session_id: UUID | None = None,
+        doc_ref: DocumentRef | None = None,
+    ):
         self.max_turns = max_turns
         self.chat_history: list[
             dict
-        ] = []  # [{"role": "user"|"assistant", "content": str}]
-        self.cited_node_ids_last_turn: list[int] = []
-        self.history_summary: Optional[str] = None
+        ] = []  # [{"role": "user"|"assistant", "content": str, "_seq": int|None}]
+        self._cited_last_turn: list[CitedNodeRef] = []
+        self.history_summary: str | None = None
+        self.repo = repo
+        self.session_id = session_id
+        self.doc_ref = doc_ref
+        # DB rớt giữa phiên -> True, ngừng thử ghi lại mỗi lượt (xem
+        # arecord_turn/maybe_compact) nhưng KHÔNG giết phiên đang chạy.
+        self._degraded = False
+
+    @classmethod
+    async def resume(
+        cls,
+        repo: SessionRepository,
+        session_id: UUID,
+        doc_ref: DocumentRef | None,
+        *,
+        max_turns: int = 5,
+    ) -> "ConversationManager":
+        """Nạp lại một phiên đã lưu từ `repo`. `chat_history` chỉ chứa các
+        lượt sau watermark `compacted_through_seq` (xem plan4.md B1.2) — cửa
+        sổ context sau resume đúng bằng cửa sổ tiến trình trước đang giữ."""
+        state = await repo.load_session(session_id)
+        if state is None:
+            raise ValueError(f"Session không tồn tại: {session_id}")
+        conv = cls(
+            max_turns=state.max_turns, repo=repo, session_id=state.id, doc_ref=doc_ref
+        )
+        conv.chat_history = [
+            {"role": e.role, "content": e.content, "_seq": e.seq} for e in state.entries
+        ]
+        conv.history_summary = state.history_summary
+        conv._cited_last_turn = list(state.last_cited)
+        return conv
+
+    @property
+    def cited_node_ids_last_turn(self) -> list[int]:
+        """Node index (Node.index trong cây `.pkl` ĐANG nạp) đã trích dẫn ở
+        lượt trước. Lọc theo `doc_ref` hiện tại — nếu phiên được resume trên
+        một `.pkl` khác (sha1 khác), citation cũ trỏ SAI node nên bị bỏ qua
+        thay vì trả về id trùng ngẫu nhiên (xem plan4.md B1.1)."""
+        if self.doc_ref is None:
+            return [ref.node_index for ref in self._cited_last_turn]
+        return [
+            ref.node_index
+            for ref in self._cited_last_turn
+            if ref.doc_id == self.doc_ref.doc_id
+            and ref.source_sha1 == self.doc_ref.source_sha1
+        ]
 
     async def contextualize(self, new_query: str) -> str:
         """
@@ -122,15 +186,55 @@ class ConversationManager:
         return candidates
 
     def record_turn(
-        self, query: str, answer: str, document_node_ids: Optional[list]
+        self, query: str, answer: str, document_node_ids: list | None
     ) -> None:
         """Gọi sau khi có câu trả lời — cập nhật chat_history và node đã
-        trích dẫn (lấy từ `traj.final_state["document_node_ids"]`)."""
-        self.chat_history.append({"role": "user", "content": query})
-        self.chat_history.append({"role": "assistant", "content": answer})
-        self.cited_node_ids_last_turn = [
-            nid for nid in (document_node_ids or []) if nid is not None
+        trích dẫn (lấy từ `traj.final_state["document_node_ids"]`). Thuần
+        in-memory, KHÔNG persist — dùng `arecord_turn` cho việc đó."""
+        self.chat_history.append({"role": "user", "content": query, "_seq": None})
+        self.chat_history.append({"role": "assistant", "content": answer, "_seq": None})
+        doc_id = self.doc_ref.doc_id if self.doc_ref else ""
+        source_sha1 = self.doc_ref.source_sha1 if self.doc_ref else ""
+        self._cited_last_turn = [
+            CitedNodeRef(doc_id=doc_id, source_sha1=source_sha1, node_index=nid)
+            for nid in (document_node_ids or [])
+            if nid is not None
         ]
+
+    async def arecord_turn(
+        self,
+        query: str,
+        standalone_query: str,
+        answer: str,
+        document_node_ids: list | None,
+    ) -> None:
+        """`record_turn()` rồi persist lượt vừa ghi qua `repo` (nếu có). Tiền
+        tố `a` theo quy ước LangChain (`ainvoke`) — `record_turn` giữ nguyên
+        sync vì thuần in-memory và 24 file test hiện có dựa vào đó.
+
+        Lỗi ghi DB ở đây KHÔNG raise lại: đã trả lời xong (tốn token) mà giết
+        phiên vì DB rớt là phá hoại — đánh dấu `_degraded` rồi tiếp tục
+        in-memory cho các lượt sau (xem plan4.md B4)."""
+        self.record_turn(query, answer, document_node_ids)
+        if self.repo is None or self.session_id is None or self._degraded:
+            return
+        try:
+            user_seq, assistant_seq = await self.repo.append_turn(
+                self.session_id,
+                raw_query=query,
+                standalone_query=standalone_query,
+                answer=answer,
+                cited=self._cited_last_turn,
+            )
+        except Exception as e:
+            logger.warning(
+                f"[ConversationManager] Lưu lượt hội thoại thất bại, phiên chuyển "
+                f"sang chế độ in-memory (không thử lưu lại): {e}"
+            )
+            self._degraded = True
+            return
+        self.chat_history[-2]["_seq"] = user_seq
+        self.chat_history[-1]["_seq"] = assistant_seq
 
     async def maybe_compact(self) -> None:
         """
@@ -165,3 +269,22 @@ class ConversationManager:
             logger.warning(
                 f"[ConversationManager] maybe_compact thất bại: {e} — giữ nguyên lịch sử"
             )
+            return
+
+        if self.repo is None or self.session_id is None or self._degraded:
+            return
+        last_seq = old_turns[-1].get("_seq")
+        if last_seq is None:
+            return  # lượt cuối bị nén chưa từng persist (vd. record_turn sync) — không có watermark để ghi
+        try:
+            await self.repo.save_compaction(
+                self.session_id,
+                summary=self.history_summary,
+                compacted_through_seq=last_seq,
+            )
+        except Exception as e:
+            logger.warning(
+                f"[ConversationManager] save_compaction thất bại, phiên chuyển sang "
+                f"chế độ in-memory (không thử lưu lại): {e}"
+            )
+            self._degraded = True
