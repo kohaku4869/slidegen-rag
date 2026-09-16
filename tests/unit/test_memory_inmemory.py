@@ -150,3 +150,107 @@ async def test_list_sessions_most_recent_first():
     _set_last_active(repo, s2.id, base + timedelta(minutes=1))
     rows = await repo.list_sessions(bound_doc_id="docA")
     assert [r.id for r in rows] == [s2.id, s1.id]
+
+
+async def test_list_sessions_filters_project_id_and_archived():
+    repo = InMemorySessionRepository()
+    pid = uuid4()
+    s1 = await repo.create_session(project_id=pid)
+    await repo.create_session()  # khác project
+    await repo.archive_session(s1.id)
+
+    assert await repo.list_sessions(project_id=pid) == []
+    rows = await repo.list_sessions(project_id=pid, include_archived=True)
+    assert [r.id for r in rows] == [s1.id]
+
+
+async def test_create_session_and_load_session_expose_title():
+    repo = InMemorySessionRepository()
+    state = await repo.create_session(title="Phiên đầu tiên")
+    assert state.title == "Phiên đầu tiên"
+
+    loaded = await repo.load_session(state.id)
+    assert loaded.title == "Phiên đầu tiên"
+
+    await repo.rename_session(state.id, title="Đổi tên")
+    reloaded = await repo.load_session(state.id)
+    assert reloaded.title == "Đổi tên"
+
+
+async def test_create_session_stores_document_and_user_id():
+    repo = InMemorySessionRepository()
+    doc_id, user_id = uuid4(), uuid4()
+    state = await repo.create_session(document_id=doc_id, user_id=user_id)
+    assert repo._sessions[state.id].document_id == doc_id
+    assert repo._sessions[state.id].user_id == user_id
+
+
+async def test_list_messages_returns_full_transcript_ignoring_watermark():
+    repo = InMemorySessionRepository()
+    state = await repo.create_session()
+    await repo.append_turn(
+        state.id, raw_query="q1", standalone_query="q1", answer="a1", cited=[]
+    )
+    await repo.append_turn(
+        state.id, raw_query="q2", standalone_query="q2", answer="a2", cited=[]
+    )
+    await repo.save_compaction(state.id, summary="tóm tắt", compacted_through_seq=2)
+
+    messages = await repo.list_messages(state.id)
+    assert [m.seq for m in messages] == [1, 2, 3, 4]
+
+
+async def test_append_turn_persists_assistant_meta():
+    repo = InMemorySessionRepository()
+    state = await repo.create_session()
+    await repo.append_turn(
+        state.id,
+        raw_query="q1",
+        standalone_query="q1",
+        answer="a1",
+        cited=[],
+        assistant_meta={"duration_s": 1.2},
+    )
+    messages = await repo.list_messages(state.id)
+    assistant_msg = next(m for m in messages if m.role == "assistant")
+    assert assistant_msg.meta == {"duration_s": 1.2}
+
+
+async def test_list_citations_keyed_by_message_id():
+    repo = InMemorySessionRepository()
+    state = await repo.create_session()
+    ref = CitedNodeRef(doc_id="d", source_sha1="s", node_index=3)
+    await repo.append_turn(
+        state.id, raw_query="q1", standalone_query="q1", answer="a1", cited=[ref]
+    )
+    messages = await repo.list_messages(state.id)
+    assistant_id = next(m.id for m in messages if m.role == "assistant")
+    other_id = uuid4()
+
+    by_id = await repo.list_citations([assistant_id, other_id])
+    assert by_id[assistant_id] == [ref]
+    assert by_id[other_id] == []
+
+
+async def test_rename_and_delete_session():
+    repo = InMemorySessionRepository()
+    state = await repo.create_session()
+    await repo.rename_session(state.id, title="Phiên mới")
+    loaded = await repo.load_session(state.id)
+    assert repo._sessions[loaded.id].title == "Phiên mới"
+
+    await repo.delete_session(state.id)
+    assert await repo.load_session(state.id) is None
+
+
+async def test_session_document_scope_roundtrip():
+    repo = InMemorySessionRepository()
+    state = await repo.create_session()
+    doc_a, doc_b = uuid4(), uuid4()
+
+    assert await repo.get_session_scope(state.id) == []
+    await repo.set_session_scope(state.id, [doc_a, doc_b])
+    assert set(await repo.get_session_scope(state.id)) == {doc_a, doc_b}
+
+    await repo.set_session_scope(state.id, [doc_a])
+    assert await repo.get_session_scope(state.id) == [doc_a]

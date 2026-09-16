@@ -22,6 +22,7 @@ from uuid import UUID, uuid4
 
 from slidegen_rag.memory.dto import (
     CitedNodeRef,
+    MessageRow,
     SessionListRow,
     SessionState,
     TurnEntry,
@@ -30,9 +31,12 @@ from slidegen_rag.memory.dto import (
 
 @dataclass
 class _StoredMessage:
+    id: UUID
     seq: int
     role: str
     content: str
+    created_at: datetime
+    meta: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -43,6 +47,9 @@ class _StoredSession:
     title: str | None
     max_turns: int
     project_id: UUID | None
+    document_id: UUID | None = None
+    user_id: UUID | None = None
+    document_scope: set[UUID] = field(default_factory=set)
     status: str = "active"
     next_seq: int = 1
     history_summary: str | None = None
@@ -66,6 +73,8 @@ class InMemorySessionRepository:
         title: str | None = None,
         max_turns: int = 5,
         project_id: UUID | None = None,
+        document_id: UUID | None = None,
+        user_id: UUID | None = None,
     ) -> SessionState:
         async with self._lock:
             session_id = uuid4()
@@ -76,6 +85,8 @@ class InMemorySessionRepository:
                 title=title,
                 max_turns=max_turns,
                 project_id=project_id,
+                document_id=document_id,
+                user_id=user_id,
             )
             self._sessions[session_id] = row
             return self._to_state(row)
@@ -98,11 +109,20 @@ class InMemorySessionRepository:
         return self._to_state(latest)
 
     async def list_sessions(
-        self, *, bound_doc_id: str | None = None, limit: int = 20
+        self,
+        *,
+        bound_doc_id: str | None = None,
+        project_id: UUID | None = None,
+        include_archived: bool = False,
+        limit: int = 20,
     ) -> list[SessionListRow]:
         rows = list(self._sessions.values())
         if bound_doc_id is not None:
             rows = [r for r in rows if r.bound_doc_id == bound_doc_id]
+        if project_id is not None:
+            rows = [r for r in rows if r.project_id == project_id]
+        if not include_archived:
+            rows = [r for r in rows if r.status == "active"]
         rows.sort(key=lambda r: r.last_active_at, reverse=True)
         return [
             SessionListRow(
@@ -116,6 +136,47 @@ class InMemorySessionRepository:
             for r in rows[:limit]
         ]
 
+    async def list_messages(
+        self, session_id: UUID, *, limit: int = 500
+    ) -> list[MessageRow]:
+        row = self._sessions[session_id]
+        return [
+            MessageRow(
+                id=m.id, seq=m.seq, role=m.role, content=m.content,
+                created_at=m.created_at, meta=dict(m.meta),
+            )
+            for m in row.messages[:limit]
+        ]
+
+    async def list_citations(
+        self, message_ids: Sequence[UUID]
+    ) -> dict[UUID, list[CitedNodeRef]]:
+        by_id: dict[UUID, list[CitedNodeRef]] = {mid: [] for mid in message_ids}
+        wanted = set(message_ids)
+        for row in self._sessions.values():
+            for seq, cited in row.citations.items():
+                message = next((m for m in row.messages if m.seq == seq), None)
+                if message is not None and message.id in wanted:
+                    by_id[message.id] = list(cited)
+        return by_id
+
+    async def rename_session(self, session_id: UUID, *, title: str) -> None:
+        async with self._lock:
+            self._sessions[session_id].title = title
+
+    async def delete_session(self, session_id: UUID) -> None:
+        async with self._lock:
+            self._sessions.pop(session_id, None)
+
+    async def set_session_scope(
+        self, session_id: UUID, document_ids: Sequence[UUID]
+    ) -> None:
+        async with self._lock:
+            self._sessions[session_id].document_scope = set(document_ids)
+
+    async def get_session_scope(self, session_id: UUID) -> list[UUID]:
+        return list(self._sessions[session_id].document_scope)
+
     async def append_turn(
         self,
         session_id: UUID,
@@ -124,20 +185,28 @@ class InMemorySessionRepository:
         standalone_query: str,
         answer: str,
         cited: Sequence[CitedNodeRef],
+        assistant_meta: dict | None = None,
     ) -> tuple[int, int]:
         async with self._lock:
             row = self._sessions[session_id]
             user_seq = row.next_seq
             assistant_seq = row.next_seq + 1
             row.next_seq += 2
+            now = datetime.now(UTC)
             row.messages.append(
-                _StoredMessage(seq=user_seq, role="user", content=raw_query)
+                _StoredMessage(
+                    id=uuid4(), seq=user_seq, role="user", content=raw_query,
+                    created_at=now,
+                )
             )
             row.messages.append(
-                _StoredMessage(seq=assistant_seq, role="assistant", content=answer)
+                _StoredMessage(
+                    id=uuid4(), seq=assistant_seq, role="assistant", content=answer,
+                    created_at=now, meta=assistant_meta or {},
+                )
             )
             row.citations[assistant_seq] = list(cited)
-            row.last_active_at = datetime.now(UTC)
+            row.last_active_at = now
             return user_seq, assistant_seq
 
     async def save_compaction(
@@ -175,4 +244,5 @@ class InMemorySessionRepository:
             next_seq=row.next_seq,
             entries=entries,
             last_cited=list(last_cited),
+            title=row.title,
         )

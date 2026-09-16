@@ -5,7 +5,6 @@ ghi file CSV/JSON làm baseline đối chiếu giữa các lần chạy.
 
 import json
 import logging
-from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -16,7 +15,6 @@ import pandas as pd
 from slidegen_rag.evaluate.settings import (
     COVERAGE_AMBER,
     COVERAGE_GREEN,
-    DATA_TEST_DIR,
     SCORE_AMBER,
     SCORE_GREEN,
 )
@@ -263,42 +261,37 @@ def create_summary_table(all_summaries: dict[str, dict]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def export_evaluation_results(
-    topic: str, detail_df: pd.DataFrame, summary: dict
-) -> tuple[Path, Path]:
+def export_evaluation_results(run_paths, detail_df: pd.DataFrame, summary: dict) -> tuple[Path, Path]:
     """
-    Ghi kết quả đánh giá ra file, để có baseline đối chiếu qua các lần chạy
-    (trước đây mọi điểm số chỉ tồn tại trong _current_detail_df trong bộ nhớ,
-    mất khi tắt process — không cách nào so sánh trước/sau khi sửa agent).
+    Ghi kết quả đánh giá vào `run_paths.scores`/`run_paths.summary` — tức
+    `data/test/<topic>/runs/<run_id>/scores.csv`/`summary.json` (xem
+    plan5.md Phần C). `run_id` được sinh lúc BẮT ĐẦU run (`RunPaths.for_new_run`
+    trong runner.py), không phải ở đây — artifact và điểm số luôn cùng một
+    id, không còn cần đối chiếu bằng tay như layout `scores_<ts>.csv` cũ.
 
-    Ghi 2 file trong data/test/<topic>/:
-        scores_<timestamp>.csv  — chi tiết từng câu (không kèm cột list dài
-                                  used_chunks/traj_text để file gọn, xem lại
-                                  trong chunks.txt/trajectory.txt tương ứng).
-        summary_<timestamp>.json — điểm tổng hợp của lần chạy này.
+    Args:
+        run_paths: `evaluate.runs.RunPaths` của run đang ghi.
 
     Returns:
         (csv_path, json_path)
     """
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_dir = DATA_TEST_DIR / topic
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    csv_path = out_dir / f"scores_{ts}.csv"
-    json_path = out_dir / f"summary_{ts}.json"
+    run_paths.root.mkdir(parents=True, exist_ok=True)
 
     export_cols = [
         c for c in detail_df.columns if c not in ("used_chunks", "traj_text")
     ]
-    detail_df[export_cols].to_csv(csv_path, index=False, encoding="utf-8-sig")
+    detail_df[export_cols].to_csv(run_paths.scores, index=False, encoding="utf-8-sig")
 
-    with open(json_path, "w", encoding="utf-8") as f:
+    with open(run_paths.summary, "w", encoding="utf-8") as f:
         json.dump(
-            {"topic": topic, "timestamp": ts, **summary},
+            {"topic": run_paths.topic, "run_id": run_paths.run_id, **summary},
             f,
             ensure_ascii=False,
             indent=2,
         )
 
-    logger.info(f"[{topic}] Đã xuất kết quả: {csv_path.name}, {json_path.name}")
-    return csv_path, json_path
+    logger.info(
+        f"[{run_paths.topic}] Đã xuất kết quả run {run_paths.run_id}: "
+        f"{run_paths.scores.name}, {run_paths.summary.name}"
+    )
+    return run_paths.scores, run_paths.summary

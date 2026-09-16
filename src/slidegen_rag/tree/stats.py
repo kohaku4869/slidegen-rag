@@ -68,6 +68,40 @@ class BuildStats:
         }
 
 
+def build_stats_from_dict(data: Dict[str, Any]) -> "BuildStats":
+    """Nghịch đảo của `BuildStats.to_dict()` — đọc lại `document_indexes.build_stats`
+    (jsonb) thành `BuildStats` để tái dùng `format_ingest_report()` nguyên
+    vẹn ở tab Tổng quan của UI (xem plan6.md B3)."""
+    layers = [
+        LayerStat(
+            layer=l["layer"],
+            name=l["name"],
+            num_nodes=l["num_nodes"],
+            num_llm_calls=l["num_llm_calls"],
+            summarize_time=l["summarize_time"],
+            embedding_time=l["embedding_time"],
+            total_time=l.get("total_time", 0.0),
+        )
+        for l in data.get("layers", [])
+    ]
+    return BuildStats(
+        filename=data.get("filename", ""),
+        src_path=data.get("src_path", ""),
+        out_path=data.get("out_path", ""),
+        total_time=data.get("total_time", 0.0),
+        parse_time=data.get("parse_time", 0.0),
+        total_summarize_time=data.get("total_summarize_time", 0.0),
+        total_embedding_time=data.get("total_embedding_time", 0.0),
+        save_time=data.get("save_time", 0.0),
+        file_size_bytes=data.get("file_size_bytes", 0),
+        total_nodes=data.get("total_nodes", 0),
+        total_llm_calls=data.get("total_llm_calls", 0),
+        num_layers=data.get("num_layers", 0),
+        layers=layers,
+        timestamp=data.get("timestamp", ""),
+    )
+
+
 def _format_size(size_bytes: int) -> str:
     """Format bytes into a human-readable string (KB, MB)."""
     if size_bytes <= 0:

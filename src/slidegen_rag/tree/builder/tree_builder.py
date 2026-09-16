@@ -5,7 +5,7 @@ import os
 import re
 import time
 from abc import abstractclassmethod
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import tiktoken
 
@@ -402,6 +402,7 @@ class TreeBuilder:
         use_multithreading: bool = True,
         doc_id: str = "",
         source_path: str = "",
+        progress_callback: Optional[Callable[[str, int, int], None]] = None,
     ) -> Tree:
         """
         Builds a Tree structure from markdown text by parsing hierarchy and
@@ -414,6 +415,12 @@ class TreeBuilder:
                 Node (multi-document corpora need this to disambiguate reference
                 IDs; single-document callers may leave it blank).
             source_path: Original file path, stored on the Tree for provenance only.
+            progress_callback: `(label, done_units, total_units) -> None`, gọi
+                sau mỗi lô embedding/summarize hoàn tất (đơn vị = số node của
+                lô đó, không phải mỗi node — batch_summarize/batch_create_nodes
+                không có hook nội bộ). Mặc định `None`, không đổi hành vi cũ.
+                Callback raise exception (vd. huỷ job) sẽ propagate lên thẳng
+                caller của `build_from_text`.
 
         Returns:
             Tree: The built Tree object.
@@ -451,6 +458,9 @@ class TreeBuilder:
             layer_to_nodes[0] = [single_node]
             root_dict = {0: single_node}
             leaf_dict = {0: single_node}
+
+            if progress_callback is not None:
+                progress_callback("Tài liệu 1 node (không có heading)", 1, 1)
 
             l0_stat = LayerStat(
                 layer=0,
@@ -500,6 +510,13 @@ class TreeBuilder:
 
         max_layer = max(layer_map.keys()) if layer_map else 0
 
+        # Mẫu số tất định cho progress_callback, tính được ngay sau bước parse
+        # (trước mọi việc tốn tiền) — xem plan6.md C3.
+        total_units = len(layer_map[0]) + sum(
+            len(layer_map[layer]) for layer in range(1, max_layer + 1)
+        ) + (1 if len(root_jsons) > 1 else 0)
+        done_units = 0
+
         # 3. Process Layer 0 (Leaf Nodes - batch embedding, no LLM summarization)
         leaf_items: List[Tuple[int, str, Set[int]]] = []
         leaf_json_list: List[Dict[str, Any]] = []
@@ -536,6 +553,11 @@ class TreeBuilder:
                 total_time=l0_emb_time,
             )
         )
+        done_units += len(leaf_items)
+        if progress_callback is not None:
+            progress_callback(
+                f"Layer 0: đã embed {len(leaf_items)} node lá", done_units, total_units
+            )
 
         # 4. Process Layer 1..max_layer with batch_summarize + batch embedding per layer
         for current_layer in range(1, max_layer + 1):
@@ -602,6 +624,13 @@ class TreeBuilder:
                     total_time=layer_sum_time + layer_emb_time,
                 )
             )
+            done_units += len(parent_items)
+            if progress_callback is not None:
+                progress_callback(
+                    f"Layer {current_layer}: đã tóm tắt + embed {len(parent_items)} node",
+                    done_units,
+                    total_units,
+                )
 
         # 5. Handle Super Root if top level has multiple root nodes
         top_root_nodes = [r["node_obj"] for r in root_jsons if "node_obj" in r]
@@ -654,6 +683,9 @@ class TreeBuilder:
                     total_time=super_sum_time + super_emb_time,
                 )
             )
+            done_units += 1
+            if progress_callback is not None:
+                progress_callback("Super root: đã tóm tắt + embed", done_units, total_units)
 
         leaf_nodes_dict = {node.index: node for node in layer_to_nodes[0]}
         root_nodes_dict = {final_root_node.index: final_root_node}

@@ -334,16 +334,18 @@ class TrajectoryRecorder:
 
         Thay trực tiếp cho `graph.ainvoke()`: state cuối trả về là y hệt (xem
         docstring module về việc astream/ainvoke tương đương), chỉ khác là kèm
-        theo toàn bộ lịch sử trung gian. Token/chi phí được reset ở đầu mỗi
-        lượt gọi nên `traj.token_usage` là của RIÊNG câu hỏi này.
+        theo toàn bộ lịch sử trung gian. Token/chi phí được đo bằng DELTA giữa
+        snapshot đầu và cuối lượt gọi (không reset tracker toàn cục), nên
+        `traj.token_usage` là của RIÊNG câu hỏi này kể cả khi có code bao
+        ngoài (vd multi-turn session) cũng đang đọc `LLMModel.tracker`.
 
         Args:
             initial_state: dựng bằng graph/state.py::make_initial_state.
             run_name, tags, metadata: gắn vào run trên LangSmith (nếu bật).
         """
-        from slidegen_rag.agent.models.llm import LLMModel
+        from slidegen_rag.agent.models.llm import LLMModel, TokenTracker
 
-        LLMModel.reset_usage()
+        usage_before = LLMModel.tracker.snapshot()
 
         handler = TrajectoryCallbackHandler(
             tool_output_preview=LangSmithConfig.TRAJECTORY_TOOL_OUTPUT_PREVIEW
@@ -474,7 +476,9 @@ class TrajectoryRecorder:
                 if fb:
                     feedback_history.append((loop_no_by_facet.get(s.facet, 0), fb))
 
-        token_usage = LLMModel.get_usage_summary()
+        token_usage = TokenTracker.summary_from_delta(
+            usage_before, LLMModel.tracker.snapshot()
+        )
 
         langsmith_url = None
         if tracer is not None and LangSmithConfig.RESOLVE_RUN_URL:

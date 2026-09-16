@@ -11,11 +11,12 @@ from collections.abc import Sequence
 from typing import Protocol, runtime_checkable
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from slidegen_rag.memory.dto import (
     CitedNodeRef,
+    MessageRow,
     SessionListRow,
     SessionState,
     TurnEntry,
@@ -25,6 +26,7 @@ from slidegen_rag.memory.models import (
     MessageCitation,
     MessageRole,
     Session,
+    SessionDocumentScope,
     SessionMemory,
 )
 
@@ -39,6 +41,8 @@ class SessionRepository(Protocol):
         title: str | None = None,
         max_turns: int = 5,
         project_id: UUID | None = None,
+        document_id: UUID | None = None,
+        user_id: UUID | None = None,
     ) -> SessionState: ...
 
     async def load_session(self, session_id: UUID) -> SessionState | None: ...
@@ -48,8 +52,31 @@ class SessionRepository(Protocol):
     ) -> SessionState | None: ...
 
     async def list_sessions(
-        self, *, bound_doc_id: str | None = None, limit: int = 20
+        self,
+        *,
+        bound_doc_id: str | None = None,
+        project_id: UUID | None = None,
+        include_archived: bool = False,
+        limit: int = 20,
     ) -> list[SessionListRow]: ...
+
+    async def list_messages(
+        self, session_id: UUID, *, limit: int = 500
+    ) -> list[MessageRow]: ...
+
+    async def list_citations(
+        self, message_ids: Sequence[UUID]
+    ) -> dict[UUID, list[CitedNodeRef]]: ...
+
+    async def rename_session(self, session_id: UUID, *, title: str) -> None: ...
+
+    async def delete_session(self, session_id: UUID) -> None: ...
+
+    async def set_session_scope(
+        self, session_id: UUID, document_ids: Sequence[UUID]
+    ) -> None: ...
+
+    async def get_session_scope(self, session_id: UUID) -> list[UUID]: ...
 
     async def append_turn(
         self,
@@ -59,6 +86,7 @@ class SessionRepository(Protocol):
         standalone_query: str,
         answer: str,
         cited: Sequence[CitedNodeRef],
+        assistant_meta: dict | None = None,
     ) -> tuple[int, int]: ...
 
     async def save_compaction(
@@ -89,6 +117,8 @@ class PostgresSessionRepository:
         title: str | None = None,
         max_turns: int = 5,
         project_id: UUID | None = None,
+        document_id: UUID | None = None,
+        user_id: UUID | None = None,
     ) -> SessionState:
         async with self._sessionmaker() as db:
             session_row = Session(
@@ -96,6 +126,8 @@ class PostgresSessionRepository:
                 index_path=index_path,
                 title=title,
                 project_id=project_id,
+                document_id=document_id,
+                user_id=user_id,
             )
             db.add(session_row)
             await db.flush()
@@ -110,6 +142,7 @@ class PostgresSessionRepository:
                 next_seq=1,
                 entries=[],
                 last_cited=[],
+                title=title,
             )
 
     async def load_session(self, session_id: UUID) -> SessionState | None:
@@ -142,6 +175,7 @@ class PostgresSessionRepository:
             next_seq=session_row.next_seq,
             entries=entries,
             last_cited=last_cited,
+            title=session_row.title,
         )
 
     async def _load_entries(
@@ -228,12 +262,21 @@ class PostgresSessionRepository:
             return await self._load_session(db, session_id)
 
     async def list_sessions(
-        self, *, bound_doc_id: str | None = None, limit: int = 20
+        self,
+        *,
+        bound_doc_id: str | None = None,
+        project_id: UUID | None = None,
+        include_archived: bool = False,
+        limit: int = 20,
     ) -> list[SessionListRow]:
         async with self._sessionmaker() as db:
             stmt = select(Session).order_by(Session.last_active_at.desc()).limit(limit)
             if bound_doc_id is not None:
                 stmt = stmt.where(Session.bound_doc_id == bound_doc_id)
+            if project_id is not None:
+                stmt = stmt.where(Session.project_id == project_id)
+            if not include_archived:
+                stmt = stmt.where(Session.status == "active")
             rows = (await db.execute(stmt)).scalars().all()
         return [
             SessionListRow(
@@ -247,6 +290,98 @@ class PostgresSessionRepository:
             for r in rows
         ]
 
+    async def list_messages(
+        self, session_id: UUID, *, limit: int = 500
+    ) -> list[MessageRow]:
+        async with self._sessionmaker() as db:
+            rows = (
+                await db.execute(
+                    select(Message)
+                    .where(Message.session_id == session_id)
+                    .order_by(Message.seq)
+                    .limit(limit)
+                )
+            ).scalars().all()
+        return [
+            MessageRow(
+                id=r.id,
+                seq=r.seq,
+                role=r.role.value if isinstance(r.role, MessageRole) else r.role,
+                content=r.content,
+                created_at=r.created_at,
+                meta=r.meta or {},
+            )
+            for r in rows
+        ]
+
+    async def list_citations(
+        self, message_ids: Sequence[UUID]
+    ) -> dict[UUID, list[CitedNodeRef]]:
+        if not message_ids:
+            return {}
+        async with self._sessionmaker() as db:
+            rows = (
+                await db.execute(
+                    select(MessageCitation)
+                    .where(MessageCitation.message_id.in_(message_ids))
+                    .order_by(MessageCitation.message_id, MessageCitation.rank)
+                )
+            ).scalars().all()
+        result: dict[UUID, list[CitedNodeRef]] = {mid: [] for mid in message_ids}
+        for r in rows:
+            result.setdefault(r.message_id, []).append(
+                CitedNodeRef(
+                    doc_id=r.doc_id,
+                    source_sha1=r.source_sha1.rstrip(),
+                    node_index=r.node_index,
+                    node_id=r.node_id,
+                    document_id=r.document_id,
+                    priority=r.priority,
+                )
+            )
+        return result
+
+    async def rename_session(self, session_id: UUID, *, title: str) -> None:
+        async with self._sessionmaker() as db:
+            await db.execute(
+                update(Session).where(Session.id == session_id).values(title=title)
+            )
+            await db.commit()
+
+    async def delete_session(self, session_id: UUID) -> None:
+        async with self._sessionmaker() as db:
+            row = await db.get(Session, session_id)
+            if row is not None:
+                await db.delete(row)
+                await db.commit()
+
+    async def set_session_scope(
+        self, session_id: UUID, document_ids: Sequence[UUID]
+    ) -> None:
+        async with self._sessionmaker() as db, db.begin():
+            await db.execute(
+                delete(SessionDocumentScope).where(
+                    SessionDocumentScope.session_id == session_id
+                )
+            )
+            for document_id in document_ids:
+                db.add(
+                    SessionDocumentScope(
+                        session_id=session_id, document_id=document_id
+                    )
+                )
+
+    async def get_session_scope(self, session_id: UUID) -> list[UUID]:
+        async with self._sessionmaker() as db:
+            rows = (
+                await db.execute(
+                    select(SessionDocumentScope.document_id).where(
+                        SessionDocumentScope.session_id == session_id
+                    )
+                )
+            ).scalars().all()
+            return list(rows)
+
     async def append_turn(
         self,
         session_id: UUID,
@@ -255,6 +390,7 @@ class PostgresSessionRepository:
         standalone_query: str,
         answer: str,
         cited: Sequence[CitedNodeRef],
+        assistant_meta: dict | None = None,
     ) -> tuple[int, int]:
         async with self._sessionmaker() as db:
             async with db.begin():
@@ -284,6 +420,7 @@ class PostgresSessionRepository:
                     seq=assistant_seq,
                     role=MessageRole.assistant,
                     content=answer,
+                    meta=assistant_meta or {},
                 )
                 db.add_all([user_msg, assistant_msg])
                 await db.flush()

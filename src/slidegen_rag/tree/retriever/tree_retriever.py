@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Dict, List, Set
 
+import numpy as np
 import tiktoken
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
@@ -181,9 +182,20 @@ class TreeRetriever(BaseRetriever):
 
         node_list = get_node_list(self.tree.all_nodes)
 
-        embeddings = get_embeddings(node_list, self.context_embedding_model)
-
-        distances = distances_from_embeddings(query_embedding, embeddings)
+        # Fast-path vectorized: cây gộp nhiều tài liệu (ui/merge.py) cache sẵn
+        # `_emb_matrix` (đã L2-normalize, cùng thứ tự với node_list ở trên) —
+        # thay list comprehension gọi scipy.spatial.distance.cosine từng node
+        # một (chậm rõ rệt ở vài nghìn node) bằng một phép nhân ma trận.
+        emb_matrix = getattr(self.tree, "_emb_matrix", None)
+        if emb_matrix is not None:
+            q = np.asarray(query_embedding, dtype=np.float32)
+            q_norm = np.linalg.norm(q)
+            if q_norm > 0:
+                q = q / q_norm
+            distances = 1.0 - emb_matrix @ q
+        else:
+            embeddings = get_embeddings(node_list, self.context_embedding_model)
+            distances = distances_from_embeddings(query_embedding, embeddings)
 
         indices = indices_of_nearest_neighbors_from_distances(distances)
 

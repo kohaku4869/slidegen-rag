@@ -53,6 +53,7 @@ class SessionState:
     next_seq: int
     entries: list[TurnEntry] = field(default_factory=list)
     last_cited: list[CitedNodeRef] = field(default_factory=list)
+    title: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,3 +64,72 @@ class SessionListRow:
     status: str
     created_at: datetime
     last_active_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class MessageRow:
+    id: UUID
+    seq: int
+    role: str
+    content: str
+    created_at: datetime
+    meta: dict = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class ProjectRow:
+    id: UUID
+    owner_id: UUID
+    name: str
+    language: str
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: datetime | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ProjectStats:
+    document_count: int
+    session_count: int
+    last_active_at: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentRow:
+    id: UUID
+    project_id: UUID
+    ref_no: int
+    doc_slug: str
+    title: str
+    source_sha1: str
+    source_path: str | None
+    source_bytes: int | None
+    status: str
+    active_index_id: UUID | None
+    doc_summary: str | None
+    outline: list[str] | None
+    total_nodes: int | None
+    num_layers: int | None
+    total_tokens: int | None
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: datetime | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentIndexRow:
+    id: UUID
+    document_id: UUID
+    attempt_no: int
+    status: str
+    source_sha1: str
+    artifact_path: str | None
+    artifact_sha1: str | None
+    total_nodes: int | None
+    num_layers: int | None
+    total_tokens: int | None
+    build_stats: dict | None
+    error_message: str | None
+    started_at: datetime | None
+    finished_at: datetime | None
+    created_at: datetime

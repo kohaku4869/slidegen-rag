@@ -16,6 +16,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from slidegen_rag.agent.models.llm import TokenTracker
 from slidegen_rag.evaluate.settings import (
     _MAX_EVAL_ANS_CHARS,
     _MAX_EVAL_CHUNKS_CHARS,
@@ -23,6 +24,19 @@ from slidegen_rag.evaluate.settings import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Tracker RIÊNG của judge — KHÔNG dùng chung `LLMModel.tracker`, vì judge dựng
+# thẳng ChatOpenAI/ChatGoogleGenerativeAI (xem create_evaluator_llm), không đi
+# qua LLMModel, nên vốn dĩ chưa từng chạm tracker của agent. Việc này chỉ
+# *thêm* một bộ đếm riêng để chi phí chấm điểm không còn vô hình, và để nó
+# không bao giờ lẫn vào chi phí agent đang được đo cùng lúc.
+judge_tracker = TokenTracker()
+
+
+def _record_judge_usage(res, *, is_local: bool) -> None:
+    usage = getattr(res, "usage_metadata", None)
+    if usage:
+        judge_tracker.add_usage(usage, is_local=is_local)
 
 # Một số câu trả lời hiếm khi rơi vào trạng thái lặp ký tự/cụm từ vô hạn (LLM
 # degenerate output) — hàng chục nghìn ký tự lặp lại làm judge hiểu nhầm là
@@ -78,6 +92,12 @@ class MetricEval(BaseModel):
     )
 
 
+# Model Gemini dùng làm fallback judge — hằng số riêng (thay vì string rời
+# rạc trong create_evaluator_llm) để evaluate/run_config.py ghi đúng giá trị
+# này vào run_config.json["models"]["judge_fallback"] mà không lặp lại/lệch.
+JUDGE_FALLBACK_MODEL = "gemini-3.5-flash-lite"
+
+
 def create_evaluator_llm():
     """Khởi tạo LLM Judge (Primary: OpenAI compatible, Fallback: Gemini)."""
     base_url = os.getenv("LLM_BASE_URL", "").strip()
@@ -107,7 +127,7 @@ def create_evaluator_llm():
             from langchain_google_genai import ChatGoogleGenerativeAI
 
             llm_fallback = ChatGoogleGenerativeAI(
-                model="gemini-3.5-flash-lite",
+                model=JUDGE_FALLBACK_MODEL,
                 google_api_key=gemini_key,
                 temperature=0,
                 max_output_tokens=8192,
@@ -299,6 +319,7 @@ Trả về JSON duy nhất có cấu trúc:
     if llm:
         try:
             res = await llm.ainvoke(messages)
+            _record_judge_usage(res, is_local=True)
             parsed = parse_metric_output(res.content)
             if parsed is not None:
                 return parsed
@@ -313,6 +334,7 @@ Trả về JSON duy nhất có cấu trúc:
     if fallback_llm:
         try:
             res = await fallback_llm.ainvoke(messages)
+            _record_judge_usage(res, is_local=False)
             parsed = parse_metric_output(res.content)
             if parsed is not None:
                 return parsed

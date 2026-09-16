@@ -186,13 +186,28 @@ class ConversationManager:
         return candidates
 
     def record_turn(
-        self, query: str, answer: str, document_node_ids: list | None
+        self,
+        query: str,
+        answer: str,
+        document_node_ids: list | None,
+        *,
+        cited_refs: list[CitedNodeRef] | None = None,
     ) -> None:
         """Gọi sau khi có câu trả lời — cập nhật chat_history và node đã
         trích dẫn (lấy từ `traj.final_state["document_node_ids"]`). Thuần
-        in-memory, KHÔNG persist — dùng `arecord_turn` cho việc đó."""
+        in-memory, KHÔNG persist — dùng `arecord_turn` cho việc đó.
+
+        `cited_refs`: bỏ qua việc tự dựng `CitedNodeRef` từ `self.doc_ref`
+        (đúng cho CLI — 1 phiên gắn đúng 1 `.pkl`) và dùng thẳng danh sách đã
+        dựng sẵn — cần cho UI nhiều tài liệu, nơi mỗi node trích dẫn (node id
+        đã offset trong cây gộp, xem `ui/merge.py`) có thể thuộc tài liệu
+        khác nhau, không thể suy ra `doc_id`/`source_sha1` từ 1 `doc_ref`
+        duy nhất."""
         self.chat_history.append({"role": "user", "content": query, "_seq": None})
         self.chat_history.append({"role": "assistant", "content": answer, "_seq": None})
+        if cited_refs is not None:
+            self._cited_last_turn = list(cited_refs)
+            return
         doc_id = self.doc_ref.doc_id if self.doc_ref else ""
         source_sha1 = self.doc_ref.source_sha1 if self.doc_ref else ""
         self._cited_last_turn = [
@@ -207,6 +222,9 @@ class ConversationManager:
         standalone_query: str,
         answer: str,
         document_node_ids: list | None,
+        *,
+        cited_refs: list[CitedNodeRef] | None = None,
+        assistant_meta: dict | None = None,
     ) -> None:
         """`record_turn()` rồi persist lượt vừa ghi qua `repo` (nếu có). Tiền
         tố `a` theo quy ước LangChain (`ainvoke`) — `record_turn` giữ nguyên
@@ -215,7 +233,7 @@ class ConversationManager:
         Lỗi ghi DB ở đây KHÔNG raise lại: đã trả lời xong (tốn token) mà giết
         phiên vì DB rớt là phá hoại — đánh dấu `_degraded` rồi tiếp tục
         in-memory cho các lượt sau (xem plan4.md B4)."""
-        self.record_turn(query, answer, document_node_ids)
+        self.record_turn(query, answer, document_node_ids, cited_refs=cited_refs)
         if self.repo is None or self.session_id is None or self._degraded:
             return
         try:
@@ -225,6 +243,7 @@ class ConversationManager:
                 standalone_query=standalone_query,
                 answer=answer,
                 cited=self._cited_last_turn,
+                assistant_meta=assistant_meta,
             )
         except Exception as e:
             logger.warning(
