@@ -1,7 +1,7 @@
 """Unit tests cho `ui/steps.py::render_step` — xem plan6.md C4."""
 
 from slidegen_rag.agent.observability.trajectory import LLMCallRecord, NodeStep
-from slidegen_rag.ui.steps import render_step
+from ui.steps import render_step
 
 
 def test_retrieve_step_lists_tool_calls():

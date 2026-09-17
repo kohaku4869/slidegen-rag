@@ -9,7 +9,7 @@ from uuid import UUID
 
 import streamlit as st
 
-from slidegen_rag.ui import data as ui_data
+from ui import data as ui_data
 
 _STATUS_BADGE = {
     "queued": ("⏳ Trong hàng đợi", "gray"),
@@ -113,7 +113,7 @@ with col_docs:
 
         @st.fragment(run_every=1.0 if active_jobs else None)
         def _render_documents() -> None:
-            from slidegen_rag.ui.jobs import get_job_registry
+            from ui.jobs import get_job_registry
 
             registry = get_job_registry()
             still_active = dict(active_jobs)

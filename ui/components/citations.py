@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import streamlit as st
 
-from slidegen_rag.ui import data as ui_data
-from slidegen_rag.ui.merge import resolve_node
+from ui import data as ui_data
+from ui.merge import resolve_node
 
 
 def extract_citations(final_state: dict, max_chips: int = 8) -> list[dict]:

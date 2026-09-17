@@ -2,7 +2,7 @@
 `ui/components/tree_browser.py` — xem plan6.md D2."""
 
 from slidegen_rag.tree.structure.tree_structure import Node, Tree
-from slidegen_rag.ui.components.tree_browser import _describe_node, _expand_path_to
+from ui.components.tree_browser import _describe_node, _expand_path_to
 
 
 def _make_tree() -> Tree:

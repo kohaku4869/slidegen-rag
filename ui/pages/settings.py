@@ -17,7 +17,7 @@ from slidegen_rag.config import (
     TreeConfig,
 )
 from slidegen_rag.memory.engine import ping
-from slidegen_rag.ui import data as ui_data
+from ui import data as ui_data
 
 st.title("⚙️ Settings")
 

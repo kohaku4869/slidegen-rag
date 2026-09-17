@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from slidegen_rag.tree.structure.tree_structure import Node, Tree
-from slidegen_rag.ui.merge import (
+from ui.merge import (
     NODE_SLOT_SIZE,
     merge_trees,
     offset_for_ref_no,
@@ -143,7 +143,7 @@ def test_single_document_merge_is_n_equals_1_path():
 
 
 def test_rejects_document_exceeding_node_slot_size(monkeypatch):
-    import slidegen_rag.ui.merge as merge_mod
+    import ui.merge as merge_mod
 
     monkeypatch.setattr(merge_mod, "NODE_SLOT_SIZE", 2)
     tree_a = _make_tree("docA", 0.0)  # 3 nodes > slot size 2

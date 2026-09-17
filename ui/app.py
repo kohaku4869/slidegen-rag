@@ -1,6 +1,7 @@
 """
-app.py — Điểm vào Streamlit: `uv run streamlit run src/slidegen_rag/ui/app.py`
-(xem plan6.md C1/D). `st.navigation` + `st.Page` (multipage) thay vì sidebar
+app.py — Điểm vào Streamlit: `uv run streamlit run ui/app.py` (xem plan6.md
+C1/D — `ui/` sống ở repo root, tách khỏi package backend `slidegen_rag`, xem
+plan7.md). `st.navigation` + `st.Page` (multipage) thay vì sidebar
 routing thủ công — mỗi màn hình một file, có URL thật và nút Back.
 
 **KHÔNG import `slidegen_rag.evaluate.*`** ở bất kỳ đâu trong `ui/` — dashboard
@@ -37,7 +38,7 @@ configure_ui_logging()
 
 st.set_page_config(page_title="Slidegen RAG", page_icon="📚", layout="wide")
 
-from slidegen_rag.ui.data import ensure_database_configured
+from ui.data import ensure_database_configured
 
 ensure_database_configured()
 

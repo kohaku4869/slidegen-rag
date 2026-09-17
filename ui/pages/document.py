@@ -8,8 +8,8 @@ from uuid import UUID
 import streamlit as st
 
 from slidegen_rag.tree.stats import build_stats_from_dict, format_ingest_report
-from slidegen_rag.ui import data as ui_data
-from slidegen_rag.ui.components.tree_browser import render_tree_browser
+from ui import data as ui_data
+from ui.components.tree_browser import render_tree_browser
 
 document_id_str = ui_data.resolve_id_param("focus_document_id")
 focus_node_id = st.session_state.pop("focus_node_id", None)
@@ -79,7 +79,7 @@ with tab_overview:
 active_jobs = st.session_state.get("active_ingest_jobs", {})
 job_id = active_jobs.get(str(doc.id))
 if job_id is not None:
-    from slidegen_rag.ui.jobs import get_job_registry
+    from ui.jobs import get_job_registry
 
     job = get_job_registry().get(job_id)
     if job is not None:

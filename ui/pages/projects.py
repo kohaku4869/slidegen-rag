@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from slidegen_rag.ui import data as ui_data
+from ui import data as ui_data
 
 st.title("📁 Projects")
 

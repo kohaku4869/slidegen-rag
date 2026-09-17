@@ -9,14 +9,14 @@ from uuid import UUID
 import streamlit as st
 
 from slidegen_rag.agent.graph.conversation import ConversationManager
-from slidegen_rag.ui import data as ui_data
-from slidegen_rag.ui.components.citations import (
+from ui import data as ui_data
+from ui.components.citations import (
     extract_citations,
     render_live_citations,
     render_replayed_citations,
 )
-from slidegen_rag.ui.components.trajectory_panel import render_trajectory_summary
-from slidegen_rag.ui.steps import render_step
+from ui.components.trajectory_panel import render_trajectory_summary
+from ui.steps import render_step
 
 session_id_str = ui_data.resolve_id_param("active_session_id")
 if not session_id_str:

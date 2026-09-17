@@ -32,8 +32,8 @@ from slidegen_rag.memory.dto import DocumentIndexRow, DocumentRow
 from slidegen_rag.memory.engine import get_sessionmaker, ping
 from slidegen_rag.memory.repository import PostgresSessionRepository, SessionRepository
 from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation
-from slidegen_rag.ui.merge import merge_trees
-from slidegen_rag.ui.runtime import AgentRuntime
+from ui.merge import merge_trees
+from ui.runtime import AgentRuntime
 
 T = TypeVar("T")
 
@@ -262,7 +262,7 @@ def build_cited_refs(document_repo: DocumentRepository, merged_tree, citations: 
     có còn khớp index hiện tại hay không (xem D1: "chỉ resolve chip nào có
     source_sha1 khớp index đang nạp"). Không cache — số citation mỗi lượt rất nhỏ."""
     from slidegen_rag.memory.dto import CitedNodeRef
-    from slidegen_rag.ui.merge import resolve_node
+    from ui.merge import resolve_node
 
     index_cache: dict[str, DocumentIndexRow | None] = {}
     refs = []
@@ -310,7 +310,7 @@ def start_ingest_job(document_repo: DocumentRepository, *, project_id: UUID, doc
     `JobRegistry` + submit vào worker thread — xem `ui/jobs.py` (C3). Trả về
     `IngestJob` để trang lưu `job_id` vào `session_state` và poll."""
     from slidegen_rag.config import SummarizationConfig, TreeConfig
-    from slidegen_rag.ui.jobs import get_job_registry, run_ingest_job
+    from ui.jobs import get_job_registry, run_ingest_job
 
     index_row = run_async(
         document_repo.start_index(document_id=document.id, source_sha1=document.source_sha1)
@@ -393,7 +393,7 @@ def get_source_excerpt(document_repo: DocumentRepository, merged_tree, node_id: 
     """Đoạn `source_text` gốc (đánh số dòng theo `body_line_start/body_line_end`
     của node) — `merged_tree.source_text` rỗng có chủ đích (xem A2), phải nạp
     lại tree GỐC của đúng tài liệu qua `resolve_node`."""
-    from slidegen_rag.ui.merge import resolve_node
+    from ui.merge import resolve_node
 
     resolved = resolve_node(merged_tree, node_id)
     if resolved is None:

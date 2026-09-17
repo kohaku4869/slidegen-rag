@@ -1,7 +1,7 @@
 """Unit tests cho `ui/components/citations.py::extract_citations` — phần
 thuần, không Streamlit (xem plan6.md D1)."""
 
-from slidegen_rag.ui.components.citations import extract_citations
+from ui.components.citations import extract_citations
 
 
 def test_extract_citations_filters_none_node_ids():
