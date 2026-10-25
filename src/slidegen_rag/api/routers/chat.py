@@ -19,8 +19,8 @@ from slidegen_rag.api.schemas.chat import (
     CitationOut,
     SourceExcerptOut,
 )
-from slidegen_rag.api.services import chat_service
-from slidegen_rag.api.services.tree_cache import get_merged_ra
+from slidegen_rag.services import chat_service
+from slidegen_rag.services.tree_cache import get_merged_ra
 
 router = APIRouter(prefix="/api/v1/sessions", tags=["chat"])
 

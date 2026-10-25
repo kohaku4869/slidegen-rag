@@ -1,11 +1,10 @@
-"""chat_service.py — Bản không-Streamlit của `ui/data.py::run_agent_turn`,
-`build_cited_refs`, `get_source_excerpt`, cộng hàm orchestration `ask()`
-dùng cho `POST /sessions/{id}/chat`.
+"""chat_service.py — `run_agent_turn`, `abuild_cited_refs`, `get_source_excerpt`,
+cộng hàm orchestration `ask()` dùng cho `POST /sessions/{id}/chat`. UI
+Streamlit gọi cùng các hàm này qua `ui/data.py` (bọc `run_async`).
 
-`run_agent_turn` dùng `asyncio.Lock` thường (`app.state.agent_lock`, tạo một
-lần trong `lifespan` — xem `api/app.py`) thay cho `AgentRuntime.agent_lock`:
-FastAPI đã sở hữu một event loop duy nhất suốt vòng đời tiến trình nên không
-cần bọc thêm loop-trong-thread như Streamlit.
+`agent_lock` là `asyncio.Lock` do caller sở hữu: `app.state.agent_lock` ở API,
+`AgentRuntime.agent_lock` ở UI — cả hai tạo trên đúng event loop sẽ chạy
+coroutine.
 """
 
 from __future__ import annotations
@@ -18,14 +17,14 @@ from uuid import UUID
 
 from slidegen_rag.agent.graph.conversation import ConversationManager
 from slidegen_rag.api.errors import NoReadyDocumentsError
-from slidegen_rag.api.services import prefilter_service
-from slidegen_rag.api.services.tree_cache import get_merged_ra, load_tree
+from slidegen_rag.services import prefilter_service
+from slidegen_rag.services.tree_cache import get_merged_ra, load_tree
 from slidegen_rag.memory.catalog import DocumentRepository
 from slidegen_rag.memory.dto import CitedNodeRef, DocumentIndexRow, DocumentRow
 from slidegen_rag.memory.repository import SessionRepository
 from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation
-from ui.components.citations import extract_citations
-from ui.merge import resolve_node
+from slidegen_rag.services.citations import extract_citations
+from slidegen_rag.tree.merge import resolve_node
 
 
 async def run_agent_turn(
@@ -37,13 +36,18 @@ async def run_agent_turn(
     web_search_enabled: bool,
     generate_provider: str = "gemini",
     conv: ConversationManager | None = None,
+    on_step=None,
+    source: str = "api",
     run_name: str | None = None,
 ):
     """MỘT lượt agent hoàn chỉnh dưới `agent_lock` — set_retrieval_
     augmentation -> set_web_search_enabled -> set_generate_provider ->
     seed_drill_candidates -> recorder.arun(), ĐÚNG thứ tự để `_ra`/
     `_provider`/`_web_search_enabled` (biến toàn cục ở tools.py/
-    generate_node.py) không bị lượt khác ghi đè giữa chừng."""
+    generate_node.py) không bị lượt khác ghi đè giữa chừng.
+
+    `on_step`: callback nhận từng `NodeStep` (UI dùng để stream tiến trình).
+    `source`: nhãn tracing ("api" | "ui")."""
     from slidegen_rag.agent.graph.state import make_initial_state
     from slidegen_rag.agent.nodes.generate_node import set_generate_provider
     from slidegen_rag.agent.observability.trajectory import TrajectoryRecorder
@@ -57,10 +61,12 @@ async def run_agent_turn(
         set_web_search_enabled(web_search_enabled)
         set_generate_provider(generate_provider)
         drill_candidates = conv.seed_drill_candidates() if conv is not None else None
-        recorder = TrajectoryRecorder(graph, tags=["api"], metadata={"source": "api"})
+        recorder = TrajectoryRecorder(
+            graph, tags=[source], metadata={"source": source}, on_step=on_step
+        )
         return await recorder.arun(
             make_initial_state(query, drill_candidates=drill_candidates),
-            run_name=run_name or f"api:{query[:60]}",
+            run_name=run_name or f"{source}:{query[:60]}",
         )
 
 
@@ -148,7 +154,7 @@ async def ask(
     documents = [d for d in fetched if d is not None]
     if len(documents) > 3:
         documents = prefilter_service.prefilter_documents_by_query(
-            state, query, documents
+            prefilter_service.get_embedding_model(state), query, documents
         )
 
     ra = await get_merged_ra(

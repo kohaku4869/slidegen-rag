@@ -4,7 +4,7 @@ import hashlib
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, File, Form, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from slidegen_rag.api.deps import DocumentRepoDep, JobRegistryDep, ProjectRepoDep
 from slidegen_rag.api.errors import ConflictError, NotFoundError
@@ -15,7 +15,12 @@ from slidegen_rag.api.schemas.documents import (
     DocumentRename,
     StartIndexOut,
 )
-from slidegen_rag.api.services import ingest_service
+from slidegen_rag.services import ingest_service
+from slidegen_rag.services.document_loader import (
+    EmptyDocumentError,
+    UnsupportedDocumentError,
+    to_markdown,
+)
 
 router = APIRouter(prefix="/api/v1", tags=["documents"])
 
@@ -36,7 +41,10 @@ async def upload_document(
     if await project_repo.get_project(project_id) is None:
         raise NotFoundError("project", str(project_id))
     content = await file.read()
-    markdown_text = content.decode("utf-8", errors="ignore")
+    try:
+        markdown_text = to_markdown(file.filename or "", content)
+    except (UnsupportedDocumentError, EmptyDocumentError) as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     source_sha1 = hashlib.sha1(content).hexdigest()
 
     existing = await document_repo.find_by_sha1(

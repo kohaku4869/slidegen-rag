@@ -14,7 +14,7 @@ from fastapi import Depends, Request
 
 from slidegen_rag.memory.catalog import DocumentRepository, ProjectRepository
 from slidegen_rag.memory.repository import SessionRepository
-from ui.jobs import JobRegistry
+from slidegen_rag.services.jobs import JobRegistry
 
 
 def get_document_repo(request: Request) -> DocumentRepository:

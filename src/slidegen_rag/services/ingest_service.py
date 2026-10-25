@@ -1,9 +1,6 @@
-"""ingest_service.py — Bản không-Streamlit của `ui/data.py::start_ingest_job`,
-`finalize_ingest_job`, `source_md_path`, `index_out_dir`.
-
-Logic giữ nguyên; `job_registry`/`tree_cache` được truyền qua tham số thay vì
-đọc qua `st.cache_resource`/module-global, và `run_async(...)` được thay
-bằng `await` trực tiếp.
+"""ingest_service.py — `start_ingest_job`, `finalize_ingest_job`,
+`source_md_path`, `index_out_dir`, dùng chung bởi UI và REST API.
+`job_registry`/`tree_cache` do caller truyền vào.
 """
 
 from __future__ import annotations
@@ -13,11 +10,11 @@ from collections import OrderedDict
 from pathlib import Path
 from uuid import UUID
 
-from slidegen_rag.api.services.tree_cache import load_tree
+from slidegen_rag.services.tree_cache import load_tree
 from slidegen_rag.config import ROOT_DIR, SummarizationConfig, TreeConfig
 from slidegen_rag.memory.catalog import DocumentRepository
 from slidegen_rag.memory.dto import DocumentRow
-from ui.jobs import IngestJob, JobRegistry, run_ingest_job
+from slidegen_rag.services.jobs import IngestJob, JobRegistry, run_ingest_job
 
 
 def source_md_path(project_id: UUID, document_id: UUID) -> Path:

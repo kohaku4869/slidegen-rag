@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     from slidegen_rag.memory.engine import get_sessionmaker, ping
     from slidegen_rag.memory.repository import PostgresSessionRepository
-    from ui.jobs import JobRegistry
+    from slidegen_rag.services.jobs import JobRegistry
 
     if not MemoryConfig.DATABASE_URL:
         raise RuntimeError(

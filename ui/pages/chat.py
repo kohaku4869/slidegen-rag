@@ -16,6 +16,7 @@ from ui.components.citations import (
     render_replayed_citations,
 )
 from ui.components.trajectory_panel import render_trajectory_summary
+from ui.layout import breadcrumb
 from ui.steps import render_step
 
 session_id_str = ui_data.resolve_id_param("active_session_id")
@@ -41,12 +42,18 @@ all_documents = ui_data.list_documents_cached(project_id_str) if project_id_str 
 ready_documents = [d for d in all_documents if d.status == "ready"]
 current_scope = set(ui_data.run_async(session_repo.get_session_scope(session_id)))
 
-st.title(f"💬 {state.title or f'Phiên {str(session_id)[:8]}'}")
+if project_id_str:
+    st.session_state["active_project_id"] = project_id_str
+    project_name = ui_data.run_async(ui_data.get_project_repo().get_project(UUID(project_id_str)))
+    breadcrumb(
+        ("Projects", "pages/projects.py"),
+        (project_name.name if project_name else "Project", "pages/project_home.py"),
+        ("Chat", None),
+    )
+st.title(state.title or f"Phiên {str(session_id)[:8]}")
 
 with st.sidebar:
-    if project_id_str and st.button("← Project"):
-        st.switch_page("pages/project_home.py")
-    st.subheader("Nguồn đang dùng")
+    st.markdown("**Nguồn đang dùng**")
     if not ready_documents:
         st.caption("Không có tài liệu sẵn sàng nào trong project.")
     selected_ids: list[UUID] = []
@@ -69,7 +76,7 @@ merged_ra = ui_data.get_merged_ra(document_repo, selected_documents) if selected
 merged_tree = merged_ra.tree if merged_ra is not None else None
 
 if merged_ra is None:
-    st.warning("Chưa có tài liệu nào sẵn sàng trong phạm vi đang chọn — chọn ít nhất 1 tài liệu ở sidebar.")
+    st.info("Chọn ít nhất 1 tài liệu ở thanh bên trái để bắt đầu hỏi.")
 
 # ── Replay lịch sử ───────────────────────────────────────────────────────
 messages = ui_data.run_async(session_repo.list_messages(session_id))
@@ -130,7 +137,7 @@ if query and merged_ra is not None:
     )
 
     with st.chat_message("assistant"):
-        with st.status("Agent đang suy luận…", expanded=True) as status:
+        with st.status("Agent đang suy luận…", expanded=False) as status:
             while True:
                 try:
                     step = step_queue.get(timeout=0.25)

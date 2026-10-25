@@ -12,13 +12,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from slidegen_rag.api.app import create_app
-from slidegen_rag.api.services import ingest_service
+from slidegen_rag.services import ingest_service
 from slidegen_rag.memory.catalog_store import (
     InMemoryDocumentRepository,
     InMemoryProjectRepository,
 )
 from slidegen_rag.memory.memory_store import InMemorySessionRepository
-from ui.jobs import JobRegistry
+from slidegen_rag.services.jobs import JobRegistry
 
 
 class _StubGraph:

@@ -38,12 +38,15 @@ dependencies = [
     "fastapi>=0.141.1",
     "uvicorn[standard]>=0.52.0",
     "python-multipart>=0.0.32",
+    "pypdf>=6.21.2",
+    "python-docx>=1.2.0",
 ]
 
 [project.scripts]
 slidegen-ingest = "slidegen_rag.ingest:main"
 slidegen-ask = "slidegen_rag.main:main"
 slidegen-api = "slidegen_rag.api.__main__:main"
+slidegen-ui = "ui.__main__:main"
 
 [tool.hatch.build.targets.wheel]
 # `ui` sống ở repo root (KHÔNG dưới src/slidegen_rag) — tách hẳn khỏi package

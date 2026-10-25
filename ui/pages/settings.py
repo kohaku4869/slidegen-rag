@@ -19,7 +19,7 @@ from slidegen_rag.config import (
 from slidegen_rag.memory.engine import ping
 from ui import data as ui_data
 
-st.title("⚙️ Settings")
+st.title("Settings")
 
 st.subheader("Cơ sở dữ liệu")
 try:

@@ -13,6 +13,7 @@ Các module khác import từ đây, không hardcode giá trị.
 
 import os
 from pathlib import Path
+from uuid import UUID
 
 from dotenv import load_dotenv
 
@@ -22,6 +23,11 @@ load_dotenv()
 
 # Thư mục gốc của project (repo root — 3 cấp trên: config.py -> slidegen_rag -> src -> root)
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Người dùng "Local" + project "Inbox" — backfill của migration 0002, chủ sở
+# hữu mặc định (app chạy local, chưa có đăng nhập thật). Dùng chung UI + API.
+LOCAL_USER_ID = UUID("00000000-0000-0000-0000-000000000001")
+INBOX_PROJECT_ID = UUID("00000000-0000-0000-0000-000000000002")
 
 DATA_SRC_DIR = ROOT_DIR / "data" / "src"
 

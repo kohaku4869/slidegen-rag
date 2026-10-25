@@ -13,7 +13,7 @@ from slidegen_rag.tree.RetrievalAugmentation import (
     RetrievalAugmentation,
     RetrievalAugmentationConfig,
 )
-from ui.jobs import IngestJob, JobRegistry, run_ingest_job
+from slidegen_rag.services.jobs import IngestJob, JobRegistry, run_ingest_job
 
 
 class FakeEmbeddingModel(BaseEmbeddingModel):

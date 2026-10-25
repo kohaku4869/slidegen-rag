@@ -13,7 +13,7 @@ from slidegen_rag.api.schemas.projects import (
     ProjectRename,
     ProjectStatsOut,
 )
-from ui.data import LOCAL_USER_ID
+from slidegen_rag.config import LOCAL_USER_ID
 
 router = APIRouter(prefix="/api/v1/projects", tags=["projects"])
 

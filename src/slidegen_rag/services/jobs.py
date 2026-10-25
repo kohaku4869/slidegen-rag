@@ -1,6 +1,6 @@
 """
 jobs.py — `JobRegistry` + `run_ingest_job()`: ingest nền có thanh tiến độ
-thật (xem plan6.md C3).
+thật (xem plan6.md C3). Dùng chung bởi UI Streamlit và REST API.
 
 Thread riêng, KHÔNG subprocess: `ChatNVIDIASummarizationModel.batch_summarize`
 gọi `asyncio.run(...)` bên trong — trên một thread sạch (không phải runtime
@@ -31,8 +31,6 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-
-import streamlit as st
 
 from slidegen_rag.tree.stats import BuildStats
 
@@ -72,8 +70,8 @@ class IngestJob:
 
 
 class JobRegistry:
-    """Sống trong `st.cache_resource` — process-wide, qua mọi rerun và mọi
-    tab (xem `get_job_registry` bên dưới)."""
+    """Process-wide (xem `get_job_registry`), qua mọi rerun Streamlit và mọi
+    tab."""
 
     def __init__(self) -> None:
         self._jobs: dict[str, IngestJob] = {}
@@ -107,9 +105,18 @@ class JobRegistry:
                 job.cancel_requested = True
 
 
-@st.cache_resource(show_spinner=False)
+_registry: JobRegistry | None = None
+_registry_lock = threading.Lock()
+
+
 def get_job_registry() -> JobRegistry:
-    return JobRegistry()
+    """Singleton process-wide cho UI Streamlit (API giữ registry riêng ở
+    `app.state.job_registry`)."""
+    global _registry
+    with _registry_lock:
+        if _registry is None:
+            _registry = JobRegistry()
+        return _registry
 
 
 def run_ingest_job(

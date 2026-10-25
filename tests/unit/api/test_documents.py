@@ -91,3 +91,32 @@ def test_start_index_conflict_when_already_parsing(client):
 def test_start_index_missing_document_404(client):
     resp = client.post("/api/v1/documents/00000000-0000-0000-0000-000000000099/index")
     assert resp.status_code == 404
+
+
+def test_upload_docx_is_converted_to_markdown(client):
+    import io
+
+    from docx import Document
+
+    buf = io.BytesIO()
+    doc = Document()
+    doc.add_heading("Tiêu đề", level=1)
+    doc.add_paragraph("Nội dung")
+    doc.save(buf)
+    project_id = client.post("/api/v1/projects", json={"name": "P"}).json()["id"]
+    resp = client.post(
+        f"/api/v1/projects/{project_id}/documents",
+        data={"title": "Docx"},
+        files={"file": ("a.docx", buf.getvalue(), "application/octet-stream")},
+    )
+    assert resp.status_code == 201
+
+
+def test_upload_unsupported_extension_returns_422(client):
+    project_id = client.post("/api/v1/projects", json={"name": "P"}).json()["id"]
+    resp = client.post(
+        f"/api/v1/projects/{project_id}/documents",
+        data={"title": "X"},
+        files={"file": ("a.xlsx", b"x", "application/octet-stream")},
+    )
+    assert resp.status_code == 422

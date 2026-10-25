@@ -1,8 +1,7 @@
-"""prefilter_service.py — Bản không-Streamlit của
-`ui/data.py::get_embedding_model_cached`, `prefilter_documents_by_query`.
-
-Model embedding cache trên `app.state.embedding_model` (lazy-init, xem
-`api/app.py::lifespan`) thay vì `@st.cache_resource`.
+"""prefilter_service.py — Tiền lọc tài liệu theo câu hỏi (cosine trên
+`doc_summary`), dùng chung bởi UI và REST API. Hàm lõi nhận sẵn `model` —
+nơi giữ cache model là việc của caller (`app.state.embedding_model` ở API,
+`st.cache_resource` ở UI).
 """
 
 from __future__ import annotations
@@ -28,13 +27,12 @@ def get_embedding_model(state):
 
 
 def prefilter_documents_by_query(
-    state, query: str, documents: Sequence[DocumentRow], top_k: int = 3
+    model, query: str, documents: Sequence[DocumentRow], top_k: int = 3
 ) -> list[DocumentRow]:
     """>3 tài liệu đang chọn -> cosine trên `doc_summary` cấp tài liệu để thu
     hẹp TRƯỚC KHI gộp cây. Không thêm LLM call — chỉ N+1 embedding call rẻ."""
     if len(documents) <= 3:
         return list(documents)
-    model = get_embedding_model(state)
     query_vec = np.asarray(model.create_embedding(query), dtype=np.float32)
     query_norm = np.linalg.norm(query_vec)
     if query_norm > 0:

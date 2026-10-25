@@ -338,8 +338,9 @@ slidegen-rag/
 │   │   └── memory_store.py, catalog_store.py   # In-memory fallbacks (no DATABASE_URL / tests)
 │   ├── api/                    # REST API (FastAPI) — see Usage Guide § REST API
 │   │   ├── app.py              # App factory + lifespan bootstrap + CORS
-│   │   ├── routers/            # projects, documents, jobs, sessions, chat, health
-│   │   └── services/           # Non-Streamlit ports of ui/data.py's business logic
+│   │   └── routers/            # projects, documents, jobs, sessions, chat, health
+│   ├── services/               # Business logic shared by UI and API (no Streamlit/FastAPI):
+│   │                           # tree_cache, ingest, chat, prefilter, jobs, document_loader
 │   ├── evaluate/               # Gradio LLM-as-a-Judge dashboard
 │   │   ├── settings.py        # Paths, display thresholds, process-wide setup
 │   │   ├── io.py              # Read/write question, answer, chunks, state files
@@ -353,12 +354,13 @@ slidegen-rag/
 │   ├── config.py              # Central config (models, thresholds, paths, loop budget)
 │   ├── ingest.py              # CLI: build & serialize trees
 │   └── main.py                # CLI: interactive Q&A / single query
+├── .streamlit/config.toml       # Streamlit theme
 ├── ui/                          # Streamlit UI — see Usage Guide § Streamlit UI.
 │                                # Separate top-level package, NOT under src/slidegen_rag/,
 │                                # so it can be swapped for a different frontend later.
 ├── migrations/                  # Alembic (async) — projects/documents/sessions schema
 ├── data/
-│   ├── src/                   # Raw Markdown sources
+│   ├── src/                   # Raw sources (.md/.txt/.docx/.pdf)
 │   ├── index/                 # Serialized tree indices (.pkl)
 │   ├── projects/<project_id>/ # Per-project uploaded docs + indices (UI/API multi-tenant flow)
 │   └── test/<topic>/          # Benchmarks: questions, references, cached answers,
@@ -422,7 +424,10 @@ uv run alembic upgrade head
 
 ### 1. Ingest documents (build the tree index)
 
-Parses Markdown in `data/src/` and writes `.pkl` indices to `data/index/`:
+Parses the sources in `data/src/` (`.md`, `.txt`, `.docx`, `.pdf`) and writes `.pkl` indices
+to `data/index/`. DOCX keeps headings, lists and tables; PDF is plain text extraction (no OCR,
+no heading detection — each page becomes a `## Trang N` section). Non-Markdown files are
+converted to Markdown first (`services/document_loader.py`):
 
 ```bash
 uv run slidegen-ingest
@@ -465,10 +470,11 @@ trying the system without writing any client code. Lives at `ui/` (repo root, **
 and the migrations applied:
 
 ```bash
-uv run streamlit run ui/app.py
+uv run slidegen-ui          # same as: uv run streamlit run ui/app.py
 ```
 
-Opens on `http://localhost:8501`. Create a project, upload a Markdown document, wait for the
+The UI calls `slidegen_rag.services` in-process — it does **not** need `slidegen-api` running.
+Opens on `http://localhost:8501`. Create a project, upload a document (`.md`/`.docx`/`.pdf`), wait for the
 background indexing job to finish (progress bar polls every second), then open the chat page
 and ask questions — citations link back to the exact tree node and source lines.
 
@@ -493,7 +499,7 @@ always-up-to-date reference; the table below is a map of what exists.
 | `GET /health`, `GET /health/db` | Liveness / Postgres readiness |
 | `POST /projects`, `GET /projects`, `GET\|PATCH\|DELETE /projects/{id}` | Project CRUD |
 | `GET /projects/{id}/stats`, `GET /projects/{id}/documents` | Project dashboard data |
-| `POST /projects/{id}/documents` | Upload a Markdown document (multipart: `title`, `file`) |
+| `POST /projects/{id}/documents` | Upload a `.md`/`.txt`/`.docx`/`.pdf` document (multipart: `title`, `file`; `422` if unsupported/empty) |
 | `GET\|PATCH\|DELETE /documents/{id}` | Document detail / rename / soft-delete |
 | `POST /documents/{id}/index` | Start (re)indexing — returns `202` + `job_id` immediately |
 | `GET /documents/{id}/indexes` | History of indexing attempts |

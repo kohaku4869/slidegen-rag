@@ -10,6 +10,7 @@ import streamlit as st
 from slidegen_rag.tree.stats import build_stats_from_dict, format_ingest_report
 from ui import data as ui_data
 from ui.components.tree_browser import render_tree_browser
+from ui.layout import breadcrumb
 
 document_id_str = ui_data.resolve_id_param("focus_document_id")
 focus_node_id = st.session_state.pop("focus_node_id", None)
@@ -29,13 +30,10 @@ if doc is None or doc.deleted_at is not None:
         st.switch_page("pages/projects.py")
     st.stop()
 
-st.title(f"📄 D{doc.ref_no} · {doc.title}")
-col_back, col_rename = st.columns([1, 5])
-with col_back:
-    if st.button("← Project"):
-        st.session_state["active_project_id"] = str(doc.project_id)
-        st.query_params["active_project_id"] = str(doc.project_id)
-        st.switch_page("pages/project_home.py")
+st.session_state["active_project_id"] = str(doc.project_id)
+st.query_params["active_project_id"] = str(doc.project_id)
+breadcrumb(("Projects", "pages/projects.py"), ("Project", "pages/project_home.py"), (f"D{doc.ref_no}", None))
+st.title(doc.title)
 
 building = doc.status in ("queued", "parsing", "summarizing", "embedding")
 tab_overview, tab_tree, tab_source = st.tabs(["Tổng quan", "Cây", "Nguồn"])
@@ -55,7 +53,7 @@ with tab_overview:
     st.subheader("Lịch sử build")
     indexes = ui_data.run_async(document_repo.list_indexes(document_id))
     for idx in indexes:
-        badge = "✅" if idx.status == "ready" else ("❌" if idx.status == "failed" else "↩️")
+        badge = {"ready": "✅", "failed": "❌"}.get(idx.status, "↩️")
         with st.expander(f"{badge} Lần {idx.attempt_no} · {idx.status} · {idx.created_at:%Y-%m-%d %H:%M}"):
             if idx.error_message:
                 st.code(idx.error_message, language=None)
@@ -64,7 +62,7 @@ with tab_overview:
                 st.code(format_ingest_report(stats), language=None)
 
     if doc.status == "failed" or not building:
-        if st.button("🔁 Build lại"):
+        if st.button("Build lại", icon=":material/refresh:"):
             src_path = ui_data.source_md_path(doc.project_id, doc.id)
             if not src_path.exists():
                 st.error(f"Không tìm thấy file nguồn: {src_path}")
@@ -79,7 +77,7 @@ with tab_overview:
 active_jobs = st.session_state.get("active_ingest_jobs", {})
 job_id = active_jobs.get(str(doc.id))
 if job_id is not None:
-    from ui.jobs import get_job_registry
+    from slidegen_rag.services.jobs import get_job_registry
 
     job = get_job_registry().get(job_id)
     if job is not None:
@@ -104,10 +102,7 @@ with tab_tree:
         if index_row is None or not index_row.artifact_path:
             st.error("Không tìm thấy artifact_path của bản index active.")
         else:
-            import os
-
-            mtime_ns = os.stat(index_row.artifact_path).st_mtime_ns
-            tree = ui_data.load_tree_cached(index_row.artifact_path, mtime_ns)
+            tree = ui_data.load_tree_cached(index_row.artifact_path)
             render_tree_browser(tree, key_prefix=f"tree_{document_id}", focus_node_id=focus_node_id)
 
 with tab_source:
@@ -120,10 +115,7 @@ with tab_source:
         if index_row is None or not index_row.artifact_path:
             st.error("Không tìm thấy artifact_path của bản index active.")
         else:
-            import os
-
-            mtime_ns = os.stat(index_row.artifact_path).st_mtime_ns
-            tree = ui_data.load_tree_cached(index_row.artifact_path, mtime_ns)
+            tree = ui_data.load_tree_cached(index_row.artifact_path)
             lines = (tree.source_text or "").split("\n")
             numbered = "\n".join(f"{i + 1:>5} | {line}" for i, line in enumerate(lines))
             st.code(numbered, language=None)

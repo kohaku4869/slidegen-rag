@@ -9,16 +9,24 @@ from uuid import UUID
 
 import streamlit as st
 
+from slidegen_rag.services.document_loader import (
+    SUPPORTED_EXTENSIONS,
+    EmptyDocumentError,
+    UnsupportedDocumentError,
+    to_markdown,
+)
+from slidegen_rag.services.jobs import get_job_registry
 from ui import data as ui_data
+from ui.layout import breadcrumb
 
 _STATUS_BADGE = {
-    "queued": ("⏳ Trong hàng đợi", "gray"),
-    "parsing": ("⚙️ Đang phân tích", "blue"),
-    "summarizing": ("⚙️ Đang tóm tắt", "blue"),
-    "embedding": ("⚙️ Đang embed", "blue"),
-    "ready": ("✅ Sẵn sàng", "green"),
-    "failed": ("❌ Lỗi", "red"),
-    "superseded": ("↩️ Bản cũ", "gray"),
+    "queued": ("Trong hàng đợi", "gray"),
+    "parsing": ("Đang phân tích", "blue"),
+    "summarizing": ("Đang tóm tắt", "blue"),
+    "embedding": ("Đang embed", "blue"),
+    "ready": ("Sẵn sàng", "green"),
+    "failed": ("Lỗi", "red"),
+    "superseded": ("Bản cũ", "gray"),
 }
 
 
@@ -45,19 +53,20 @@ if project is None or project.deleted_at is not None:
         st.switch_page("pages/projects.py")
     st.stop()
 
-st.title(f"🗂️ {project.name}")
-if st.button("← Tất cả project"):
-    st.switch_page("pages/projects.py")
+breadcrumb(("Projects", "pages/projects.py"), (project.name, None))
 
 
 @st.dialog("Upload tài liệu")
 def _upload_dialog() -> None:
-    uploaded = st.file_uploader("Chọn file .md", type=["md"])
+    uploaded = st.file_uploader(
+        "Chọn file", type=[e.lstrip(".") for e in SUPPORTED_EXTENSIONS]
+    )
     if uploaded is None:
         return
-    text = uploaded.getvalue().decode("utf-8", errors="ignore")
-    if not text.strip():
-        st.warning("File rỗng.")
+    try:
+        text = to_markdown(uploaded.name, uploaded.getvalue())
+    except (UnsupportedDocumentError, EmptyDocumentError) as e:
+        st.warning(str(e))
         return
     title = st.text_input("Tiêu đề", value=uploaded.name.rsplit(".", 1)[0])
     source_sha1 = hashlib.sha1(text.strip().encode("utf-8")).hexdigest()
@@ -97,35 +106,57 @@ def _upload_dialog() -> None:
         st.rerun()
 
 
-col_docs, col_sessions = st.columns([3, 2])
+ready_docs = [d for d in ui_data.list_documents_cached(str(project_id)) if d.status == "ready"]
 
-with col_docs:
-    st.subheader("Nguồn")
-    if st.button("⬆️ Upload tài liệu"):
+title_col, chat_col = st.columns([4, 1], vertical_alignment="center")
+title_col.title(project.name)
+if chat_col.button(
+    "Chat mới",
+    icon=":material/chat:",
+    type="primary",
+    width="stretch",
+    disabled=not ready_docs,
+    help=None if ready_docs else "Cần ít nhất 1 tài liệu sẵn sàng (status ready)",
+):
+    session_repo = ui_data.get_session_repo()
+    state = ui_data.run_async(
+        session_repo.create_session(project_id=project_id, user_id=ui_data.LOCAL_USER_ID)
+    )
+    ui_data.run_async(session_repo.set_session_scope(state.id, [d.id for d in ready_docs]))
+    ui_data.invalidate_catalog()
+    st.session_state["active_session_id"] = str(state.id)
+    st.query_params["active_session_id"] = str(state.id)
+    st.switch_page("pages/chat.py")
+
+tab_docs, tab_sessions = st.tabs(["Tài liệu", "Phiên chat"])
+
+with tab_docs:
+    if st.button("Upload tài liệu", icon=":material/upload:"):
         _upload_dialog()
 
     documents = ui_data.list_documents_cached(str(project_id))
     active_jobs: dict[str, str] = st.session_state.get("active_ingest_jobs", {})
 
     if not documents:
-        st.info("Chưa có tài liệu nào trong project này.")
+        st.info("Chưa có tài liệu nào trong project này. Upload file .md/.docx/.pdf để bắt đầu.")
     else:
 
         @st.fragment(run_every=1.0 if active_jobs else None)
         def _render_documents() -> None:
-            from ui.jobs import get_job_registry
-
             registry = get_job_registry()
             still_active = dict(active_jobs)
             docs = ui_data.list_documents_cached(str(project_id))
             for doc in docs:
                 job_id = still_active.get(str(doc.id))
                 with st.container(border=True):
-                    header_cols = st.columns([0.5, 3, 2, 1.5])
-                    header_cols[0].write(f"D{doc.ref_no}")
-                    if header_cols[1].button(doc.title, key=f"open_doc_{doc.id}"):
-                        st.session_state["focus_document_id"] = str(doc.id)
-                        st.switch_page("pages/document.py")
+                    info_col, status_col, action_col = st.columns(
+                        [4, 3, 1.4], vertical_alignment="center"
+                    )
+                    info_col.markdown(f"**{doc.title}**")
+                    meta = f"D{doc.ref_no}"
+                    if doc.total_nodes:
+                        meta += f" · {doc.total_nodes} node · {doc.num_layers} layer"
+                    info_col.caption(meta)
 
                     if job_id is not None:
                         job = registry.get(job_id)
@@ -138,44 +169,33 @@ with col_docs:
                                 st.rerun()
                             else:
                                 total = max(snap["total_units"], 1)
-                                header_cols[2].progress(
+                                status_col.progress(
                                     min(snap["done_units"] / total, 1.0),
                                     text=snap["current_label"] or "Đang xử lý…",
                                 )
-                                if header_cols[3].button("Huỷ", key=f"cancel_{doc.id}"):
+                                if action_col.button("Huỷ", key=f"cancel_{doc.id}", width="stretch"):
                                     registry.request_cancel(job_id)
                                 continue
                     label, color = _STATUS_BADGE.get(doc.status, (doc.status, "gray"))
-                    header_cols[2].badge(label, color=color)
-                    if doc.total_nodes:
-                        header_cols[3].caption(f"{doc.total_nodes} node · {doc.num_layers} layer")
+                    status_col.badge(label, color=color)
+                    if action_col.button("Chi tiết", key=f"open_doc_{doc.id}", width="stretch"):
+                        st.session_state["focus_document_id"] = str(doc.id)
+                        st.switch_page("pages/document.py")
                     if doc.status == "failed":
-                        st.caption("Build lỗi — mở tài liệu để xem chi tiết và build lại.")
+                        st.caption("Build lỗi — mở chi tiết để xem và build lại.")
 
         _render_documents()
 
-with col_sessions:
-    st.subheader("Phiên chat")
-    ready_docs = [d for d in ui_data.list_documents_cached(str(project_id)) if d.status == "ready"]
-    if not ready_docs:
-        st.button("💬 Chat mới", disabled=True, help="Cần ít nhất 1 tài liệu sẵn sàng (status ready)")
-    elif st.button("💬 Chat mới", type="primary"):
-        session_repo = ui_data.get_session_repo()
-        state = ui_data.run_async(
-            session_repo.create_session(project_id=project_id, user_id=ui_data.LOCAL_USER_ID)
-        )
-        ui_data.run_async(session_repo.set_session_scope(state.id, [d.id for d in ready_docs]))
-        ui_data.invalidate_catalog()
-        st.session_state["active_session_id"] = str(state.id)
-        st.query_params["active_session_id"] = str(state.id)
-        st.switch_page("pages/chat.py")
-
+with tab_sessions:
     sessions = ui_data.list_sessions_cached(str(project_id))
-    for s in sessions:
+    if not sessions:
+        st.info('Chưa có phiên chat nào. Bấm "Chat mới" để bắt đầu.')
+    for s_ in sessions:
         with st.container(border=True):
-            label = s.title or f"Phiên {str(s.id)[:8]}"
-            if st.button(label, key=f"open_session_{s.id}", width="stretch"):
-                st.session_state["active_session_id"] = str(s.id)
-                st.query_params["active_session_id"] = str(s.id)
+            info_col, action_col = st.columns([5, 1.4], vertical_alignment="center")
+            info_col.markdown(f"**{s_.title or f'Phiên {str(s_.id)[:8]}'}**")
+            info_col.caption(f"Hoạt động gần nhất: {s_.last_active_at:%d/%m/%Y %H:%M}")
+            if action_col.button("Mở", key=f"open_session_{s_.id}", width="stretch"):
+                st.session_state["active_session_id"] = str(s_.id)
+                st.query_params["active_session_id"] = str(s_.id)
                 st.switch_page("pages/chat.py")
-            st.caption(f"Hoạt động gần nhất: {s.last_active_at:%Y-%m-%d %H:%M}")

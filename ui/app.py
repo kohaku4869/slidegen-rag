@@ -36,19 +36,23 @@ def configure_ui_logging() -> None:
 
 configure_ui_logging()
 
-st.set_page_config(page_title="Slidegen RAG", page_icon="📚", layout="wide")
+st.set_page_config(page_title="Slidegen RAG", page_icon=":material/menu_book:", layout="wide")
 
 from ui.data import ensure_database_configured
+from ui.layout import render_sidebar_nav
 
 ensure_database_configured()
 
 pages = [
-    st.Page("pages/projects.py", title="Projects", icon="📁", url_path="projects", default=True),
-    st.Page("pages/project_home.py", title="Project", icon="🗂️", url_path="project"),
-    st.Page("pages/chat.py", title="Chat", icon="💬", url_path="chat"),
-    st.Page("pages/document.py", title="Tài liệu", icon="📄", url_path="document"),
-    st.Page("pages/settings.py", title="Settings", icon="⚙️", url_path="settings"),
+    st.Page("pages/projects.py", title="Projects", icon=":material/folder:", url_path="projects", default=True),
+    st.Page("pages/project_home.py", title="Project", icon=":material/folder_open:", url_path="project"),
+    st.Page("pages/chat.py", title="Chat", icon=":material/chat:", url_path="chat"),
+    st.Page("pages/document.py", title="Tài liệu", icon=":material/description:", url_path="document"),
+    st.Page("pages/settings.py", title="Settings", icon=":material/settings:", url_path="settings"),
 ]
 
-nav = st.navigation(pages)
+# Nav ẩn: chỉ Projects/Settings hiện ở sidebar (xem `ui/layout.py`); các trang
+# cần ngữ cảnh đi qua breadcrumb/nút trong trang.
+nav = st.navigation(pages, position="hidden")
+render_sidebar_nav()
 nav.run()

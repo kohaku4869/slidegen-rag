@@ -1,11 +1,9 @@
-"""tree_cache.py — Bản không-Streamlit của `ui/data.py::load_tree_cached`,
-`_tree_builder_retriever_config`, `_build_merged_ra_cached`,
-`_load_merge_parts`, `get_merged_ra`.
+"""tree_cache.py — Nạp cây `.pkl` + gộp nhiều tài liệu thành một
+`RetrievalAugmentation`, dùng chung bởi UI và REST API.
 
-Logic giữ nguyên; chỉ thay `@st.cache_resource` bằng cache thủ công dựa trên
-`OrderedDict` (LRU đơn giản, cap kích thước) được lưu ở `app.state.tree_cache`/
-`app.state.merged_ra_cache` (xem `api/deps.py`), và thay `run_async(...)`
-bằng `await` trực tiếp — route handler của FastAPI đã chạy trong coroutine.
+Cache là `OrderedDict` (LRU đơn giản, cap kích thước) do caller sở hữu:
+`app.state.tree_cache`/`merged_ra_cache` ở API (xem `api/deps.py`),
+`st.cache_resource` ở UI (xem `ui/data.py`).
 """
 
 from __future__ import annotations
@@ -19,7 +17,7 @@ from slidegen_rag.config import RetrieverConfig, TreeConfig
 from slidegen_rag.memory.catalog import DocumentRepository
 from slidegen_rag.memory.dto import DocumentIndexRow, DocumentRow
 from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation
-from ui.merge import merge_trees
+from slidegen_rag.tree.merge import merge_trees
 
 _TREE_CACHE_MAX_ENTRIES = 8
 _RA_CACHE_MAX_ENTRIES = 2

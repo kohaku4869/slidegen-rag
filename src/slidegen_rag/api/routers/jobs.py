@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from slidegen_rag.api.deps import DocumentRepoDep, JobRegistryDep, TreeCacheDep
 from slidegen_rag.api.errors import NotFoundError
 from slidegen_rag.api.schemas.jobs import JobStatusOut
-from slidegen_rag.api.services import ingest_service
+from slidegen_rag.services import ingest_service
 
 router = APIRouter(prefix="/api/v1/jobs", tags=["jobs"])
 

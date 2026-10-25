@@ -15,7 +15,7 @@ from slidegen_rag.api.schemas.sessions import (
     SessionScopeIn,
 )
 from slidegen_rag.config import MemoryConfig
-from ui.data import LOCAL_USER_ID
+from slidegen_rag.config import LOCAL_USER_ID
 
 router = APIRouter(prefix="/api/v1", tags=["sessions"])
 

@@ -1,36 +1,16 @@
 """
 components/citations.py — Hàng chip trích dẫn dưới mỗi câu trả lời (xem
-plan6.md D1). `extract_citations` là phần thuần (không Streamlit) — test được
-độc lập; `render_*` vẽ UI và cần `merged_tree`/`document_repo` của phiên.
+plan6.md D1). `extract_citations` nằm ở `slidegen_rag.services.citations` (thuần, không
+Streamlit); `render_*` vẽ UI và cần `merged_tree`/`document_repo` của phiên.
 """
 
 from __future__ import annotations
 
 import streamlit as st
 
+from slidegen_rag.services.citations import extract_citations  # noqa: F401 — re-export
+from slidegen_rag.tree.merge import resolve_node
 from ui import data as ui_data
-from ui.merge import resolve_node
-
-
-def extract_citations(final_state: dict, max_chips: int = 8) -> list[dict]:
-    """`zip(documents, document_node_ids, document_priorities)` là 1:1 (xem
-    `agent/graph/state.py::AgentState`) — lọc `node_id is not None`, dedupe
-    (giữ priority cao nhất nếu 1 node xuất hiện nhiều lần), sắp giảm dần theo
-    priority, cắt `max_chips`."""
-    documents = final_state.get("documents") or []
-    node_ids = final_state.get("document_node_ids") or []
-    priorities = final_state.get("document_priorities") or []
-
-    seen: dict[int, dict] = {}
-    for text, node_id, priority in zip(documents, node_ids, priorities):
-        if node_id is None:
-            continue
-        existing = seen.get(node_id)
-        if existing is None or priority > existing["priority"]:
-            seen[node_id] = {"node_id": node_id, "text": text, "priority": priority}
-
-    ordered = sorted(seen.values(), key=lambda c: c["priority"], reverse=True)
-    return ordered[:max_chips]
 
 
 def render_live_citations(citations: list[dict], merged_tree, document_repo, *, key_prefix: str) -> None:

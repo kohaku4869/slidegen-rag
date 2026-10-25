@@ -25,7 +25,7 @@ def test_chat_missing_session_404(client):
 def test_chat_happy_path(client, monkeypatch):
     """Bỏ qua LangGraph/LLM thật — stub `get_merged_ra`/`run_agent_turn` ở
     tầng service, chỉ kiểm tra orchestration (contextualize/record/response)."""
-    from slidegen_rag.api.services import chat_service
+    from slidegen_rag.services import chat_service
 
     class _FakeTree:
         def __init__(self):
