@@ -16,3 +16,6 @@ benchmarks/.notebooklm_browser_data
 AGENTS.md
 CLAUDE.md
 plan/
+# Dữ liệu runtime (sinh ra khi chạy app/eval, không phải fixture)
+data/projects/
+data/test/*/runs/
