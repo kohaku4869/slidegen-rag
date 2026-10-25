@@ -224,11 +224,17 @@ def semantic_search(query: str, top_k: int = 3) -> str:
     ra = _get_ra()
 
     try:
+        # Cây gộp nhiều tài liệu (ui/merge.py) gắn `.doc_slices` — nới ngân
+        # sách token theo số tài liệu đang gộp (mỗi tài liệu thêm root/summary
+        # cạnh tranh top-k, xem plan6.md A4), cap 12k. Cây đơn (CLI, không đi
+        # qua merge.py) không có `.doc_slices` -> giữ nguyên 4000 như cũ.
+        n_docs = len(getattr(ra.tree, "doc_slices", None) or ())
+        max_tokens = min(4000 + 1500 * max(n_docs - 1, 0), 12000)
         context, layer_info = ra.retrieve(
             question=query,
             collapse_tree=True,
             top_k=top_k,
-            max_tokens=4000,
+            max_tokens=max_tokens,
             return_layer_information=True,
         )
         # context đã được get_text() làm phẳng và join bằng "\n\n" theo đúng

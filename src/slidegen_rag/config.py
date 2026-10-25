@@ -13,6 +13,8 @@ Các module khác import từ đây, không hardcode giá trị.
 
 import os
 from pathlib import Path
+from uuid import UUID
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,11 +24,17 @@ load_dotenv()
 # Thư mục gốc của project (repo root — 3 cấp trên: config.py -> slidegen_rag -> src -> root)
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Người dùng "Local" + project "Inbox" — backfill của migration 0002, chủ sở
+# hữu mặc định (app chạy local, chưa có đăng nhập thật). Dùng chung UI + API.
+LOCAL_USER_ID = UUID("00000000-0000-0000-0000-000000000001")
+INBOX_PROJECT_ID = UUID("00000000-0000-0000-0000-000000000002")
+
 DATA_SRC_DIR = ROOT_DIR / "data" / "src"
 
 DATA_INDEX_DIR = ROOT_DIR / "data" / "index"
 
 # ── Tree Builder Config ───────────────────────────────────────────────────
+
 
 class TreeConfig:
     """
@@ -50,6 +58,7 @@ class TreeConfig:
 
 
 # ── Tree Retriever Config ─────────────────────────────────────────────────
+
 
 class RetrieverConfig:
     """Tham số cho quá trình truy xuất từ cây (retrieval)."""
@@ -80,6 +89,7 @@ class RetrieverConfig:
 
 
 # ── Agent / LLM Config ────────────────────────────────────────────────────
+
 
 class LLMConfig:
     """Tham số cho LLM sử dụng trong Agent (Google Gemini)."""
@@ -159,7 +169,9 @@ class LangSmithConfig:
     """
 
     # Endpoint LangSmith (mặc định là cloud SaaS)
-    ENDPOINT: str = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com").strip()
+    ENDPOINT: str = os.getenv(
+        "LANGSMITH_ENDPOINT", "https://api.smith.langchain.com"
+    ).strip()
 
     # API key; rỗng => tự động tắt tracing
     API_KEY: str = os.getenv("LANGSMITH_API_KEY", "").strip()
@@ -184,7 +196,30 @@ class LangSmithConfig:
     TRAJECTORY_FILENAME: str = "trajectory.txt"
 
 
+# ── Memory (session persistence) Config ───────────────────────────────────
+
+
+class MemoryConfig:
+    """Tham số cho tầng persist short-term memory (`memory/`).
+
+    Không set DATABASE_URL -> ENABLED=False -> InMemorySessionRepository,
+    UX y hệt hôm nay. Set nhưng không kết nối được -> fail loudly lúc khởi
+    động (xem memory/engine.py), không degrade âm thầm — mất một session sau
+    20 lượt chat tệ hơn crash sớm.
+    """
+
+    # postgresql+asyncpg://user:pass@host:port/dbname
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "").strip()
+
+    ENABLED: bool = _env_flag("MEMORY_PERSIST", default=True) and bool(DATABASE_URL)
+
+    POOL_SIZE: int = 5
+    CONNECT_TIMEOUT_S: int = 5
+    SESSION_MAX_TURNS: int = 5
+
+
 # ── Summarization Model Config ────────────────────────────────────────────
+
 
 class SummarizationConfig:
     """Tham số cho LLM dùng để tóm tắt node trong quá trình build tree."""

@@ -12,15 +12,16 @@ from typing import Optional
 import gradio as gr
 import pandas as pd
 
+from slidegen_rag.evaluate import compare as compare_mod
 from slidegen_rag.evaluate.io import get_available_topics
 from slidegen_rag.evaluate.report import (
     create_all_topics_chart,
     create_single_topic_chart,
     create_summary_table,
-    export_evaluation_results,
     generate_summary_kpi_html,
 )
 from slidegen_rag.evaluate.runner import run_evaluation_for_topic
+from slidegen_rag.evaluate.runs import list_run_ids
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,8 @@ def evaluate_single_topic_handler(
     force_rerun: bool,
     lowcost: bool = False,
     regenerate_only: bool = False,
+    multi_turn: bool = False,
+    max_turns: int = 5,
     progress=gr.Progress(),
 ):
     """Handler đánh giá một chủ đề."""
@@ -52,12 +55,14 @@ def evaluate_single_topic_handler(
         def cb(msg):
             progress(0.4, desc=msg)
 
-        detail_df, summary, was_cached = run_evaluation_for_topic(
+        detail_df, summary, was_cached, run_id = run_evaluation_for_topic(
             topic,
             force_rerun=force_rerun,
             progress_callback=cb,
             lowcost=lowcost,
             regenerate_only=regenerate_only,
+            multi_turn=multi_turn,
+            max_turns=int(max_turns),
         )
 
         _current_detail_df = detail_df
@@ -86,7 +91,8 @@ def evaluate_single_topic_handler(
         display_df = detail_df[display_cols].copy()
         display_df = display_df.fillna("-")
 
-        export_evaluation_results(topic, detail_df, summary)
+        # export_evaluation_results đã được gọi bên trong run_evaluation_for_topic
+        # (cần run_id để ghi đúng runs/<run_id>/ — xem evaluate/runner.py).
 
         q_choices = [
             f"Câu {row['STT']}: {str(row['question'])[:60]}..."
@@ -98,15 +104,22 @@ def evaluate_single_topic_handler(
         tot = summary.get("total_questions", 0)
         fail = summary.get("failed_count", 0)
         fail_msg = f" (⚠️ {fail} câu lỗi không tính vào điểm tổng)" if fail > 0 else ""
-        mode_msg = (
-            " — ♻️ chế độ CHỈ GENERATE: chunk giữ nguyên từ lần chạy đầy đủ trước, "
-            "nên coverage/avg_chunks không phải số đo mới"
-            if regenerate_only
-            else ""
-        )
+        if regenerate_only:
+            mode_msg = (
+                " — ♻️ chế độ CHỈ GENERATE: chunk giữ nguyên từ lần chạy đầy đủ trước, "
+                "nên coverage/avg_chunks không phải số đo mới"
+            )
+        elif multi_turn:
+            mode_msg = (
+                f" — 🧠 chế độ MULTI-TURN: {tot} câu chạy như một phiên hội thoại "
+                f"liền mạch (max_turns={max_turns}), xem Tab 🆚 So sánh để đối chiếu "
+                f"chi phí với một run single-turn"
+            )
+        else:
+            mode_msg = ""
         status_msg = (
             f"✅ Hoàn tất đánh giá chủ đề **{topic}** "
-            f"(Thành công {succ}/{tot} câu{fail_msg}){mode_msg}!"
+            f"(Thành công {succ}/{tot} câu{fail_msg}){mode_msg} — run `{run_id}`!"
         )
 
         progress(1.0, desc="Hoàn tất!")
@@ -235,7 +248,7 @@ def evaluate_all_topics_handler(
             def cb(msg):
                 progress(base_prog + 0.5 / len(topics), desc=msg)
 
-            detail_df, summary, was_cached = run_evaluation_for_topic(
+            detail_df, summary, _was_cached, _run_id = run_evaluation_for_topic(
                 topic, force_rerun=force_rerun, progress_callback=cb, lowcost=lowcost
             )
 
@@ -244,8 +257,7 @@ def evaluate_all_topics_handler(
             total_questions += summary.get("total_questions", 0)
             total_success += summary.get("success_count", 0)
             total_failed += summary.get("failed_count", 0)
-
-            export_evaluation_results(topic, detail_df, summary)
+            # export_evaluation_results đã được gọi bên trong run_evaluation_for_topic.
 
         except Exception as e:
             logger.error(f"Lỗi khi đánh giá chủ đề {topic}: {e}", exc_info=True)
@@ -343,6 +355,110 @@ def evaluate_all_topics_handler(
     return chart, summary_df, detail_table_df, kpi_html, status_msg
 
 
+# ── Tab 3: So sánh 2 lần chạy ───────────────────────────────────────────
+
+_DELTA_COLORS = {
+    "≈ nhiễu": "#94a3b8",
+    "tốt hơn": "#10b981",
+    "kém hơn": "#ef4444",
+    "không có dữ liệu": "#94a3b8",
+    "rẻ hơn/nhanh hơn": "#10b981",
+    "đắt hơn/chậm hơn": "#ef4444",
+    "bằng nhau": "#94a3b8",
+}
+
+
+def _fmt_compare_value(v) -> str:
+    if v is None:
+        return "—"
+    if isinstance(v, float):
+        return f"{v:,.3f}"
+    if isinstance(v, int):
+        return f"{v:,}"
+    return str(v)
+
+
+def _compare_rows_html(rows: list[dict]) -> str:
+    out = []
+    for r in rows:
+        color = _DELTA_COLORS.get(r["delta_label"], "#1e293b")
+        delta_str = _fmt_compare_value(r["delta"])
+        out.append(
+            f"<tr>"
+            f"<td style='padding:4px 8px;'>{r['metric']}</td>"
+            f"<td style='padding:4px 8px;text-align:right;'>{_fmt_compare_value(r['a'])}</td>"
+            f"<td style='padding:4px 8px;text-align:right;'>{_fmt_compare_value(r['b'])}</td>"
+            f"<td style='padding:4px 8px;text-align:right;color:{color};font-weight:600;'>"
+            f"{delta_str} <span style='font-weight:400;font-size:11px;'>({r['delta_label']})</span></td>"
+            f"</tr>"
+        )
+    return "\n".join(out)
+
+
+def _format_compare_table(result: dict) -> str:
+    warnings_html = "".join(
+        f"<p style='color:#b45309;background:#fef3c7;padding:6px 10px;border-radius:6px;margin:4px 0;'>⚠️ {w}</p>"
+        for w in result["config_warnings"]
+    )
+    gaps_html = "".join(
+        f"<p style='color:#991b1b;background:#fee2e2;padding:6px 10px;border-radius:6px;margin:4px 0;'>🚫 {g}</p>"
+        for g in result["data_gaps"]
+    )
+    table_header = (
+        "<tr style='border-bottom:2px solid #e2e8f0;font-weight:700;'>"
+        "<td style='padding:4px 8px;'>Metric</td>"
+        "<td style='padding:4px 8px;text-align:right;'>A</td>"
+        "<td style='padding:4px 8px;text-align:right;'>B</td>"
+        "<td style='padding:4px 8px;text-align:right;'>Δ (A − B)</td>"
+        "</tr>"
+    )
+    return f"""
+    <div>
+        {warnings_html}
+        {gaps_html}
+        <h4 style="margin-top:16px;">📊 Chất lượng (LLM Judge)</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            {table_header}
+            {_compare_rows_html(result["quality_rows"])}
+        </table>
+        <h4 style="margin-top:16px;">💰 Chi phí / Thời gian</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            {table_header}
+            {_compare_rows_html(result["cost_rows"])}
+        </table>
+    </div>
+    """
+
+
+def compare_runs_handler(topic: str, run_a: str, run_b: str) -> str:
+    """Handler Tab 3 — thuần đọc file qua evaluate.compare, không gọi LLM."""
+    if not topic or not run_a or not run_b:
+        return "<p style='color:#94a3b8'>Chọn chủ đề + 2 run để so sánh.</p>"
+    try:
+        result = compare_mod.compare_runs(topic, run_a, run_b)
+    except Exception as e:
+        logger.error(f"Lỗi so sánh {topic} {run_a} vs {run_b}: {e}", exc_info=True)
+        return f"<div style='color:red'>❌ Lỗi: {e}</div>"
+    return _format_compare_table(result)
+
+
+def refresh_run_choices_handler(topic: str):
+    """`topic_dropdown.change`/`app.load` — nạp danh sách run của topic, gợi
+    ý Run A = mới nhất, Run B = `pick_baseline(topic, run_a)`."""
+    if not topic:
+        return gr.Dropdown(choices=[], value=None), gr.Dropdown(choices=[], value=None)
+    ids = list_run_ids(topic)
+    if not ids:
+        return gr.Dropdown(choices=[], value=None), gr.Dropdown(choices=[], value=None)
+    default_a = ids[0]
+    baseline_id, _label = compare_mod.pick_baseline(topic, default_a)
+    default_b = baseline_id or (ids[1] if len(ids) > 1 else None)
+    return (
+        gr.Dropdown(choices=ids, value=default_a),
+        gr.Dropdown(choices=ids, value=default_b),
+    )
+
+
 # ── Giao diện Gradio (theme & blocks) ─────────────────────────────────────
 
 
@@ -413,6 +529,24 @@ def build_gradio_app():
                     "nguyên `chunks.txt`.*"
                 )
 
+                with gr.Row(variant="panel"):
+                    with gr.Column(scale=2):
+                        chk_multiturn_single = gr.Checkbox(
+                            label="🧠 Multi-turn (30 câu chạy như MỘT phiên hội thoại có short-term memory)",
+                            value=False,
+                        )
+                    with gr.Column(scale=2):
+                        num_max_turns_single = gr.Number(
+                            label="max_turns (cửa sổ lịch sử ConversationManager)",
+                            value=5,
+                            precision=0,
+                            minimum=1,
+                        )
+                gr.Markdown(
+                    "*🧠 **Multi-turn**: bỏ qua cache — luôn chạy phiên mới. So sánh chi "
+                    "phí/thời gian với một run single-turn ở Tab 🆚 So sánh 2 lần chạy.*"
+                )
+
                 status_single = gr.Markdown("", label="Trạng thái")
 
                 with gr.Row():
@@ -474,6 +608,8 @@ def build_gradio_app():
                         chk_force_single,
                         chk_lowcost_single,
                         state_full_run,
+                        chk_multiturn_single,
+                        num_max_turns_single,
                     ],
                     outputs=single_outputs,
                 )
@@ -485,6 +621,8 @@ def build_gradio_app():
                         chk_force_single,
                         chk_lowcost_single,
                         state_regen_only,
+                        chk_multiturn_single,
+                        num_max_turns_single,
                     ],
                     outputs=single_outputs,
                 )
@@ -553,6 +691,60 @@ def build_gradio_app():
                         status_all,
                     ],
                 )
+
+            # ── TAB 3: So sánh 2 lần chạy ──────────────────────────────────
+            with gr.TabItem("🆚 So sánh 2 lần chạy", id="tab_compare"):
+                gr.Markdown(
+                    "So sánh CHẤT LƯỢNG và CHI PHÍ/THỜI GIAN giữa 2 run đã lưu trong "
+                    "`data/test/<topic>/runs/` — thuần đọc `summary.json`/`run_config.json`, "
+                    "không chạy lại gì. Δ dưới ngưỡng nhiễu (judge ±0.1, coverage ±1.0 điểm "
+                    "%) được đánh dấu **≈ nhiễu** thay vì tô xanh/đỏ."
+                )
+                with gr.Row(variant="panel"):
+                    with gr.Column(scale=2):
+                        compare_topic_dropdown = gr.Dropdown(
+                            choices=topic_choices,
+                            value=topic_choices[0] if topic_choices else None,
+                            label="Chủ đề (Topic)",
+                            interactive=True,
+                        )
+                    with gr.Column(scale=2):
+                        run_a_dropdown = gr.Dropdown(
+                            choices=[],
+                            label="Run A (mặc định: mới nhất)",
+                            interactive=True,
+                        )
+                    with gr.Column(scale=2):
+                        run_b_dropdown = gr.Dropdown(
+                            choices=[],
+                            label="Run B / baseline (mặc định: pick_baseline)",
+                            interactive=True,
+                        )
+                    with gr.Column(scale=1):
+                        btn_compare = gr.Button(
+                            "🆚 So sánh", variant="primary", size="lg"
+                        )
+
+                compare_result_html = gr.HTML(
+                    "<p style='color:#94a3b8'>Chọn chủ đề rồi nhấn 'So sánh'.</p>"
+                )
+
+                compare_topic_dropdown.change(
+                    fn=refresh_run_choices_handler,
+                    inputs=[compare_topic_dropdown],
+                    outputs=[run_a_dropdown, run_b_dropdown],
+                )
+                btn_compare.click(
+                    fn=compare_runs_handler,
+                    inputs=[compare_topic_dropdown, run_a_dropdown, run_b_dropdown],
+                    outputs=[compare_result_html],
+                )
+
+        app.load(
+            fn=refresh_run_choices_handler,
+            inputs=[compare_topic_dropdown],
+            outputs=[run_a_dropdown, run_b_dropdown],
+        )
 
     return app
 

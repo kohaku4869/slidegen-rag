@@ -95,3 +95,61 @@ def test_format_report_mentions_local_only_when_present():
     tracker.add_usage(_usage(200, 100), is_local=True)
     report_with_local = tracker.format_report()
     assert "Local (miễn phí)" in report_with_local
+
+
+def test_snapshot_returns_nine_raw_counters():
+    tracker = TokenTracker()
+    tracker.add_usage(_usage(1000, 500, reasoning=300), is_local=False)
+    tracker.add_usage(_usage(200, 100), is_local=True)
+
+    snap = tracker.snapshot()
+
+    assert snap == {
+        "gemini_calls": 1,
+        "gemini_input_tokens": 1000,
+        "gemini_output_tokens": 500,
+        "gemini_reasoning_tokens": 300,
+        "gemini_total_tokens": 1500,
+        "local_calls": 1,
+        "local_input_tokens": 200,
+        "local_output_tokens": 100,
+        "local_total_tokens": 300,
+    }
+
+
+def test_summary_from_delta_matches_get_summary_shape():
+    tracker = TokenTracker()
+    before = tracker.snapshot()
+    tracker.add_usage(_usage(1000, 500), is_local=False)
+    tracker.add_usage(_usage(200, 100), is_local=True)
+    after = tracker.snapshot()
+
+    delta_summary = TokenTracker.summary_from_delta(before, after, "gemini-2.5-flash")
+    direct_summary = tracker.get_summary("gemini-2.5-flash")
+
+    assert delta_summary == direct_summary
+
+
+def test_summary_from_delta_isolates_a_span_without_resetting():
+    """The whole point of delta accounting: code that runs BEFORE the span
+    (e.g. contextualize()) must not be wiped, and code that runs AFTER
+    capturing `after` must not leak into this span's numbers."""
+    tracker = TokenTracker()
+    tracker.add_usage(_usage(1000, 500), is_local=False)  # e.g. contextualize()
+
+    before = tracker.snapshot()
+    tracker.add_usage(_usage(300, 150), is_local=False)  # the span being measured
+    after = tracker.snapshot()
+
+    tracker.add_usage(_usage(9999, 9999), is_local=False)  # e.g. next turn's call
+
+    span_summary = TokenTracker.summary_from_delta(before, after)
+    assert span_summary["gemini_calls"] == 1
+    assert span_summary["gemini_input_tokens"] == 300
+    assert span_summary["gemini_output_tokens"] == 150
+
+    # Nothing was reset: the tracker's cumulative totals still include
+    # everything, including calls before `before` and after `after`.
+    full_summary = tracker.get_summary()
+    assert full_summary["gemini_calls"] == 3
+    assert full_summary["gemini_input_tokens"] == 1000 + 300 + 9999

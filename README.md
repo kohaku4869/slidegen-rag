@@ -318,20 +318,30 @@ ends retrieval.
 
 ```
 slidegen-rag/
-├── src/slidegen_rag/
+├── src/slidegen_rag/           # Backend package (agent, tree, memory, evaluate, api, CLI)
 │   ├── agent/
 │   │   ├── graph/             # State machine: builder, router, parent + facet state
 │   │   │   ├── builder.py     # Parent graph: decompose → fan-out → collect → generate
 │   │   │   ├── facet_subgraph.py  # Per-facet retrieve→tool→grade→evaluate loop
 │   │   │   ├── router.py      # Loop-exit logic (budget + no-progress guard)
 │   │   │   ├── state.py       # AgentState + make_initial_state
-│   │   │   └── conversation.py    # Multi-turn history for the CLI
+│   │   │   └── conversation.py    # Multi-turn history (CLI, UI, API all use this)
 │   │   ├── models/llm.py      # Multi-provider LLM wrapper & TokenTracker
 │   │   ├── nodes/             # One file per graph node
 │   │   ├── observability/     # LangSmith tracing, trajectory recorder
 │   │   ├── tools/tools.py     # Semantic / BM25 / drill-down / web search
 │   │   └── utils/             # prompts, context budget, document merge, text guard
-│   ├── evaluate/              # Gradio LLM-as-a-Judge dashboard
+│   ├── memory/                 # Postgres-backed session/project/document catalog
+│   │   ├── engine.py           # Async SQLAlchemy engine/sessionmaker + ping()
+│   │   ├── repository.py       # SessionRepository (Postgres) — chat sessions/messages
+│   │   ├── catalog.py          # ProjectRepository/DocumentRepository (Postgres)
+│   │   └── memory_store.py, catalog_store.py   # In-memory fallbacks (no DATABASE_URL / tests)
+│   ├── api/                    # REST API (FastAPI) — see Usage Guide § REST API
+│   │   ├── app.py              # App factory + lifespan bootstrap + CORS
+│   │   └── routers/            # projects, documents, jobs, sessions, chat, health
+│   ├── services/               # Business logic shared by UI and API (no Streamlit/FastAPI):
+│   │                           # tree_cache, ingest, chat, prefilter, jobs, document_loader
+│   ├── evaluate/               # Gradio LLM-as-a-Judge dashboard
 │   │   ├── settings.py        # Paths, display thresholds, process-wide setup
 │   │   ├── io.py              # Read/write question, answer, chunks, state files
 │   │   ├── metrics.py         # Deterministic coverage metrics
@@ -344,13 +354,19 @@ slidegen-rag/
 │   ├── config.py              # Central config (models, thresholds, paths, loop budget)
 │   ├── ingest.py              # CLI: build & serialize trees
 │   └── main.py                # CLI: interactive Q&A / single query
+├── .streamlit/config.toml       # Streamlit theme
+├── ui/                          # Streamlit UI — see Usage Guide § Streamlit UI.
+│                                # Separate top-level package, NOT under src/slidegen_rag/,
+│                                # so it can be swapped for a different frontend later.
+├── migrations/                  # Alembic (async) — projects/documents/sessions schema
 ├── data/
-│   ├── src/                   # Raw Markdown sources
+│   ├── src/                   # Raw sources (.md/.txt/.docx/.pdf)
 │   ├── index/                 # Serialized tree indices (.pkl)
+│   ├── projects/<project_id>/ # Per-project uploaded docs + indices (UI/API multi-tenant flow)
 │   └── test/<topic>/          # Benchmarks: questions, references, cached answers,
 │                              # chunks, trajectories, and every run's scores
 ├── scripts/                   # One-off tools (index migration, token report, scraper)
-└── tests/unit/                # Unit tests (uv run pytest)
+└── tests/                     # unit/ (incl. unit/api/), ui/, integration/ (needs Postgres)
 ```
 
 ---
@@ -372,33 +388,31 @@ uv sync
 
 ### 3. Environment Configuration
 
-Create a `.env` file in the root directory:
+Copy the example file and fill in your own keys:
 
-```env
-# Google Gemini API
-GEMINI_API_KEY="your-gemini-api-key"
-GEMINI_MODEL="gemini-3.5-flash-lite"
-
-# Tavily Web Search API (Optional for web search tool)
-TAVILY_API_KEY="your-tavily-api-key"
-
-# Local / OpenAI-Compatible Endpoint (Optional for local summarizer/grader/generator)
-LLM_BASE_URL="http://your-vllm-or-nim-server:8080/v1"
-LLM_API_KEY="your-api-key"
-
-# Remote Embedding Server (Optional, defaults to local BAAI/bge-m3)
-EMBEDDING_BASE_URL=""
-
-# LangSmith Tracing (Optional — enables trace links in trajectory.txt and on smith.langchain.com)
-LANGSMITH_TRACING="true"
-LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
-LANGSMITH_API_KEY="your-langsmith-api-key"
-LANGSMITH_PROJECT="slidegen-rag"
+```bash
+cp .env.example .env
 ```
 
-> Everything except `GEMINI_API_KEY` is optional and fail-soft: a missing LangSmith key
-> disables tracing with a warning, a missing Tavily key disables web search, and a missing
-> local endpoint falls back to Gemini.
+`.env.example` documents every variable (LLM providers, embeddings, LangSmith, Postgres,
+API CORS) with placeholder values and a one-line comment on each. The short version:
+
+| Variable | Required for | Fail-soft? |
+| :--- | :--- | :--- |
+| `GEMINI_API_KEY` | Retrieval/decompose/evaluation LLM calls | No — the one hard requirement |
+| `TAVILY_API_KEY` | `web_search` tool | Yes — tool just stays disabled |
+| `LLM_BASE_URL` / `LLM_API_KEY` | Local OpenAI-compatible generator (vLLM/NIM/DeepSeek) | Yes — falls back to Gemini |
+| `EMBEDDING_BASE_URL` | Remote embedding endpoint | Yes — falls back to local `BAAI/bge-m3` |
+| `LANGSMITH_*` | Tracing + trace links in `trajectory.txt` | Yes — tracing just turns off |
+| `DATABASE_URL` | Session memory, project/document catalog, the **Streamlit UI**, and the **REST API** | **No** for UI/API (they refuse to start without it) — CLI still works without it (in-memory sessions, lost on exit) |
+| `API_CORS_ORIGINS` | REST API — which frontend origin(s) may call it | Yes — defaults to `http://localhost:3000,http://127.0.0.1:3000` |
+
+If you plan to use the Streamlit UI or the REST API, also run the migrations once
+`DATABASE_URL` points at a real Postgres:
+
+```bash
+uv run alembic upgrade head
+```
 
 ---
 
@@ -410,7 +424,10 @@ LANGSMITH_PROJECT="slidegen-rag"
 
 ### 1. Ingest documents (build the tree index)
 
-Parses Markdown in `data/src/` and writes `.pkl` indices to `data/index/`:
+Parses the sources in `data/src/` (`.md`, `.txt`, `.docx`, `.pdf`) and writes `.pkl` indices
+to `data/index/`. DOCX keeps headings, lists and tables; PDF is plain text extraction (no OCR,
+no heading detection — each page becomes a `## Trang N` section). Non-Markdown files are
+converted to Markdown first (`services/document_loader.py`):
 
 ```bash
 uv run slidegen-ingest
@@ -445,10 +462,85 @@ charts, a per-question table, and a Question Inspector with that question's answ
 judge feedback and agent trajectory. Each run exports
 `data/test/<topic>/scores_<timestamp>.csv` and `summary_<timestamp>.json`.
 
-### 4. Tests and linting
+### 4. Streamlit UI — quick demo
+
+A ready-made multipage UI (projects → upload/index documents → chat with citations) for
+trying the system without writing any client code. Lives at `ui/` (repo root, **not** under
+`src/slidegen_rag/` — it's a separate, swappable frontend). Needs `DATABASE_URL` (see above)
+and the migrations applied:
+
+```bash
+uv run slidegen-ui          # same as: uv run streamlit run ui/app.py
+```
+
+The UI calls `slidegen_rag.services` in-process — it does **not** need `slidegen-api` running.
+Opens on `http://localhost:8501`. Create a project, upload a document (`.md`/`.docx`/`.pdf`), wait for the
+background indexing job to finish (progress bar polls every second), then open the chat page
+and ask questions — citations link back to the exact tree node and source lines.
+
+### 5. REST API — for integrating your own frontend
+
+A FastAPI layer at `src/slidegen_rag/api/` exposing the same projects/documents/sessions/chat
+functionality over HTTP, so a separate frontend (web, mobile, another service) can be built
+against it instead of embedding Python. Also needs `DATABASE_URL` + migrations — the server
+**fails to start** without a reachable Postgres (same policy as the Streamlit UI):
+
+```bash
+uv run slidegen-api                                            # 0.0.0.0:8000
+uv run uvicorn slidegen_rag.api.app:app --reload --port 8000   # dev, auto-reload
+```
+
+Every route is under `/api/v1`, and interactive docs (Swagger UI, generated from the actual
+Pydantic schemas) are served at `http://localhost:8000/docs` — that page is the authoritative,
+always-up-to-date reference; the table below is a map of what exists.
+
+| Method & path | Purpose |
+| :--- | :--- |
+| `GET /health`, `GET /health/db` | Liveness / Postgres readiness |
+| `POST /projects`, `GET /projects`, `GET\|PATCH\|DELETE /projects/{id}` | Project CRUD |
+| `GET /projects/{id}/stats`, `GET /projects/{id}/documents` | Project dashboard data |
+| `POST /projects/{id}/documents` | Upload a `.md`/`.txt`/`.docx`/`.pdf` document (multipart: `title`, `file`; `422` if unsupported/empty) |
+| `GET\|PATCH\|DELETE /documents/{id}` | Document detail / rename / soft-delete |
+| `POST /documents/{id}/index` | Start (re)indexing — returns `202` + `job_id` immediately |
+| `GET /documents/{id}/indexes` | History of indexing attempts |
+| `GET /jobs/{job_id}` | Poll an indexing job's progress; auto-commits the result once it finishes |
+| `POST /projects/{id}/sessions`, `GET /projects/{id}/sessions` | Create / list chat sessions |
+| `GET\|PATCH\|DELETE /sessions/{id}`, `POST /sessions/{id}/archive` | Session detail / rename / delete / archive |
+| `PUT /sessions/{id}/scope` | Set which documents a session queries |
+| `GET /sessions/{id}/messages` | Full message history with citations |
+| `POST /sessions/{id}/chat` | Ask one question (plain request/response, no streaming yet) |
+| `GET /sessions/{id}/nodes/{node_id}/excerpt` | Source excerpt for a citation chip |
+
+Minimal end-to-end flow with `curl`:
+
+```bash
+PROJECT_ID=$(curl -s -X POST localhost:8000/api/v1/projects \
+  -H "Content-Type: application/json" -d '{"name": "Demo"}' | jq -r .id)
+
+DOC_ID=$(curl -s -X POST "localhost:8000/api/v1/projects/$PROJECT_ID/documents" \
+  -F "title=My doc" -F "file=@data/src/pldc.md" | jq -r .id)
+
+JOB_ID=$(curl -s -X POST "localhost:8000/api/v1/documents/$DOC_ID/index" | jq -r .job_id)
+# poll: curl -s localhost:8000/api/v1/jobs/$JOB_ID | jq .state    (until "done")
+
+SESSION_ID=$(curl -s -X POST "localhost:8000/api/v1/projects/$PROJECT_ID/sessions" \
+  -H "Content-Type: application/json" -d '{}' | jq -r .id)
+
+curl -s -X PUT "localhost:8000/api/v1/sessions/$SESSION_ID/scope" \
+  -H "Content-Type: application/json" -d "{\"document_ids\": [\"$DOC_ID\"]}"
+
+curl -s -X POST "localhost:8000/api/v1/sessions/$SESSION_ID/chat" \
+  -H "Content-Type: application/json" -d '{"query": "Tóm tắt tài liệu này"}'
+```
+
+No auth in this version — point `API_CORS_ORIGINS` at your frontend's dev origin and treat
+the server as trusted-network-only until an auth layer is added.
+
+### 6. Tests and linting
 
 ```bash
 uv run pytest -m "not live"
+uv run pytest tests/unit/api -q   # just the REST API test suite (in-memory repos, no Postgres needed)
 uv run ruff check .
 uv run ruff format .
 ```

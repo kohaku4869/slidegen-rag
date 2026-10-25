@@ -31,17 +31,34 @@ dependencies = [
     "tenacity>=9.1.4",
     "tqdm>=4.70.0",
     "torch>=2.13.0",
+    "sqlalchemy>=2.0.52",
+    "asyncpg>=0.31.0",
+    "alembic>=1.20.0",
+    "streamlit>=1.64.0",
+    "fastapi>=0.141.1",
+    "uvicorn[standard]>=0.52.0",
+    "python-multipart>=0.0.32",
+    "pypdf>=6.21.2",
+    "python-docx>=1.2.0",
 ]
 
 [project.scripts]
 slidegen-ingest = "slidegen_rag.ingest:main"
 slidegen-ask = "slidegen_rag.main:main"
+slidegen-api = "slidegen_rag.api.__main__:main"
+slidegen-ui = "ui.__main__:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/slidegen_rag"]
+# `ui` sống ở repo root (KHÔNG dưới src/slidegen_rag) — tách hẳn khỏi package
+# backend để sẵn sàng thay bằng một frontend khác; khai báo ở đây để hatchling
+# cài nó như 1 top-level package thứ hai trong cùng editable install (import
+# `ui`/`ui.xxx` hoạt động ở mọi nơi venv được kích hoạt: streamlit, pytest,
+# API server).
+packages = ["src/slidegen_rag", "ui"]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=8.0.0",
     "pytest-asyncio>=0.24.0",
     "ruff>=0.8.0",

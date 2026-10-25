@@ -81,36 +81,77 @@ class TokenTracker:
             self.gemini_reasoning_tokens += reasoning
             self.gemini_total_tokens += tot
 
-    def get_summary(self, model_name: str = "gemini-3.5-flash-lite") -> dict:
-        pricing = GEMINI_PRICING.get(model_name, GEMINI_PRICING["gemini-2.5-flash"])
-        input_cost = (self.gemini_input_tokens / 1_000_000) * pricing["input_per_m"]
-        output_cost = (self.gemini_output_tokens / 1_000_000) * pricing["output_per_m"]
-        total_cost = input_cost + output_cost
-        vnd_cost = total_cost * 25400  # Tỷ giá tham khảo USD -> VNĐ
-
+    def snapshot(self) -> dict:
+        """Chụp 9 bộ đếm thô hiện tại (không tính giá) — dùng để lấy delta
+        giữa hai thời điểm mà không phải reset tracker (xem
+        `summary_from_delta`)."""
         return {
-            "calls": self.gemini_calls + self.local_calls,
             "gemini_calls": self.gemini_calls,
-            "local_calls": self.local_calls,
-            # Gemini-only — số dùng để tính chi phí, đáng tin cậy để theo dõi.
             "gemini_input_tokens": self.gemini_input_tokens,
             "gemini_output_tokens": self.gemini_output_tokens,
             "gemini_reasoning_tokens": self.gemini_reasoning_tokens,
             "gemini_total_tokens": self.gemini_total_tokens,
-            # Local — miễn phí (self-hosted), giữ riêng để biết agent tốn bao
-            # nhiêu token local mà KHÔNG lẫn vào chi phí Gemini.
+            "local_calls": self.local_calls,
             "local_input_tokens": self.local_input_tokens,
             "local_output_tokens": self.local_output_tokens,
             "local_total_tokens": self.local_total_tokens,
+        }
+
+    @staticmethod
+    def _summarize_counters(counters: dict, model_name: str) -> dict:
+        pricing = GEMINI_PRICING.get(model_name, GEMINI_PRICING["gemini-2.5-flash"])
+        gemini_input = counters["gemini_input_tokens"]
+        gemini_output = counters["gemini_output_tokens"]
+        gemini_calls = counters["gemini_calls"]
+        gemini_reasoning = counters["gemini_reasoning_tokens"]
+        gemini_total = counters["gemini_total_tokens"]
+        local_calls = counters["local_calls"]
+        local_input = counters["local_input_tokens"]
+        local_output = counters["local_output_tokens"]
+        local_total = counters["local_total_tokens"]
+
+        input_cost = (gemini_input / 1_000_000) * pricing["input_per_m"]
+        output_cost = (gemini_output / 1_000_000) * pricing["output_per_m"]
+        total_cost = input_cost + output_cost
+        vnd_cost = total_cost * 25400  # Tỷ giá tham khảo USD -> VNĐ
+
+        return {
+            "calls": gemini_calls + local_calls,
+            "gemini_calls": gemini_calls,
+            "local_calls": local_calls,
+            # Gemini-only — số dùng để tính chi phí, đáng tin cậy để theo dõi.
+            "gemini_input_tokens": gemini_input,
+            "gemini_output_tokens": gemini_output,
+            "gemini_reasoning_tokens": gemini_reasoning,
+            "gemini_total_tokens": gemini_total,
+            # Local — miễn phí (self-hosted), giữ riêng để biết agent tốn bao
+            # nhiêu token local mà KHÔNG lẫn vào chi phí Gemini.
+            "local_input_tokens": local_input,
+            "local_output_tokens": local_output,
+            "local_total_tokens": local_total,
             # Tương thích ngược: tổng gộp cả 2 provider (chỉ dùng khi cần biết
             # "tổng mọi LLM call", KHÔNG dùng để suy ra chi phí).
-            "input_tokens": self.gemini_input_tokens + self.local_input_tokens,
-            "output_tokens": self.gemini_output_tokens + self.local_output_tokens,
-            "total_tokens": self.gemini_total_tokens + self.local_total_tokens,
-            "reasoning_tokens": self.gemini_reasoning_tokens,
+            "input_tokens": gemini_input + local_input,
+            "output_tokens": gemini_output + local_output,
+            "total_tokens": gemini_total + local_total,
+            "reasoning_tokens": gemini_reasoning,
             "total_cost_usd": total_cost,
             "total_cost_vnd": vnd_cost,
         }
+
+    def get_summary(self, model_name: str = "gemini-3.5-flash-lite") -> dict:
+        return self._summarize_counters(self.snapshot(), model_name)
+
+    @staticmethod
+    def summary_from_delta(
+        before: dict, after: dict, model_name: str = "gemini-3.5-flash-lite"
+    ) -> dict:
+        """Cùng shape `get_summary()`, nhưng tính trên delta giữa hai
+        `snapshot()` thay vì đọc trực tiếp bộ đếm hiện tại — cho phép đo
+        token của MỘT đoạn code (vd một lượt `arun`) mà không phải `reset()`
+        tracker chung, vốn sẽ xóa mất số liệu của bất kỳ ai gọi bao ngoài."""
+        delta = {key: after.get(key, 0) - before.get(key, 0) for key in before}
+        return TokenTracker._summarize_counters(delta, model_name)
 
     def format_report(self, model_name: str = "gemini-3.5-flash-lite") -> str:
         summary = self.get_summary(model_name)

@@ -16,8 +16,15 @@ agent/observability/trajectory.py::render_trajectory):
       này để người đọc biết mà không tưởng nhầm là số chính xác.
 
 Usage:
-    uv run python scripts/gemini_token_report.py --topic pldc_v2
-    uv run python scripts/gemini_token_report.py --file data/test/pldc_v2/trajectory.txt
+    uv run python scripts/gemini_token_report.py --topic pldc_v2                  # LATEST.txt
+    uv run python scripts/gemini_token_report.py --topic pldc_v2 --run 20260916_204500
+    uv run python scripts/gemini_token_report.py --file data/test/pldc_v2/runs/20260916_204500/trajectory.txt
+
+Sau plan5.md Phần C, trajectory.txt không còn nằm phẳng ở
+data/test/<topic>/trajectory.txt (bị ghi đè mỗi lần chạy) mà ở
+data/test/<topic>/runs/<run_id>/trajectory.txt. `--topic` không kèm `--run`
+tự resolve qua LATEST.txt (evaluate.runs.resolve_latest) — dùng `--run` để
+soát một lần chạy cụ thể trong lịch sử.
 """
 
 import argparse
@@ -114,19 +121,36 @@ def main() -> int:
         description="Tổng hợp token/chi phí Gemini từ 1 file trajectory.txt đã lưu (không gọi lại LLM)."
     )
     parser.add_argument(
-        "--topic", help="Tên topic dưới data/test/<topic>/trajectory.txt"
+        "--topic", help="Tên topic dưới data/test/<topic>/runs/<run_id>/trajectory.txt"
+    )
+    parser.add_argument(
+        "--run",
+        help="run_id cụ thể (mặc định: LATEST.txt của topic đó). Chỉ dùng cùng --topic.",
     )
     parser.add_argument("--file", help="Đường dẫn trực tiếp tới 1 file trajectory.txt")
     args = parser.parse_args()
 
     if not args.topic and not args.file:
         parser.error("Cần truyền --topic hoặc --file")
+    if args.run and not args.topic:
+        parser.error("--run chỉ dùng cùng --topic")
 
-    path = (
-        Path(args.file)
-        if args.file
-        else Path("data/test") / args.topic / "trajectory.txt"
-    )
+    if args.file:
+        path = Path(args.file)
+    else:
+        from slidegen_rag.evaluate.runs import RunPaths, resolve_latest
+
+        run_id = args.run or resolve_latest(args.topic)
+        if run_id is None:
+            print(
+                f"Topic '{args.topic}' chưa có run nào trong data/test/{args.topic}/runs/ "
+                f"— chạy đánh giá trước, hoặc chạy scripts/migrate_eval_runs.py nếu đang "
+                f"dùng dữ liệu layout cũ.",
+                file=sys.stderr,
+            )
+            return 1
+        path = RunPaths.for_run(args.topic, run_id).trajectory
+
     if not path.exists():
         print(f"Không tìm thấy file: {path}", file=sys.stderr)
         return 1

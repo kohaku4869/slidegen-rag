@@ -22,6 +22,11 @@ import time
 from pathlib import Path
 from typing import Optional, Tuple
 
+from slidegen_rag.services.document_loader import (
+    SUPPORTED_EXTENSIONS,
+    EmptyDocumentError,
+    load_file,
+)
 from slidegen_rag.tree.stats import BuildStats, format_ingest_report, format_multi_file_summary
 
 # Fix Windows cp1252 encoding crash khi in UTF-8 ra stdout
@@ -109,9 +114,10 @@ def ingest_file(
     t_file_start = time.perf_counter()
 
     try:
-        text = md_path.read_text(encoding="utf-8", errors="ignore")
-        if not text.strip():
-            logger.warning(f"[WARN] File rỗng, bỏ qua: {md_path.name}")
+        try:
+            text = load_file(md_path)
+        except EmptyDocumentError as e:
+            logger.warning(f"[WARN] {e}, bỏ qua")
             return False, None
 
         ra = _build_ra(cfg_tree, cfg_sum)
@@ -157,13 +163,13 @@ def main():
     from slidegen_rag.config import DATA_SRC_DIR, DATA_INDEX_DIR, TreeConfig, SummarizationConfig
 
     parser = argparse.ArgumentParser(
-        description="Index các file Markdown thành cây phân cấp và lưu xuống đĩa."
+        description="Index các file Markdown/DOCX/PDF thành cây phân cấp và lưu xuống đĩa."
     )
     parser.add_argument(
         "--file", "-f",
         type=str,
         default=None,
-        help="Đường dẫn tới file .md cụ thể cần index. Nếu không truyền, index toàn bộ --src.",
+        help="Đường dẫn tới file cụ thể (.md/.txt/.docx/.pdf) cần index. Nếu không truyền, index toàn bộ --src.",
     )
     parser.add_argument(
         "--src", "-s",
@@ -199,9 +205,9 @@ def main():
             logger.error(f"File không tồn tại: {md_files[0]}")
             sys.exit(1)
     else:
-        md_files = sorted(src_dir.glob("*.md"))
+        md_files = sorted(p for p in src_dir.iterdir() if p.suffix.lower() in SUPPORTED_EXTENSIONS)
         if not md_files:
-            logger.warning(f"Không tìm thấy file .md nào trong: {src_dir}")
+            logger.warning(f"Không tìm thấy file nguồn ({', '.join(SUPPORTED_EXTENSIONS)}) nào trong: {src_dir}")
             sys.exit(0)
 
     logger.info(f"Tìm thấy {len(md_files)} file(s) cần index.")

@@ -15,6 +15,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def reset_agent_globals():
     """Chụp lại state cấp module trước mỗi test và trả về nguyên trạng sau đó."""
+    from slidegen_rag.agent.models.llm import LLMModel
     from slidegen_rag.agent.nodes import generate_node, retrieve_node
     from slidegen_rag.agent.tools import tools
 
@@ -24,6 +25,7 @@ def reset_agent_globals():
         generate_node._provider,
         dict(generate_node._llm_cache),
         dict(retrieve_node._llm_cache),
+        LLMModel.tracker.snapshot(),
     )
 
     yield
@@ -34,7 +36,11 @@ def reset_agent_globals():
         generate_node._provider,
         gen_cache,
         ret_cache,
+        tracker_snapshot,
     ) = saved
+    LLMModel.tracker.reset()
+    for key, value in tracker_snapshot.items():
+        setattr(LLMModel.tracker, key, value)
     # Gán lại NỘI DUNG chứ không thay object: có module đã giữ tham chiếu tới
     # chính dict này từ lúc import, thay object sẽ khiến chúng trỏ vào bản cũ.
     generate_node._llm_cache.clear()
