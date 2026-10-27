@@ -1,15 +1,26 @@
-# 📚 Document CRAG: Corrective RAG with Hierarchical Tree Indexing
+# 📚 HRAG: Hierarchical Agentic RAG
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph-orange.svg)](https://github.com/langchain-ai/langgraph)
 [![LangChain](https://img.shields.io/badge/Framework-LangChain-green.svg)](https://github.com/langchain-ai/langchain)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A question-answering system for long structured documents (built and benchmarked on a
+**HRAG** (Hierarchical Agentic RAG) is a question-answering system for long structured documents (built and benchmarked on a
 Vietnamese law textbook). It indexes a document as a **hierarchical tree** that mirrors the
 document's own heading structure, then answers with a **LangGraph agent** that splits a
 question into facets, retrieves for each facet in parallel, grades what it finds, and
 retries the parts that are still thin before writing a single grounded answer.
+
+> **Naming.** The project was previously called *Document CRAG*. HRAG is the project's
+> display name; the repository, Python package and CLI commands keep their original
+> `slidegen-rag` / `slidegen_rag` / `slidegen-*` names, so nothing in the commands below changed.
+
+| System (30 Vietnamese law questions, LLM judge) | Total score |
+|---|---|
+| Naive RAG | 5.9 |
+| RAPTOR + CRAG | 6.93 |
+| Hierarchical tree + CRAG | 7.89 |
+| **HRAG (multi-facet agent)** | **8.54** |
 
 Every change is measured: the repo ships a **Gradio LLM-as-a-Judge dashboard**, a 30-question
 benchmark, and the score/trajectory history of each run under `data/test/<topic>/`.
