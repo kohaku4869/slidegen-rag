@@ -1,0 +1,116 @@
+<html><body style='margin:0;background:white'><div id='arch' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>flowchart TB
+  subgraph FE["Frontend"]
+    direction LR
+    UI["Streamlit UI<br/>ui/"]
+    GR["Gradio dashboard<br/>evaluate/app.py"]
+    CLI["CLI<br/>slidegen-ask / ingest"]
+  end
+  subgraph BE["Backend"]
+    direction LR
+    API["FastAPI /api/v1<br/>routers + schemas"]
+    SVC["services/<br/>chat, ingest, jobs, tree_cache, prefilter"]
+    API --> SVC
+  end
+  subgraph CORE["RAG core"]
+    direction LR
+    AG["LangGraph agent<br/>decompose, facets, generate"]
+    TR["Tree index<br/>builder + retriever"]
+    MEM["ConversationManager<br/>short-term memory"]
+  end
+  subgraph ST["Storage"]
+    direction LR
+    PG[("PostgreSQL 18<br/>catalog, sessions, messages")]
+    FS[("Files<br/>data/projects/.../src, index .pkl")]
+  end
+  subgraph EXT["External models"]
+    direction LR
+    GEM["Gemini<br/>agent, generate"]
+    LOC["Self-hosted LLM<br/>grader, summarizer, generate"]
+    EMB["bge-m3<br/>embeddings"]
+  end
+  FE --> BE
+  BE --> CORE
+  CORE --> ST
+  CORE --> EXT</pre></div><br><div id='parent' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>flowchart TD
+  Start([User query]) --> Decompose["decompose_facets<br/>LLM splits into 1..N facets"]
+  Decompose -->|Send fan-out| F1["facet_subgraph #1"]
+  Decompose -->|Send fan-out| F2["facet_subgraph #2"]
+  Decompose -->|Send fan-out| FN["facet_subgraph #N"]
+  F1 --> Collect["collect_facets<br/>merge + dedup"]
+  F2 --> Collect
+  FN --> Collect
+  Collect --> Gen["generate<br/>one synthesis over merged pool"]
+  Gen --> End([Answer + citations])</pre></div><br><div id='facet' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>flowchart TD
+  R["retrieve<br/>LLM picks tools + args"] --> T["tool<br/>execute in parallel"]
+  T --> G["grade_documents<br/>relevant / incomplete / irrelevant"]
+  G --> E{"context_evaluator<br/>enough?"}
+  E -->|"no, rounds < MAX_RETRIEVE"| R
+  E -->|"yes, or budget spent"| Done([facet done])</pre></div><br><div id='erd' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>erDiagram
+  users ||--o{ projects : owns
+  projects ||--o{ documents : contains
+  projects ||--o{ sessions : has
+  documents ||--o{ document_indexes : "index attempts"
+  documents ||--o{ session_document_scope : in_scope
+  sessions ||--o{ session_document_scope : scope
+  sessions ||--|| session_memory : memory
+  sessions ||--o{ messages : history
+  messages ||--o{ message_citations : cites
+  projects { uuid id string name string language timestamp deleted_at }
+  documents { uuid id int ref_no string title char40 source_sha1 uuid active_index_id text doc_summary }
+  document_indexes { uuid id int attempt_no enum status string artifact_path jsonb build_stats }
+  sessions { uuid id string title enum status int next_seq }
+  session_memory { int max_turns text history_summary int compacted_through_seq }
+  messages { uuid id int seq enum role text content text standalone_query jsonb meta }
+  message_citations { uuid message_id int rank string node_id int priority }</pre></div><br><div id='memory' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>sequenceDiagram
+  participant U as User
+  participant CS as Chat service
+  participant CM as ConversationManager
+  participant AG as Agent graph
+  participant DB as PostgreSQL
+  U->>CS: query
+  CS->>CM: resume(session_id)
+  CM->>DB: load summary + messages after watermark
+  CS->>CM: contextualize(query)
+  Note over CM: last 3 turns + history_summary<br/>-> standalone question
+  CM-->>CS: standalone_query
+  CS->>AG: run (seed drill candidates from last citations)
+  AG-->>CS: answer + citations
+  CS->>CM: record_turn
+  CM->>DB: append user + assistant + citations
+  CS->>CM: maybe_compact
+  Note over CM: window > 2 x max_turns:<br/>LLM folds old turns into summary
+  CM->>DB: save summary, advance watermark
+  CS-->>U: answer</pre></div><br><div id='ingest' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>flowchart TB
+  subgraph S1["Nạp tài liệu"]
+    direction LR
+    A["Upload<br/>md / docx / pdf"] --> B["to_markdown + SHA-1<br/>dedup trong project"] --> C["documents row<br/>+ src/ID.md"] --> D["JobRegistry<br/>ThreadPool 1 worker"]
+  end
+  subgraph S2["Xây chỉ mục (chạy nền)"]
+    direction LR
+    E["Parse heading<br/>thành phân cấp"] --> F["Embed lá<br/>bge-m3"] --> G["Tóm tắt từ dưới lên<br/>theo từng tầng"] --> H["Embed tóm tắt"] --> I["Lưu index .pkl"]
+  end
+  S1 --> S2
+  S2 --> J["finalize_ingest_job<br/>status = ready"]</pre></div><br><div id='tree' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>flowchart TD
+  L4["Layer 4: super-root (1 node)"] --> L3["Layer 3: chapter summaries (16)"]
+  L3 --> L2["Layer 2: section summaries (26)"]
+  L2 --> L1["Layer 1: sub-section summaries (61)"]
+  L1 --> L0["Layer 0: leaves = original text of sections (216)"]</pre></div><br><div id='ui' style='display:inline-block;padding:16px;background:white'><pre class='mermaid'>sequenceDiagram
+  participant U as Người dùng
+  participant UI as Streamlit UI
+  participant SV as Tầng services
+  participant AG as Agent (luồng nền)
+  participant DB as PostgreSQL / file
+  U->>UI: gửi câu hỏi
+  UI->>SV: gọi hàm hỏi đáp
+  SV->>DB: nạp lịch sử và cây chỉ mục
+  SV->>AG: chạy agent
+  loop mỗi bước hoàn thành
+    AG-->>UI: đẩy trạng thái vào hàng đợi
+    UI-->>U: cập nhật hộp tiến trình
+  end
+  AG-->>SV: câu trả lời và trích dẫn
+  SV->>DB: lưu lượt hỏi đáp
+  SV-->>UI: kết quả
+  UI-->>U: hiển thị câu trả lời và chip trích dẫn</pre></div><br><script type='module'>import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs';
+mermaid.initialize({startOnLoad:false,theme:"neutral",themeVariables:{fontSize:"18px"},securityLevel:'loose',flowchart:{htmlLabels:true,useMaxWidth:false},sequence:{useMaxWidth:false},er:{useMaxWidth:false}});
+await mermaid.run(); window.done=true;</script></body></html>

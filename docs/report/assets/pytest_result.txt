@@ -1,0 +1,2 @@
+$ uv run pytest -m "not live"
+320 passed, 4 skipped in 16.80s

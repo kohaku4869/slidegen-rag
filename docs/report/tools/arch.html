@@ -1,0 +1,11 @@
+<html><body style='margin:0;background:white;font-family:Segoe UI,Arial,sans-serif'>
+<style>
+#a{width:1100px;padding:20px;background:white}
+.layer{border:2px solid #6b7280;border-radius:12px;padding:12px 16px}
+.t{font-weight:700;font-size:26px;margin-bottom:8px;color:#1F3864}
+.row{display:flex;gap:12px}
+.chip{flex:1;background:white;border:1.5px solid #9CA3AF;border-radius:8px;padding:12px 10px;text-align:center;font-size:23px;line-height:1.25}
+.arrow{text-align:center;font-size:30px;color:#4b5563;line-height:36px}
+.two{display:flex;gap:16px}.two .layer{flex:1}
+.two .row{flex-direction:column}
+</style><div id='a'><div class='layer' style='background:#DBE4F0'><div class='t'>Frontend</div><div class='row'><div class='chip'>Streamlit UI</div><div class='chip'>Gradio dashboard (đánh giá)</div><div class='chip'>Dòng lệnh (CLI)</div></div></div><div class='arrow'>&#9660;</div><div class='layer' style='background:#E3EFE0'><div class='t'>Backend</div><div class='row'><div class='chip'>Tầng services (hỏi đáp, lập chỉ mục, job, bộ nhớ đệm cây)</div></div></div><div class='arrow'>&#9660;</div><div class='layer' style='background:#FBEFD5'><div class='t'>RAG core</div><div class='row'><div class='chip'>LangGraph agent (decompose, facets, generate)</div><div class='chip'>Tree index (builder + retriever)</div><div class='chip'>ConversationManager (short-term memory)</div></div></div><div class='arrow'>&#9660;</div><div class='two'><div class='layer' style='background:#EDE3F2'><div class='t'>Storage</div><div class='row'><div class='chip'>PostgreSQL 18 (catalog, sessions, messages)</div><div class='chip'>File tài liệu nguồn và chỉ mục cây</div></div></div><div class='layer' style='background:#F6E0E0'><div class='t'>External models</div><div class='row'><div class='chip'>Gemini (agent, generate)</div><div class='chip'>Self-hosted LLM (grader, summarizer, generate)</div><div class='chip'>bge-m3 embeddings</div></div></div></div></div></body></html>
