@@ -17,7 +17,7 @@ retries the parts that are still thin before writing a single grounded answer.
 
 | System (30 Vietnamese law questions, LLM judge) | Total score |
 |---|---|
-| Naive RAG | 5.9 |
+| Naive RAG | 6.3 |
 | RAPTOR + CRAG | 6.93 |
 | Hierarchical tree + CRAG | 7.89 |
 | **HRAG (multi-facet agent)** | **8.54** |
