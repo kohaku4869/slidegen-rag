@@ -83,11 +83,13 @@ def _docx_to_markdown(data: bytes) -> str:
     from docx.text.paragraph import Paragraph
 
     doc = Document(io.BytesIO(data))
+    # `p.style` của python-docx tra cứu rất chậm (~ms/đoạn); dựng bảng id->tên một lần.
+    style_names = {s.style_id: s.name for s in doc.styles}
     blocks: list[str] = []
     for child in doc.element.body.iterchildren():
         tag = child.tag.rsplit("}", 1)[-1]
         if tag == "p":
-            md = _paragraph_to_markdown(Paragraph(child, doc))
+            md = _paragraph_to_markdown(Paragraph(child, doc), style_names)
         elif tag == "tbl":
             md = _table_to_markdown(Table(child, doc))
         else:
@@ -97,11 +99,13 @@ def _docx_to_markdown(data: bytes) -> str:
     return "\n\n".join(blocks) + "\n" if blocks else ""
 
 
-def _paragraph_to_markdown(p) -> str:
+def _paragraph_to_markdown(p, style_names: dict[str, str]) -> str:
     text = p.text.strip()
     if not text:
         return ""
-    style = (p.style.name if p.style is not None else "") or ""
+    ppr = p._p.pPr
+    style_id = ppr.pStyle.val if ppr is not None and ppr.pStyle is not None else None
+    style = style_names.get(style_id, "") if style_id else ""
     if style == "Title":
         return f"# {text}"
     m = re.match(r"Heading (\d)", style)

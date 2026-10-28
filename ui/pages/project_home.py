@@ -56,6 +56,18 @@ if project is None or project.deleted_at is not None:
 breadcrumb(("Projects", "pages/projects.py"), (project.name, None))
 
 
+@st.cache_data(show_spinner="Đang đọc file…", max_entries=8)
+def _convert_upload(name: str, data: bytes) -> tuple[str | None, str | None, str | None]:
+    """Convert + sha1 một lần cho mỗi nội dung file. Dialog rerun ở MỌI thao tác
+    (gõ tiêu đề, bấm nút) — không cache thì pypdf/python-docx chạy lại mỗi lần,
+    nút Upload hiện rất trễ. Trả `(text, sha1, lỗi)`: lỗi cũng được cache."""
+    try:
+        text = to_markdown(name, data)
+    except (UnsupportedDocumentError, EmptyDocumentError) as e:
+        return None, None, str(e)
+    return text, hashlib.sha1(text.strip().encode("utf-8")).hexdigest(), None
+
+
 @st.dialog("Upload tài liệu")
 def _upload_dialog() -> None:
     uploaded = st.file_uploader(
@@ -63,13 +75,11 @@ def _upload_dialog() -> None:
     )
     if uploaded is None:
         return
-    try:
-        text = to_markdown(uploaded.name, uploaded.getvalue())
-    except (UnsupportedDocumentError, EmptyDocumentError) as e:
-        st.warning(str(e))
+    text, source_sha1, error = _convert_upload(uploaded.name, uploaded.getvalue())
+    if error is not None:
+        st.warning(error)
         return
     title = st.text_input("Tiêu đề", value=uploaded.name.rsplit(".", 1)[0])
-    source_sha1 = hashlib.sha1(text.strip().encode("utf-8")).hexdigest()
     existing = ui_data.run_async(
         document_repo.find_by_sha1(project_id=project_id, source_sha1=source_sha1)
     )
