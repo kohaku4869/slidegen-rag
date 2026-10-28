@@ -38,10 +38,11 @@ configure_ui_logging()
 
 st.set_page_config(page_title="Slidegen RAG", page_icon=":material/menu_book:", layout="wide")
 
-from ui.data import ensure_database_configured
+from ui.data import ensure_database_configured, warm_up_heavy_imports
 from ui.layout import render_sidebar_nav
 
 ensure_database_configured()
+warm_up_heavy_imports()
 
 pages = [
     st.Page("pages/projects.py", title="Projects", icon=":material/folder:", url_path="projects", default=True),

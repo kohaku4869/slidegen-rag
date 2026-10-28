@@ -33,6 +33,7 @@ def get_engine(database_url: str | None = None) -> AsyncEngine:
         engine = create_async_engine(
             url,
             pool_size=MemoryConfig.POOL_SIZE,
+            pool_pre_ping=True,  # bỏ connection đã bị Postgres đóng thay vì văng "connection is closed"
             connect_args={"timeout": MemoryConfig.CONNECT_TIMEOUT_S},
         )
         if database_url is not None:

@@ -223,6 +223,14 @@ class LLMModel:
             self.model = model or "default"
 
             if self.base_url and self.api_key:
+                # Có Gemini fallback thì fail nhanh để chuyển sang Gemini sớm.
+                local_timeout = self.timeout
+                local_retries = self.max_retries
+                if self.fallback_to_gemini:
+                    if timeout is None:
+                        local_timeout = LLMConfig.LOCAL_TIMEOUT
+                    if max_retries is None:
+                        local_retries = LLMConfig.LOCAL_MAX_RETRIES
                 try:
                     self._client = ChatOpenAI(
                         base_url=self.base_url,
@@ -230,8 +238,8 @@ class LLMModel:
                         model=self.model,
                         temperature=self.temperature,
                         max_tokens=self.max_tokens,
-                        timeout=self.timeout,
-                        max_retries=self.max_retries,
+                        timeout=local_timeout,
+                        max_retries=local_retries,
                     )
                     logging.info(
                         f"[LLMModel] Initialized Local ChatOpenAI @ {self.base_url}"
@@ -281,7 +289,22 @@ class LLMModel:
         api_key: Optional[str] = None,
         temperature: float = 0.0,
         max_tokens: int = 4096,
-    ) -> ChatGoogleGenerativeAI:
+    ) -> BaseChatModel:
+        if os.getenv("LLM_BACKEND", "").strip().lower() == "openrouter":
+            openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+            if not openrouter_key:
+                raise RuntimeError(
+                    "LLM_BACKEND=openrouter nhưng OPENROUTER_API_KEY chưa được đặt trong .env."
+                )
+            return ChatOpenAI(
+                base_url=LLMConfig.OPENROUTER_BASE_URL,
+                api_key=openrouter_key,
+                model=os.getenv("OPENROUTER_MODEL") or LLMConfig.OPENROUTER_DEFAULT_MODEL,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                timeout=self.timeout,
+                max_retries=self.max_retries,
+            )
         key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         return ChatGoogleGenerativeAI(
             model=model,

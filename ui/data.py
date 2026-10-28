@@ -12,10 +12,13 @@ tạo lười qua `st.cache_resource` khi trang thật sự cần.
 
 from __future__ import annotations
 
+import importlib
+import logging
+import threading
 from collections import OrderedDict
 from collections.abc import Coroutine, Sequence
 from pathlib import Path
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
 import streamlit as st
@@ -30,12 +33,54 @@ from slidegen_rag.memory.catalog import (
 from slidegen_rag.memory.dto import DocumentRow
 from slidegen_rag.memory.engine import get_sessionmaker, ping
 from slidegen_rag.memory.repository import PostgresSessionRepository, SessionRepository
-from slidegen_rag.services import chat_service, ingest_service, prefilter_service, tree_cache
-from slidegen_rag.services.jobs import get_job_registry
-from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation
 from ui.runtime import AgentRuntime
 
+if TYPE_CHECKING:
+    from slidegen_rag.tree.RetrievalAugmentation import RetrievalAugmentation
+
 T = TypeVar("T")
+
+# Các module dưới đây kéo torch/transformers/langchain (~12s import). Import
+# lười trong hàm + nạp sẵn ở thread nền (`warm_up_heavy_imports`) để trang đầu
+# vẽ ngay, không trắng màn hình lúc khởi động.
+_HEAVY_MODULES = (
+    "slidegen_rag.services.chat_service",
+    "slidegen_rag.services.ingest_service",
+    "slidegen_rag.services.prefilter_service",
+    "slidegen_rag.services.tree_cache",
+    "slidegen_rag.services.jobs",
+    "slidegen_rag.services.document_loader",
+    "slidegen_rag.agent.graph.conversation",
+    "slidegen_rag.agent.graph.builder",
+    "slidegen_rag.tree.RetrievalAugmentation",
+)
+
+
+def _heavy(name: str):
+    return importlib.import_module(f"slidegen_rag.services.{name}")
+
+
+def get_job_registry():
+    from slidegen_rag.services.jobs import get_job_registry as _get
+
+    return _get()
+
+
+@st.cache_resource(show_spinner=False)
+def warm_up_heavy_imports() -> threading.Thread:
+    """Khởi động một lần/process: import ngầm các module nặng trên thread
+    daemon. Lượt vào trang chat đầu tiên không còn phải chờ import."""
+
+    def _run() -> None:
+        for name in _HEAVY_MODULES:
+            try:
+                importlib.import_module(name)
+            except Exception:  # noqa: BLE001 — warm-up chỉ là tối ưu, lỗi thật sẽ lộ khi dùng
+                logging.getLogger(__name__).exception("warm-up import %s lỗi", name)
+
+    thread = threading.Thread(target=_run, name="ui-warmup", daemon=True)
+    thread.start()
+    return thread
 
 # ── Runtime & repositories ──────────────────────────────────────────────────
 
@@ -179,7 +224,7 @@ def _merged_ra_cache() -> OrderedDict:
 
 
 def load_tree_cached(path: str):
-    return tree_cache.load_tree(_tree_cache(), path)
+    return _heavy("tree_cache").load_tree(_tree_cache(), path)
 
 
 def get_merged_ra(
@@ -189,7 +234,7 @@ def get_merged_ra(
     "chọn 1 tài liệu chỉ là gộp N=1" (xem plan6.md A2), nên page KHÔNG bao
     giờ tự tạo RetrievalAugmentation bằng cách khác."""
     return run_async(
-        tree_cache.get_merged_ra(
+        _heavy("tree_cache").get_merged_ra(
             document_repo, documents, tree_cache=_tree_cache(), ra_cache=_merged_ra_cache()
         )
     )
@@ -199,12 +244,12 @@ def get_merged_ra(
 
 
 def build_cited_refs(document_repo: DocumentRepository, merged_tree, citations: Sequence[dict]):
-    return run_async(chat_service.abuild_cited_refs(document_repo, merged_tree, citations))
+    return run_async(_heavy("chat_service").abuild_cited_refs(document_repo, merged_tree, citations))
 
 
 def get_source_excerpt(document_repo: DocumentRepository, merged_tree, node_id: int) -> str | None:
     return run_async(
-        chat_service.get_source_excerpt(
+        _heavy("chat_service").get_source_excerpt(
             document_repo, merged_tree, node_id, tree_cache=_tree_cache()
         )
     )
@@ -214,13 +259,13 @@ def get_source_excerpt(document_repo: DocumentRepository, merged_tree, node_id: 
 
 
 def source_md_path(project_id: UUID, document_id: UUID) -> Path:
-    return ingest_service.source_md_path(project_id, document_id)
+    return _heavy("ingest_service").source_md_path(project_id, document_id)
 
 
 def start_ingest_job(document_repo: DocumentRepository, *, project_id: UUID, document, markdown_text: str):
     """Trả về `IngestJob` để trang lưu `job_id` vào `session_state` và poll."""
     job = run_async(
-        ingest_service.start_ingest_job(
+        _heavy("ingest_service").start_ingest_job(
             document_repo,
             project_id=project_id,
             document=document,
@@ -234,7 +279,7 @@ def start_ingest_job(document_repo: DocumentRepository, *, project_id: UUID, doc
 
 def finalize_ingest_job(document_repo: DocumentRepository, job) -> bool:
     done = run_async(
-        ingest_service.finalize_ingest_job(document_repo, job, tree_cache=_tree_cache())
+        _heavy("ingest_service").finalize_ingest_job(document_repo, job, tree_cache=_tree_cache())
     )
     if done:
         invalidate_catalog()
@@ -261,7 +306,7 @@ def prefilter_documents_by_query(
     khi bật (xem plan6.md Verification #18)."""
     if len(documents) <= 3:
         return list(documents)
-    return prefilter_service.prefilter_documents_by_query(
+    return _heavy("prefilter_service").prefilter_documents_by_query(
         get_embedding_model_cached(), query, documents, top_k
     )
 
@@ -294,7 +339,7 @@ async def run_agent_turn(
     `chat_service.run_agent_turn` về thứ tự set_* bắt buộc). Gọi qua
     `runtime.submit(run_agent_turn(...))` (KHÔNG `.run()`) để trang rút step
     khỏi `on_step` trong lúc lượt còn chạy — xem `ui/pages/chat.py`."""
-    return await chat_service.run_agent_turn(
+    return await _heavy("chat_service").run_agent_turn(
         runtime.agent_lock,
         get_graph_cached(),
         ra,

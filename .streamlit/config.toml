@@ -11,5 +11,12 @@ baseRadius = "medium"
 toolbarMode = "minimal"
 showSidebarNavigation = false
 
+# Watcher của Streamlit duyệt mọi module `transformers` và import thử các
+# image_processing cần `torchvision` (không dùng ở đây) -> spam "No module
+# named 'torchvision'" lúc khởi động. Chỉ log nhiễu, không ảnh hưởng chạy;
+# hạ mức log để giữ hot-reload mà khỏi phải cài torchvision.
+[logger]
+level = "error"
+
 [browser]
 gatherUsageStats = false

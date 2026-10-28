@@ -379,7 +379,7 @@ async def interactive_loop(ask_fn, verbose: bool, conv=None):
 
 
 def main():
-    from slidegen_rag.config import DATA_INDEX_DIR
+    from slidegen_rag.config import DATA_INDEX_DIR, MODEL_CHOICES, apply_model_choice
 
     parser = argparse.ArgumentParser(
         description="Giao diện hỏi đáp tương tác với cây phân cấp tài liệu qua Agent."
@@ -442,7 +442,15 @@ def main():
         help="Tắt persist session memory (Postgres) cho lần chạy này.",
     )
 
+    parser.add_argument(
+        "--model",
+        choices=MODEL_CHOICES,
+        default="gemini",
+        help="LLM dùng cho Agent: gemini (mặc định) hoặc qwen (qwen/qwen3.7-flash qua OpenRouter).",
+    )
+
     args = parser.parse_args()
+    apply_model_choice(args.model)
 
     if args.list_sessions:
         asyncio.run(_print_sessions())

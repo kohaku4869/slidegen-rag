@@ -126,8 +126,32 @@ class LLMConfig:
     # Số lần retry khi gặp lỗi tạm thời
     MAX_RETRIES: int = 3
 
+    # Backend cho các node "gemini": mặc định Gemini; "openrouter" (bật bằng cờ
+    # `--model qwen` hoặc env LLM_BACKEND) chuyển sang OpenRouter, key lấy từ
+    # OPENROUTER_API_KEY. Đọc env lúc gọi (không phải lúc import) để cờ CLI
+    # đặt env xong mới có hiệu lực.
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    OPENROUTER_DEFAULT_MODEL: str = "qwen/qwen3.7-flash"
+
+    # Provider "local" (LLM_BASE_URL) có Gemini làm fallback nên cho timeout
+    # ngắn và không retry: server local treo thì chuyển Gemini sau vài chục giây
+    # thay vì 180s x 4 lần thử (đã đo: grade_documents mất 485s chỉ vì chờ local).
+    LOCAL_TIMEOUT: int = int(os.getenv("LLM_LOCAL_TIMEOUT", "30"))
+    LOCAL_MAX_RETRIES: int = 0
+
     # Temperature riêng cho bước retrieve (cần output tool_call ổn định hơn)
     RETRIEVE_TEMPERATURE: float = 0.0
+
+
+MODEL_CHOICES = ("gemini", "qwen")
+
+
+def apply_model_choice(choice: str | None) -> None:
+    """Áp cờ `--model` cho cả process: "qwen" -> các node LLM chạy qua
+    OpenRouter (`qwen/qwen3.7-flash`). Phải gọi TRƯỚC khi import các module agent
+    vì nhiều node khởi tạo `LLMModel` ở mức module."""
+    if choice == "qwen":
+        os.environ["LLM_BACKEND"] = "openrouter"
 
 
 # ── Agent Config (vòng lặp điều khiển của graph) ──────────────────────────

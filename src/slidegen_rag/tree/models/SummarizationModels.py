@@ -28,6 +28,28 @@ class BaseSummarizationModel(ABC):
         pass
 
 
+class _GeminiPrimaryClient:
+    """Bọc ChatGoogleGenerativeAI cho giao diện `invoke/ainvoke(messages,
+    max_completion_tokens=...)` của ChatOpenAI, dùng khi không cấu hình
+    LLM_BASE_URL/LLM_API_KEY (self-host tắt) để Gemini làm primary."""
+
+    def __init__(self, llm: ChatGoogleGenerativeAI):
+        self._llm = llm
+
+    @staticmethod
+    def _to_messages(messages: List[dict]):
+        return [
+            SystemMessage(content=m["content"]) if m["role"] == "system" else HumanMessage(content=m["content"])
+            for m in messages
+        ]
+
+    def invoke(self, messages: List[dict], max_completion_tokens: int = 1000):
+        return self._llm.invoke(self._to_messages(messages), max_output_tokens=max_completion_tokens)
+
+    async def ainvoke(self, messages: List[dict], max_completion_tokens: int = 1000):
+        return await self._llm.ainvoke(self._to_messages(messages), max_output_tokens=max_completion_tokens)
+
+
 # Backward-compatible alias
 ChatNVIDIASummarizationModel = None  # will be set after class definition
 
@@ -79,18 +101,34 @@ class ChatSummarizationModel(BaseSummarizationModel):
         self.request_delay = request_delay
         self.rate_limit_backoff = rate_limit_backoff
 
-        self.client = ChatOpenAI(
-            api_key=self.api_key,
-            base_url=self.base_url,
-            model=self.model,
-            temperature=self.temperature,
-            top_p=self.top_p,
-            max_completion_tokens=self.max_tokens,
-            timeout=self.timeout,
-            max_retries=0,  # we handle retries and fallbacks ourselves
-        )
-
         self._fallback_client: Optional[ChatGoogleGenerativeAI] = None
+
+        if self.api_key and (base_url or os.getenv("LLM_BASE_URL")):
+            self.client = ChatOpenAI(
+                api_key=self.api_key,
+                base_url=self.base_url,
+                model=self.model,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                max_completion_tokens=self.max_tokens,
+                timeout=self.timeout,
+                max_retries=0,  # we handle retries and fallbacks ourselves
+            )
+        else:
+            from slidegen_rag.config import LLMConfig
+
+            self.model = LLMConfig.MODEL
+            self.base_url = "gemini"
+            self.client = _GeminiPrimaryClient(
+                ChatGoogleGenerativeAI(
+                    model=self.model,
+                    google_api_key=self.gemini_api_key,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                    max_output_tokens=self.max_tokens,
+                    timeout=self.timeout,
+                )
+            )
 
         logging.info(
             f"[ChatSummarizationModel] Initialized: base_url={self.base_url}, "
