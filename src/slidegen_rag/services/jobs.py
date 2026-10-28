@@ -24,7 +24,10 @@ tiếp như `ingest.ingest_file()` làm.
 
 from __future__ import annotations
 
+import pickle
+import random
 import threading
+import time
 import traceback
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -117,6 +120,66 @@ def get_job_registry() -> JobRegistry:
         if _registry is None:
             _registry = JobRegistry()
         return _registry
+
+
+def run_prebuilt_ingest_job(
+    job: IngestJob,
+    *,
+    prebuilt_path: Path,
+    out_dir: Path,
+    doc_id: str,
+    source_path: str,
+    simulated_seconds: tuple[float, float] = (30.0, 40.0),
+) -> None:
+    """Đường tắt cho demo: thay vì build lại cây, nạp `.pkl` dựng sẵn rồi gán
+    lại `doc_id`/`source_path` của document hiện tại và lưu ra `out_dir` —
+    cùng hợp đồng đầu ra với `run_ingest_job` (`job.pkl_path`, `job.stats`)."""
+    from slidegen_rag.tree import legacy_pickle  # noqa: F401 — shim unpickle
+
+    with job._lock:
+        job.state = "running"
+
+    try:
+        # Demo: kéo dài thanh tiến độ cho giống một lần index thật.
+        total_steps = 100
+        step_delay = random.uniform(*simulated_seconds) / total_steps
+        for step in range(total_steps):
+            with job._lock:
+                if job.cancel_requested:
+                    raise IngestCancelled("Huỷ theo yêu cầu người dùng")
+                job.current_label = "Đang index tài liệu"
+                job.done_units = step
+                job.total_units = total_steps
+            time.sleep(step_delay)
+
+        with open(prebuilt_path, "rb") as f:
+            tree = pickle.load(f)
+
+        tree.doc_id = doc_id
+        tree.source_path = source_path
+        for node in tree.all_nodes.values():
+            node.doc_id = doc_id
+
+        pkl_path = out_dir / f"{doc_id}.pkl"
+        pkl_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(pkl_path, "wb") as f:
+            pickle.dump(tree, f)
+
+        with job._lock:
+            job.state = "done"
+            job.stats = getattr(tree, "build_stats", None)
+            job.pkl_path = str(pkl_path)
+            job.total_units = job.done_units = total_steps
+
+    except IngestCancelled as exc:
+        with job._lock:
+            job.state = "cancelled"
+            job.error = str(exc)
+
+    except Exception:
+        with job._lock:
+            job.state = "failed"
+            job.error = traceback.format_exc()
 
 
 def run_ingest_job(

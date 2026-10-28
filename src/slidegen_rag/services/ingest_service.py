@@ -14,7 +14,18 @@ from slidegen_rag.services.tree_cache import load_tree
 from slidegen_rag.config import ROOT_DIR, SummarizationConfig, TreeConfig
 from slidegen_rag.memory.catalog import DocumentRepository
 from slidegen_rag.memory.dto import DocumentRow
-from slidegen_rag.services.jobs import IngestJob, JobRegistry, run_ingest_job
+from slidegen_rag.services.jobs import (
+    IngestJob,
+    JobRegistry,
+    run_ingest_job,
+    run_prebuilt_ingest_job,
+)
+
+# Demo: upload tài liệu có doc_slug này thì dùng index dựng sẵn, bỏ qua bước
+# build (rất lâu). Xoá entry để quay lại ingest thật.
+DEMO_PREBUILT_INDEXES: dict[str, Path] = {
+    "pldc": ROOT_DIR / "data" / "index" / "pldc_v2.pkl",
+}
 
 
 def source_md_path(project_id: UUID, document_id: UUID) -> Path:
@@ -53,6 +64,18 @@ async def start_ingest_job(
     src_path = source_md_path(project_id, document.id)
     src_path.parent.mkdir(parents=True, exist_ok=True)
     src_path.write_text(markdown_text, encoding="utf-8")
+
+    prebuilt = DEMO_PREBUILT_INDEXES.get(document.doc_slug)
+    if prebuilt is not None and prebuilt.exists():
+        job_registry.submit(
+            job,
+            run_prebuilt_ingest_job,
+            prebuilt_path=prebuilt,
+            out_dir=index_out_dir(project_id),
+            doc_id=str(document.id),
+            source_path=str(src_path),
+        )
+        return job
 
     job_registry.submit(
         job,
